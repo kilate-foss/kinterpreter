@@ -8,6 +8,7 @@ termux_arg = false
 asan_arg = false
 clean_arg = false
 lib_so_arg = false
+nostd_arg = false
 
 YELLOW = "\e[33m"
 LGREEN = "\e[92m"
@@ -25,13 +26,14 @@ def print_help_and_close
   puts
   puts "Usage Make.rb <option>"
   puts "Options:"
-  puts "#{LGREEN}-i    or  --install #{LMAGENTA}| Compile and install."
-  puts "#{LGREEN}-r    or  --run     #{LMAGENTA}| Compile and run."
-  puts "#{LGREEN}-t    or  --termux  #{LMAGENTA}| [USE WITH -r] Compile and run it fixing termux restrictions."
-  puts "#{LGREEN}-h    or  --help    #{LMAGENTA}| Prints help."
-  puts "#{LGREEN}-as   or  --asan    #{LMAGENTA}| Enables Address Sanitizer."
-  puts "#{LGREEN}-c    or  --clean   #{LMAGENTA}| Cleanup build before build again."
-  puts "#{LGREEN}-lso  or  --libso   #{LMAGENTA}| Build shared libraries for Android ABIs."
+  puts "#{LGREEN}-i    or --install #{LMAGENTA}| Compile and install."
+  puts "#{LGREEN}-r    or --run     #{LMAGENTA}| Compile and run."
+  puts "#{LGREEN}-t    or --termux  #{LMAGENTA}| [USE WITH -r] Compile and run it fixing termux restrictions."
+  puts "#{LGREEN}-h    or --help    #{LMAGENTA}| Prints help."
+  puts "#{LGREEN}-as   or --asan    #{LMAGENTA}| Enables Address Sanitizer."
+  puts "#{LGREEN}-c    or --clean   #{LMAGENTA}| Cleanup build before build again."
+  puts "#{LGREEN}-lso  or --libso   #{LMAGENTA}| Build shared libraries for Android ABIs."
+  puts "#{LGREEN}-free or  -nostd   #{LMAGENTA}| Don't build the KStandardLibrary."
   puts
   puts "#{YELLOW}WARNING"
   puts "Don't use install and run command together.#{RESET}"
@@ -52,6 +54,8 @@ ARGV.each do |arg|
       clean_arg = true
     when "-lso", "--libso"
       lib_so_arg = true
+    when "-free", "--nostd"
+      nostd_arg = true
     when "-h", "--help"
       print_help_and_close
     else
@@ -71,8 +75,9 @@ FileUtils.mkdir_p("build")
 Kilate::Std::Native.build(
   "knative",
   "std/native/",
-  "std/native/include"
-)
+  "std/native/include",
+  "include"
+) unless nostd_arg
 
 if lib_so_arg
   abis = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
@@ -102,7 +107,7 @@ end
 if install_arg
   run("cmake --install build")
   # Install Std Native
-  Kilate::Std::Native.install("knative")
+  Kilate::Std::Native.install("knative") unless nostd_arg
 end
 
 if !install_arg && run_arg
