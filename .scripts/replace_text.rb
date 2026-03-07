@@ -1,13 +1,13 @@
 require "find"
 
-if ARGV.length < 3
+if ARGV.length < 1
   puts "Usage: ruby file.rb <base_dir> <old_text> <new_text>"
   exit 1
 end
 
 $directory = ARGV[0]
-old_text = ARGV[1]
-new_text = ARGV[2]
+old_text = ARGV[1] || ""
+new_text = ARGV[2] || ""
 $read_each_line = false
 $read_each_line_filename = ""
 use_line_break = false
