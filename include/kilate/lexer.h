@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 
+#include "kilate/bool.h"
 #include "kilate/string.h"
 #include "kilate/vector.h"
 
