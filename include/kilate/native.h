@@ -2,10 +2,7 @@
 #define __NATIVE_H__
 
 #include "kilate/environment.h"
-#include "kilate/lexer.h"
 #include "kilate/node.h"
-#include "kilate/parser.h"
-#include "kilate/vector.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +13,7 @@ typedef struct {
         node_fnparam_vector_t *params;
 } native_fndata_t;
 
-typedef node_t *(*native_fn_t)(native_fndata_t *);
+typedef return_node_t *(*native_fn_t)(native_fndata_t *);
 
 typedef struct {
         char *name;

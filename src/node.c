@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "kilate/string.h"
 #include "kilate/vector.h"
 
 void node_delete(node_t *n)
@@ -101,8 +100,7 @@ node_t *node_copy(node_t *n)
                                          &param_copy);
                 }
         } else if (n->type == NODE_RETURN) {
-                new->return_n.return_type = n->return_n.return_type;
-                new->return_n.return_value = n->return_n.return_value; // void*
+                new->return_n = n->return_n;
         } else if (n->type == NODE_VARDEC) {
                 new->vardec_n.var_name = NULL;
                 new->vardec_n.var_type = NULL;
@@ -141,8 +139,9 @@ void node_delete_params(node_fnparam_vector_t *params)
         vector_delete(params);
 }
 
-node_t *function_node_make(const char *name, const char *return_type,
-                           node_vector_t *body, node_fnparam_vector_t *params)
+function_node_t *function_node_make(const char *name, const char *return_type,
+                                    node_vector_t *body,
+                                    node_fnparam_vector_t *params)
 {
         node_t *n = malloc(sizeof(node_t));
         n->type = NODE_FUNCTION;
@@ -157,8 +156,8 @@ node_t *function_node_make(const char *name, const char *return_type,
         return n;
 }
 
-node_t *call_node_make(const char *functionName,
-                       node_fnparam_vector_t *functionParams)
+call_node_t *call_node_make(const char *functionName,
+                            node_fnparam_vector_t *functionParams)
 {
         node_t *n = malloc(sizeof(node_t));
         n->type = NODE_CALL;
@@ -167,17 +166,8 @@ node_t *call_node_make(const char *functionName,
         return n;
 }
 
-node_t *return_node_make(node_value_kind_t return_type, void *return_value)
-{
-        node_t *n = malloc(sizeof(node_t));
-        n->type = NODE_RETURN;
-        n->return_n.return_type = return_type;
-        n->return_n.return_value = return_value;
-        return n;
-}
-
-node_t *var_dec_node_make(const char *name, const char *type,
-                          node_value_kind_t valueType, void *value)
+vardec_node_t *var_dec_node_make(const char *name, const char *type,
+                                 node_value_kind_t valueType, void *value)
 {
         node_t *n = malloc(sizeof(node_t));
         n->type = NODE_VARDEC;
@@ -188,7 +178,7 @@ node_t *var_dec_node_make(const char *name, const char *type,
         return n;
 }
 
-node_t *import_node_make(const char *path)
+import_node_t *import_node_make(const char *path)
 {
         node_t *n = malloc(sizeof(node_t));
         n->type = NODE_IMPORT;

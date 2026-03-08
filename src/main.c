@@ -11,7 +11,7 @@
 #include "kilate/string.h"
 #include "kilate/vector.h"
 
-bool interpret(char *src)
+int interpret(char *src)
 {
         lexer_t *lexer = lexer_make(src);
         if (lexer == NULL)
@@ -30,16 +30,19 @@ bool interpret(char *src)
             interpreter_make(parser->nodes, native_functions);
         if (interpreter == NULL)
                 error_fatal("Interpreter is null.");
-        interpreter_run(interpreter);
-
+        interpreter_result_t result = interpreter_run(interpreter);
         parser_delete(parser);
         interpreter_delete(interpreter);
         lexer_delete(lexer);
         native_end();
-        return true;
+
+        if (result.value.type == NODE_VALUE_TYPE_INT) {
+                return result.value.i;
+        }
+        return -1;
 }
 
-bool run(int argc, char *argv[])
+int run(int argc, char *argv[])
 {
         if (argc < 2) {
                 printf("Invalid usage. Use '%s help' for more info.\n",
@@ -53,18 +56,18 @@ bool run(int argc, char *argv[])
                 printf("Options:\n");
                 printf("  -L<path>    Kilate Libraries path\n");
                 printf("  -LN<path>   Kilate Native Libraries path\n");
-                return true;
+                return 0;
         }
 
         if (!str_equals(argv[1], "run")) {
                 printf("Unknown command: %s\n", argv[1]);
-                return false;
+                return -1;
         }
 
         if (argc < 3) {
                 printf("Usage: %s run <file(s)> [-I<path>] [-l<lib>]\n",
                        argv[0]);
-                return false;
+                return -1;
         }
 
         // Config
@@ -97,7 +100,7 @@ bool run(int argc, char *argv[])
                                 vector_push_back(libs_directories, &dup);
                         } else {
                                 printf("Unknown option: %s\n", arg);
-                                return false;
+                                return -1;
                         }
                 } else {
                         char *dup = strdup(arg);
@@ -107,7 +110,7 @@ bool run(int argc, char *argv[])
 
         if (files->size == 0) {
                 error_fatal("No input provided.");
-                return false;
+                return -1;
         }
 
         for (size_t i = 0; i < files->size; ++i) {
@@ -119,7 +122,7 @@ bool run(int argc, char *argv[])
                 char *src = file_read_text(&file);
                 if (!src) {
                         error_fatal("Failed to read %s", filename);
-                        return false;
+                        return -1;
                 }
 
                 if (files->size > 1)
@@ -130,16 +133,16 @@ bool run(int argc, char *argv[])
                 file_close(&file);
 
                 if (!interRes)
-                        return false;
+                        return -1;
         }
 
-        return true;
+        return 0;
 }
 
 int main(int argc, char *argv[])
 {
         config_init();
-        bool runRes = run(argc, argv);
+        int run_res = run(argc, argv);
         config_end();
-        return runRes ? 0 : 1;
+        return run_res;
 }

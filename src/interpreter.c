@@ -5,7 +5,6 @@
 
 #include "kilate/environment.h"
 #include "kilate/error.h"
-#include "kilate/file.h"
 #include "kilate/hashmap.h"
 #include "kilate/node.h"
 #include "kilate/parser.h"
@@ -67,15 +66,19 @@ interpreter_result_t interpreter_run(interpreter_t *self)
         if (self == NULL)
                 error_fatal("Interpreter is invalid.");
 
-        node_t **mainPtr = (node_t **)hash_map_get(self->functions, MAIN_FUNCTION_NAME);
+        node_t **mainPtr =
+            (node_t **)hash_map_get(self->functions, MAIN_FUNCTION_NAME);
         if (mainPtr == NULL) {
-                error_fatal("Your program needs a " MAIN_FUNCTION_NAME " function!");
+                error_fatal("Your program needs a " MAIN_FUNCTION_NAME
+                            " function!");
         }
         node_t *main = *mainPtr;
 
         if (main->function_n.fn_return_type == NULL ||
-            !str_equals(main->function_n.fn_return_type, MAIN_FUNCTION_RETURN)) {
-                error_fatal(MAIN_FUNCTION_NAME " function should return bool.");
+            !str_equals(main->function_n.fn_return_type,
+                        MAIN_FUNCTION_RETURN)) {
+                error_fatal(MAIN_FUNCTION_NAME
+                            " function should return bool.");
         }
 
         return interpreter_run_fn(self, main, NULL);
@@ -158,7 +161,7 @@ interpreter_result_t interpreter_run_fn(interpreter_t *self, node_t *func,
         env_destroy(to_destroy);
 
         // default value
-        return (interpreter_result_t){ .type = IRT_FUNC, .data = NULL };
+        return (interpreter_result_t){ .type = IRT_FUNC, .value.type = -1 };
 }
 
 interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
@@ -191,10 +194,11 @@ interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
 
                         native_fnentry_t *nativeFnEntry = *nativeFnEntryPtr;
                         native_fn_t nativeFn = *nativeFnEntry->fn;
-                        node_t *nativeFnResult = nativeFn(nativeFnData);
-                        interpreter_result_t result =
-                            (interpreter_result_t){ .data = nativeFnResult,
-                                                    .type = IRT_FUNC };
+                        return_node_t *nativeFnResult = nativeFn(nativeFnData);
+                        interpreter_result_t result = (interpreter_result_t){
+                                .type = IRT_FUNC,
+                                .value = nativeFnResult->return_n
+                        };
                         return result;
                 } else {
                         // else not found
@@ -204,23 +208,18 @@ interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
         }
 
         case NODE_RETURN: {
-                void *value = NULL;
-                if (n->return_n.return_value != NULL) {
-                        value = n->return_n.return_value; // or evaluate this
-                                                          // node if needed
-                }
                 return (interpreter_result_t){ .type = IRT_RETURN,
-                                               .data = value };
+                                               .value = n->return_n };
         }
 
         case NODE_VARDEC: {
                 env_definevar(self->env, n->vardec_n.var_name, node_copy(n));
                 return (interpreter_result_t){ .type = IRT_FUNC,
-                                               .data = NULL };
+                                               .value.type = -1 };
         }
 
         default:
                 error_fatal("Unknown node type %d", n->type);
         }
-        return (interpreter_result_t){ .type = IRT_FUNC, .data = NULL };
+        return (interpreter_result_t){ .type = IRT_FUNC, .value.type = -1 };
 }

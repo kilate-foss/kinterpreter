@@ -168,33 +168,31 @@ node_t *parser_parse_statement(parser_t *p)
                     arrow->type == TOKEN_LARROW) {
                         parser_consume(p, arrow->type);
                 }
+
                 token_t *next = *(token_t **)vector_get(p->tokens, p->__pos__);
-                void *value;
-                node_value_kind_t type;
+
+                node_t *rn = malloc(sizeof(node_t));
+                rn->type = NODE_RETURN;
 
                 if (next->type == TOKEN_BOOL) {
-                        bool rawBool = str_equals(
+                        rn->return_n.b = str_equals(
                             parser_consume(p, TOKEN_BOOL)->text, "true");
-                        value = (void *)(intptr_t)rawBool;
-                        type = NODE_VALUE_TYPE_BOOL;
+                        rn->return_n.type = NODE_VALUE_TYPE_BOOL;
                 } else if (next->type == TOKEN_INT) {
-                        value = (void *)(intptr_t)str_to_int(
-                            parser_consume(p, TOKEN_INT)->text);
-                        type = NODE_VALUE_TYPE_INT;
+                        rn->return_n.i =
+                            str_to_int(parser_consume(p, TOKEN_INT)->text);
+                        rn->return_n.type = NODE_VALUE_TYPE_INT;
                 } else if (next->type == TOKEN_FLOAT) {
-                        float fval =
+                        rn->return_n.f =
                             str_to_float(parser_consume(p, TOKEN_FLOAT)->text);
-                        value = malloc(sizeof(float));
-                        memcpy(value, &fval, sizeof(float));
-                        type = NODE_VALUE_TYPE_FLOAT;
+                        rn->return_n.type = NODE_VALUE_TYPE_FLOAT;
                 } else if (next->type == TOKEN_LONG) {
-                        long lval =
+                        rn->return_n.l =
                             str_to_long(parser_consume(p, TOKEN_LONG)->text);
-                        value = (void *)(intptr_t)lval;
-                        type = NODE_VALUE_TYPE_LONG;
+                        rn->return_n.type = NODE_VALUE_TYPE_LONG;
                 } else if (next->type == TOKEN_STRING) {
-                        value = parser_consume(p, TOKEN_STRING)->text;
-                        type = NODE_VALUE_TYPE_STRING;
+                        rn->return_n.s = parser_consume(p, TOKEN_STRING)->text;
+                        rn->return_n.type = NODE_VALUE_TYPE_STRING;
                 } else if (next->type == TOKEN_IDENTIFIER) {
                         token_t *id_token = next;
                         token_t *after =
@@ -204,12 +202,12 @@ node_t *parser_parse_statement(parser_t *p)
                             after->type == TOKEN_LPAREN) {
                                 node_t *call =
                                     parser_parse_call_node(p, id_token);
-                                value = call;
-                                type = NODE_VALUE_TYPE_CALL;
+                                rn->return_n.n = call;
+                                rn->return_n.type = NODE_VALUE_TYPE_CALL;
                         } else {
-                                value =
+                                rn->return_n.s =
                                     parser_consume(p, TOKEN_IDENTIFIER)->text;
-                                type = NODE_VALUE_TYPE_VAR;
+                                rn->return_n.type = NODE_VALUE_TYPE_VAR;
                         }
                 } else {
                         parser_error(
@@ -217,7 +215,7 @@ node_t *parser_parse_statement(parser_t *p)
                             "Unsupported value in typed return statement.");
                         return NULL;
                 }
-                return return_node_make(type, value);
+                return rn;
 
         } else if (tk->type == TOKEN_KEYWORD &&
                    str_equals(tk->text, "import")) {
@@ -557,9 +555,9 @@ node_t *parser_parse_function(parser_t *p)
                         } else if (str_equals(return_type, "any")) {
                                 retType = NODE_VALUE_TYPE_ANY;
                         } else {
-                                retType = lastnode->return_n.return_type;
+                                retType = lastnode->return_n.type;
                         }
-                        if (retType != lastnode->return_n.return_type) {
+                        if (retType != lastnode->return_n.type) {
                                 parser_error(
                                     (*(token_t **)vector_get(p->tokens,
                                                              p->__pos__)),

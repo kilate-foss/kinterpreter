@@ -5,7 +5,6 @@
 #include "kilate/hashmap.h"
 #include "kilate/node.h"
 #include "kilate/string.h"
-#include "kilate/vector.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +23,7 @@ typedef enum {
 
 typedef struct {
         interpreter_result_kind_t type;
-        void *data;
+        value_t value;
 } interpreter_result_t;
 
 interpreter_t *interpreter_make(node_vector_t *, node_vector_t *);

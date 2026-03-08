@@ -2,12 +2,21 @@
 #define __NATIVE_UTIL_H__
 
 #include <stddef.h>
+#include <stdlib.h>
 
 #include "kilate/native.h"
+#include "kilate/node.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+static inline node_t *alloc_node(node_kind_t kind)
+{
+        node_t *node = malloc(sizeof(*node));
+        node->type = kind;
+        return node;
+}
 
 /** These methods also checks the 'var' type. */
 /** Returns a string value from a param in native_fndata */

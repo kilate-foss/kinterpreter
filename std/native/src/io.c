@@ -3,11 +3,13 @@
 #include <kilate/native.h>
 #include <kilate/node.h>
 #include <kilate/util/native.h>
+#include <stdlib.h>
 
 #include "sys.h"
 
-node_t *std_print(native_fndata_t *data)
+return_node_t *std_print(native_fndata_t *data)
 {
+        int printf_ret = 0;
         for (size_t i = 0; i < data->params->size; ++i) {
                 node_fnparam_t *param =
                     *(node_fnparam_t **)vector_get(data->params, i);
@@ -16,23 +18,26 @@ node_t *std_print(native_fndata_t *data)
                         void *value = var->vardec_n.var_value;
                         switch (var->vardec_n.var_value_type) {
                         case NODE_VALUE_TYPE_INT: {
-                                printf("%d", (int)(intptr_t)value);
+                                printf_ret =
+                                    printf("%d", (int)(intptr_t)value);
                                 break;
                         }
                         case NODE_VALUE_TYPE_FLOAT: {
-                                printf("%f", *(float *)value);
+                                printf_ret = printf("%f", *(float *)value);
                                 break;
                         }
                         case NODE_VALUE_TYPE_LONG: {
-                                printf("%ld", (long)(intptr_t)value);
+                                printf_ret =
+                                    printf("%ld", (long)(intptr_t)value);
                                 break;
                         }
                         case NODE_VALUE_TYPE_STRING:
-                                printf("%s", (char *)value);
+                                printf_ret = printf("%s", (char *)value);
                                 break;
                         case NODE_VALUE_TYPE_BOOL:
-                                printf("%s", (bool)(intptr_t)value ? "true" :
-                                                                     "false");
+                                printf_ret = printf(
+                                    "%s",
+                                    (bool)(intptr_t)value ? "true" : "false");
                                 break;
                         case NODE_VALUE_TYPE_FUNC:
                                 // Does nothing for now
@@ -46,18 +51,27 @@ node_t *std_print(native_fndata_t *data)
                         }
                         continue;
                 }
-                printf("%s", param->value);
+                printf_ret = printf("%s", param->value);
         }
         free(data);
-        return NULL;
+
+        node_t *node = alloc_node(NODE_RETURN);
+        node->return_n.type = NODE_VALUE_TYPE_INT;
+        node->return_n.i = printf_ret;
+        return node;
 }
 
 node_t *std_system(native_fndata_t *data)
 {
+        node_t *node = alloc_node(NODE_RETURN);
+        node->return_n.type = NODE_VALUE_TYPE_INT;
         char *cmd = native_fndata_getstr(data, 0);
-        if (cmd != NULL)
-                system(cmd);
-        return NULL;
+        if (cmd == NULL) {
+                node->return_n.i = -1;
+                return node;
+        }
+        node->return_n.i = system(cmd);
+        return node;
 }
 
 node_t *std_sleep(native_fndata_t *data)
