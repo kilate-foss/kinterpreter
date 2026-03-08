@@ -2,6 +2,6 @@
 
 import "kilate/stream.klt"
 
-work print(const string: text) {
-  stdout.write -> text
+work print(const text: String) {
+        stdout.Write -> text
 }

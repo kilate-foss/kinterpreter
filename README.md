@@ -3,15 +3,10 @@
 
 ## Syntax
 ```
-work main(): bool {
-  // We have 3 ways to declare variables
-  // they are all the same, the only difference is the syntax.
-  let helloMessage = "Hello, world!"
-  var helloMessage = "Hello, world!"
-  string helloMessage = "Hello, world!"
-
-  print -> helloMessage
-  return -> false
+work Main(): Bool {
+        String hello_message = "Hello, world"
+        Print -> hello_message
+        return -> false
 }
 ```
 

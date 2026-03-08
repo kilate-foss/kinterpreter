@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "kilate/bool.h"
-#include "kilate/error.h"
 #include "kilate/string.h"
 
 lexer_t *lexer_make(char *input)
@@ -82,10 +81,6 @@ char *tokentype_tostr(token_kind_t type)
                 return "comma";
         case TOKEN_ASSIGN:
                 return "assign";
-        case TOKEN_LET:
-                return "let";
-        case TOKEN_VAR:
-                return "var";
         case TOKEN_EOF:
                 return "end_of_file";
         default:
@@ -368,22 +363,14 @@ void lexer_tokenize(lexer_t *lexer)
                                     token_make(TOKEN_BOOL, word, tkl, tkc);
                                 vector_push_back(lexer->tokens, &token);
 
-                        } else if (str_equals(word, "bool") ||
-                                   str_equals(word, "int") ||
-                                   str_equals(word, "float") ||
-                                   str_equals(word, "long") ||
-                                   str_equals(word, "string") ||
-                                   str_equals(word, "any")) {
+                        } else if (str_equals(word, "Bool") ||
+                                   str_equals(word, "Int") ||
+                                   str_equals(word, "Float") ||
+                                   str_equals(word, "Long") ||
+                                   str_equals(word, "String") ||
+                                   str_equals(word, "Any")) {
                                 token_t *token =
                                     token_make(TOKEN_TYPE, word, tkl, tkc);
-                                vector_push_back(lexer->tokens, &token);
-                        } else if (str_equals(word, "var")) {
-                                token_t *token =
-                                    token_make(TOKEN_VAR, word, tkl, tkc);
-                                vector_push_back(lexer->tokens, &token);
-                        } else if (str_equals(word, "let")) {
-                                token_t *token =
-                                    token_make(TOKEN_LET, word, tkl, tkc);
                                 vector_push_back(lexer->tokens, &token);
                         } else {
                                 token_t *token = token_make(TOKEN_IDENTIFIER,

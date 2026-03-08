@@ -60,20 +60,22 @@ void interpreter_delete(interpreter_t *self)
         free(self);
 }
 
+#define MAIN_FUNCTION_NAME "Main"
+#define MAIN_FUNCTION_RETURN "Bool"
 interpreter_result_t interpreter_run(interpreter_t *self)
 {
         if (self == NULL)
                 error_fatal("Interpreter is invalid.");
 
-        node_t **mainPtr = (node_t **)hash_map_get(self->functions, "main");
+        node_t **mainPtr = (node_t **)hash_map_get(self->functions, MAIN_FUNCTION_NAME);
         if (mainPtr == NULL) {
-                error_fatal("Your program needs a main function!");
+                error_fatal("Your program needs a " MAIN_FUNCTION_NAME " function!");
         }
         node_t *main = *mainPtr;
 
         if (main->function_n.fn_return_type == NULL ||
-            !str_equals(main->function_n.fn_return_type, "bool")) {
-                error_fatal("Main function should return bool.");
+            !str_equals(main->function_n.fn_return_type, MAIN_FUNCTION_RETURN)) {
+                error_fatal(MAIN_FUNCTION_NAME " function should return bool.");
         }
 
         return interpreter_run_fn(self, main, NULL);

@@ -1,20 +1,21 @@
 // EXAMPLE!!! FILE OF REAL STANDARD LIBRARY STREAM.
 
-abstract struct Stream {
-  work write(any: data)
-  work read(): <?>
+abstract struct Stream<T: Any> {
+        work Write(data: T)
+        work Read(): T
 }
 
-struct StdOutStream: Stream {
-  override work write(any: data) {
-    write_native -> data
-  }
-  override work read(): <?> {
-     return -> read_native
-  }
-  // Native functions
-  native work writeNative(any: data)
-  native work readNative(): <?>
+struct StdOutStream: Stream<String> {
+        override work Write(data: String) {
+                WriteNative -> data
+        }
+        override work Read(): String {
+                 return -> ReadNative
+        }
+
+        // Native functions
+        native work NativeWrite(data: String)
+        native work NativeRead(): String
 }
 
 const StdOutStream stdout = StdOutStream()

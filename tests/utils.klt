@@ -1,8 +1,8 @@
-work println(any: v) {
-  print -> v
-  print -> "\n"
+work PrintLn(Any: v) {
+        Print -> v
+        Print -> "\n"
 }
 
-work print_name(string: name) {
-  print -> "Your name is: ", name, "\n"
+work PrintName(String: name) {
+        Print -> "Your name is: ", name, "\n"
 }

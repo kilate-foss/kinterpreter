@@ -7,7 +7,6 @@
 #include <string.h>
 
 #include "kilate/file.h"
-#include "kilate/hashmap.h"
 #include "kilate/lexer.h"
 #include "kilate/native.h"
 #include "kilate/node.h"
@@ -65,17 +64,17 @@ char *parser_tokentype_to_str(token_kind_t type)
 {
         switch (type) {
         case TOKEN_STRING:
-                return "string";
+                return "String";
         case TOKEN_BOOL:
-                return "bool";
+                return "Nool";
         case TOKEN_INT:
-                return "int";
+                return "Int";
         case TOKEN_FLOAT:
-                return "float";
+                return "Float";
         case TOKEN_LONG:
-                return "long";
+                return "Long";
         default:
-                return "unknow";
+                return "unknown";
         }
 }
 
@@ -83,21 +82,21 @@ char *parser_nodevaluetype_to_str(node_value_kind_t type)
 {
         switch (type) {
         case NODE_VALUE_TYPE_INT:
-                return "int";
+                return "Int";
         case NODE_VALUE_TYPE_FLOAT:
-                return "float";
+                return "Float";
         case NODE_VALUE_TYPE_LONG:
-                return "long";
+                return "Long";
         case NODE_VALUE_TYPE_STRING:
-                return "string";
+                return "String";
         case NODE_VALUE_TYPE_BOOL:
-                return "bool";
+                return "Bool";
         case NODE_VALUE_TYPE_FUNC:
-                return "function";
+                return "Function";
         case NODE_VALUE_TYPE_VAR:
-                return "var";
+                return "Var";
         default:
-                return "any";
+                return "Any";
         }
 }
 
@@ -138,15 +137,15 @@ node_value_kind_t parser_str_to_nodevaluetype(char *value)
 #define ct(str) str_equals(value, str)
 #endif
 
-        if (ct("string")) {
+        if (ct("String")) {
                 return NODE_VALUE_TYPE_STRING;
-        } else if (ct("bool")) {
+        } else if (ct("Bool")) {
                 return NODE_VALUE_TYPE_BOOL;
-        } else if (ct("int")) {
+        } else if (ct("Int")) {
                 return NODE_VALUE_TYPE_INT;
-        } else if (ct("float")) {
+        } else if (ct("Float")) {
                 return NODE_VALUE_TYPE_FLOAT;
-        } else if (ct("long")) {
+        } else if (ct("Long")) {
                 return NODE_VALUE_TYPE_LONG;
         } else {
                 return NODE_VALUE_TYPE_ANY;
@@ -226,65 +225,6 @@ node_t *parser_parse_statement(parser_t *p)
 
         } else if (tk->type == TOKEN_KEYWORD && str_equals(tk->text, "work")) {
                 return parser_parse_function(p);
-
-        } else if (tk->type == TOKEN_VAR || tk->type == TOKEN_LET) {
-                p->__pos__++;
-                char *var_name = parser_consume(p, TOKEN_IDENTIFIER)->text;
-                parser_consume(p, TOKEN_ASSIGN);
-                token_t *var_valueTk =
-                    *(token_t **)vector_get(p->tokens, p->__pos__);
-
-                node_value_kind_t var_value_type;
-                char *varInferredType;
-                void *var_value;
-
-                if (var_valueTk->type == TOKEN_STRING) {
-                        var_value = parser_consume(p, TOKEN_STRING)->text;
-                        var_value_type = NODE_VALUE_TYPE_STRING;
-                } else if (var_valueTk->type == TOKEN_INT) {
-                        int temp =
-                            str_to_int(parser_consume(p, TOKEN_INT)->text);
-                        var_value = (void *)(intptr_t)temp;
-                        var_value_type = NODE_VALUE_TYPE_INT;
-                } else if (var_valueTk->type == TOKEN_FLOAT) {
-                        float fval =
-                            str_to_float(parser_consume(p, TOKEN_FLOAT)->text);
-                        var_value = malloc(sizeof(float));
-                        memcpy(var_value, &fval, sizeof(float));
-                        var_value_type = NODE_VALUE_TYPE_FLOAT;
-                } else if (var_valueTk->type == TOKEN_LONG) {
-                        long lval =
-                            str_to_long(parser_consume(p, TOKEN_LONG)->text);
-                        var_value = (void *)(intptr_t)lval;
-                        var_value_type = NODE_VALUE_TYPE_LONG;
-                } else if (var_valueTk->type == TOKEN_BOOL) {
-                        bool rawBool = str_equals(
-                            parser_consume(p, TOKEN_BOOL)->text, "true");
-                        var_value = (void *)(intptr_t)rawBool;
-                        var_value_type = NODE_VALUE_TYPE_BOOL;
-                } else if (var_valueTk->type == TOKEN_IDENTIFIER) {
-                        token_t *id_token = var_valueTk;
-                        token_t *next =
-                            *(token_t **)vector_get(p->tokens, p->__pos__ + 1);
-                        if (next->type == TOKEN_RARROW ||
-                            next->type == TOKEN_LARROW ||
-                            next->type == TOKEN_LPAREN) {
-                                node_t *call_node =
-                                    parser_parse_call_node(p, id_token);
-                                var_value = call_node;
-                                var_value_type = NODE_VALUE_TYPE_CALL;
-                        } else {
-                                var_value =
-                                    parser_consume(p, TOKEN_IDENTIFIER)->text;
-                                var_value_type = NODE_VALUE_TYPE_VAR;
-                        }
-                } else {
-                        var_value = parser_consume(p, var_valueTk->type)->text;
-                        var_value_type = NODE_VALUE_TYPE_ANY;
-                }
-                varInferredType = parser_nodevaluetype_to_str(var_value_type);
-                return var_dec_node_make(var_name, varInferredType,
-                                         var_value_type, var_value);
 
         } else if (tk->type == TOKEN_TYPE) {
                 char *var_type = parser_consume(p, TOKEN_TYPE)->text;

@@ -1,7 +1,13 @@
 import "utils.klt"
 
-work main(): bool {
-  println -> "ayo"
-  print_name -> "Aquiles"
-  return -> true
+work Main(): Bool {
+        String name = "Aquiles"
+        Int age = 14
+        Long agem = 14l
+
+        PrintName -> name
+        PrintLn -> age
+        PrintLn -> agem
+
+        return -> true
 }
