@@ -19,7 +19,7 @@ bool str_starts_with(const char *, const char *, size_t);
 
 size_t str_index_of(const char *, char, size_t);
 
-char * str_substring(const char *, size_t, size_t);
+char *str_substring(const char *, size_t, size_t);
 
 bool str_equals(const char *, const char *);
 
@@ -31,7 +31,7 @@ float str_to_float(const char *);
 
 long str_to_long(const char *);
 
-char * str_format(const char *, ...);
+char *str_format(const char *, ...);
 
 #ifdef __cplusplus
 }
