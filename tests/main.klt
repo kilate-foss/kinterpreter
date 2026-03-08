@@ -1,6 +1,6 @@
 import "utils.klt"
 
-work Main(): Bool {
+work Main(): Int {
         String name = "Aquiles"
         Int age = 14
         Long agem = 14l
@@ -9,5 +9,5 @@ work Main(): Bool {
         PrintLn -> age
         PrintLn -> agem
 
-        return -> true
+        return -> 0
 }

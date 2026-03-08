@@ -61,7 +61,7 @@ void interpreter_delete(interpreter_t *self)
 }
 
 #define MAIN_FUNCTION_NAME "Main"
-#define MAIN_FUNCTION_RETURN "Bool"
+#define MAIN_FUNCTION_RETURN "Int"
 interpreter_result_t interpreter_run(interpreter_t *self)
 {
         if (self == NULL)

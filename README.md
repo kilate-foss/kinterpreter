@@ -3,10 +3,10 @@
 
 ## Syntax
 ```
-work Main(): Bool {
+work Main(): Int {
         String hello_message = "Hello, world"
         Print -> hello_message
-        return -> false
+        return -> 0
 }
 ```
 
