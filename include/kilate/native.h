@@ -12,21 +12,21 @@ extern "C" {
 #endif
 
 typedef struct {
-  environment* env;
-  node_fnparam_vector* params;
-} native_fndata;
+  env_t* env;
+  node_fnparam_vector_t* params;
+} native_fndata_t;
 
-typedef node* (*native_fn)(native_fndata*);
+typedef node_t* (*native_fn_t)(native_fndata_t*);
 
 typedef struct {
-  str name;
-  str_vector* requiredParams;
-  native_fn fn;
-} native_fnentry;
+  char *name;
+  str_vector_t* requiredParams;
+  native_fn_t fn;
+} native_fnentry_t;
 
 #define KILATE_NATIVE_REGISTER() void KILATE_NATIVE_REGISTER()
 
-extern node_vector* native_functions;
+extern node_vector_t* native_functions;
 
 void native_init();
 
@@ -34,11 +34,11 @@ void native_load_extern();
 
 void native_end();
 
-void native_register_fnentry(native_fnentry*);
+void native_register_fnentry(native_fnentry_t*);
 
-void native_register_fn(str, str_vector*, native_fn);
+void native_register_fn(const char *, str_vector_t*, native_fn_t);
 
-native_fnentry* native_find_function(str);
+native_fnentry_t* native_find_function(const char *);
 
 void native_register_all_functions();
 

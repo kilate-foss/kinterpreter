@@ -4,9 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "kilate/string.h"
 
-void error_fatal(str fmt, ...) {
+void error_fatal(char * fmt, ...) {
   va_list args;
   va_start(args, fmt);
   fprintf(stderr, "[ERROR] ");

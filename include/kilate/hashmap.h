@@ -3,37 +3,36 @@
 
 #include <stdio.h>
 
-#include "kilate/string.h"
 #include "kilate/vector.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef vector hashmap_vector;
-typedef vector hashitem_vector;
+typedef vector_t hashmap_vector_t;
+typedef vector_t hashentry_vector_t;
 
-typedef struct {
-  hashitem_vector* itens;
+typedef struct hashmap_t {
+  hashentry_vector_t* itens;
   size_t itemSize;
   size_t capacity;
-} hashmap;
+} hashmap_t;
 
-typedef struct {
-  str key;
+typedef struct hashentry_t {
+  char* key;
   void* value;
   void* next;
-} hashitem;
+} hashentry_t;
 
-hashmap* hash_map_make(size_t);
+hashmap_t* hash_map_make(size_t);
 
-void hash_map_delete(hashmap*);
+void hash_map_delete(hashmap_t*);
 
-unsigned int hash_map_hash(hashmap*, str);
+unsigned int hash_map_hash(hashmap_t*, char *);
 
-void* hash_map_get(hashmap*, str);
+void* hash_map_get(hashmap_t*, char *);
 
-void hash_map_put(hashmap*, str, void*);
+void hash_map_put(hashmap_t*, char *, void*);
 
 #ifdef __cplusplus
 }

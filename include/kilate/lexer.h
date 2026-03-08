@@ -31,42 +31,40 @@ typedef enum {
   TOKEN_VAR,         // var
   TOKEN_LET,         // let
   TOKEN_EOF          // end of file.
-} token_type;
+} token_kind_t;
 
 typedef struct {
-  token_type type;
-  str text;
-
   size_t column;
   size_t line;
-} token;
+  token_kind_t type;
+  char* text;
+} token_t;
 
-typedef vector token_vector;
+typedef vector_t token_vector_t;
 
-token* token_make(token_type, str, size_t, size_t);
+token_t* token_make(token_kind_t, char *, size_t, size_t);
 
-str tokentype_tostr(token_type);
+char * tokentype_tostr(token_kind_t);
 
 typedef struct {
-  str __input__;
-  token_vector* tokens;
-
   size_t __pos__;
   size_t __column__;
   size_t __line__;
-} lexer;
+  token_vector_t* tokens;
+  char* __input__;
+} lexer_t;
 
-lexer* lexer_make(str);
+lexer_t * lexer_make(char *);
 
-void lexer_delete(lexer*);
+void lexer_delete(lexer_t *);
 
-void lexer_advance(lexer*);
+void lexer_advance(lexer_t *);
 
-str lexer_read_string(lexer*, bool*);
+char * lexer_read_string(lexer_t *, bool*);
 
-void lexer_tokenize(lexer*);
+void lexer_tokenize(lexer_t *);
 
-void lexer_error(lexer*, str, ...);
+void lexer_error(lexer_t *, char *, ...);
 
 #ifdef __cplusplus
 }

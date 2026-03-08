@@ -7,8 +7,8 @@
 #include "kilate/error.h"
 #include "kilate/string.h"
 
-environment* environment_make(environment* parent) {
-  environment* env = malloc(sizeof(environment));
+env_t* env_make(env_t* parent) {
+  env_t* env = malloc(sizeof(env_t));
   if (env == NULL)
     error_fatal("Failed to allocate environment");
 
@@ -17,16 +17,16 @@ environment* environment_make(environment* parent) {
   return env;
 }
 
-void environment_destroy(environment* env) {
+void env_destroy(env_t* env) {
   if (env == NULL)
     return;
 
-  env_entry* current = env->variables;
+  env_entry_t* current = env->variables;
   while (current) {
-    env_entry* next = current->next;
+    env_entry_t* next = current->next;
     free(current->name);
     if (current->value) {
-      node_delete((node*)current->value);
+      node_delete((node_t*)current->value);
     }
     free(current);
     current = next;
@@ -35,13 +35,13 @@ void environment_destroy(environment* env) {
   free(env);
 }
 
-bool environment_definevar(environment* env,
-                                   const str name,
+bool env_definevar(env_t* env,
+                                   const char * name,
                                    void* value) {
   if (env == NULL || name == NULL)
     error_fatal("Environment or name is null.");
 
-  env_entry* current = env->variables;
+  env_entry_t* current = env->variables;
   while (current) {
     if (str_equals(current->name, name)) {
       return false;
@@ -49,7 +49,7 @@ bool environment_definevar(environment* env,
     current = current->next;
   }
 
-  env_entry* new_entry = malloc(sizeof(env_entry));
+  env_entry_t* new_entry = malloc(sizeof(env_entry_t));
   if (!new_entry)
     return false;
 
@@ -61,13 +61,13 @@ bool environment_definevar(environment* env,
   return true;
 }
 
-node* environment_getvar(environment* env, const str name) {
+node_t* env_getvar(env_t* env, const char* name) {
   if (env == NULL || name == NULL)
     error_fatal("Environment or name is null.");
 
-  environment* current_env = env;
+  env_t* current_env = env;
   while (current_env) {
-    env_entry* current = current_env->variables;
+    env_entry_t* current = current_env->variables;
     while (current) {
       if (strcmp(current->name, name) == 0) {
         return current->value;
@@ -80,15 +80,15 @@ node* environment_getvar(environment* env, const str name) {
   return NULL;
 }
 
-bool environment_setvar(environment* env,
-                                const str name,
+bool env_setvar(env_t* env,
+                                const char* name,
                                 void* value) {
   if (env == NULL || name == NULL)
     error_fatal("Environment or name is null.");
 
-  environment* current_env = env;
+  env_t* current_env = env;
   while (current_env) {
-    env_entry* current = current_env->variables;
+    env_entry_t* current = current_env->variables;
     while (current) {
       if (strcmp(current->name, name) == 0) {
         current->value = value;

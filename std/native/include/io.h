@@ -4,10 +4,10 @@
 #include <kilate/native.h>
 #include <kilate/node.h>
 
-node* std_print(native_fndata*);
+node_t* std_print(native_fndata_t*);
 
-node* std_system(native_fndata*);
+node_t* std_system(native_fndata_t*);
 
-node* std_sleep(native_fndata*);
+node_t* std_sleep(native_fndata_t*);
 
 #endif

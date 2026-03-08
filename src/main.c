@@ -11,21 +11,21 @@
 #include "kilate/string.h"
 #include "kilate/vector.h"
 
-bool interpret(str src) {
-  lexer* lexer = lexer_make(src);
+bool interpret(char *src) {
+  lexer_t* lexer = lexer_make(src);
   if (lexer == NULL)
     error_fatal("Lexer is null.");
   lexer_tokenize(lexer);
 
   native_init();
 
-  parser* parser = parser_make(lexer->tokens);
+  parser_t* parser = parser_make(lexer->tokens);
   if (parser == NULL)
     error_fatal("Parser is null.");
 
   parser_parse_program(parser);
 
-  interpreter* interpreter =
+  interpreter_t* interpreter =
       interpreter_make(parser->nodes, native_functions);
   if (interpreter == NULL)
     error_fatal("Interpreter is null.");
@@ -39,9 +39,8 @@ bool interpret(str src) {
 }
 
 bool run(int argc, char* argv[]) {
-  if (argc < 3) {
-    printf("Usage: %s run <file(s)> [-I<path>] [-l<lib>]\n", argv[0]);
-    printf("Use '%s help' for more info.\n", argv[0]);
+  if (argc < 2) {
+    printf("Invalid usage. Use '%s help' for more info.\n", argv[0]);
     return false;
   }
 
@@ -59,23 +58,24 @@ bool run(int argc, char* argv[]) {
     return false;
   }
 
+  if (argc < 3) {
+    printf("Usage: %s run <file(s)> [-I<path>] [-l<lib>]\n", argv[0]);
+    return false;
+  }
+  
   // Config
   {
-    const str PREFIX = getenv("PREFIX");
-    if (PREFIX != NULL) {
-      char path[512];
-      snprintf(path, sizeof(path), "%s/kilate/libs/", PREFIX);
-      str dup = strdup(path);
-      vector_push_back(libs_directories, &dup);
-    }
-  }
-  {
-    const str PREFIX = getenv("PREFIX");
+    const char *PREFIX = getenv("PREFIX");
     if (PREFIX != NULL) {
       char path[512];
       snprintf(path, sizeof(path), "%s/kilate/native_libs/", PREFIX);
-      str dup = strdup(path);
+      char *dup = strdup(path);
       vector_push_back(libs_native_directories, &dup);
+
+      memset(path, 0, sizeof(path));
+      snprintf(path, sizeof(path), "%s/kilate/libs/", PREFIX);
+      dup = strdup(path);
+      vector_push_back(libs_directories, &dup);
     }
   }
 
@@ -83,18 +83,17 @@ bool run(int argc, char* argv[]) {
     char* arg = argv[i];
     if (arg[0] == '-') {
       if (strncmp(arg, "-LN", 3) == 0) {
-        str dup = strdup(&arg[3]);
+        char *dup = strdup(&arg[3]);
         vector_push_back(libs_native_directories, &dup);
       } else if (strncmp(arg, "-L", 2) == 0) {
-        str dup = strdup(&arg[2]);
+        char *dup = strdup(&arg[2]);
         vector_push_back(libs_directories, &dup);
       } else {
         printf("Unknown option: %s\n", arg);
         return false;
       }
     } else {
-      str dup = strdup(arg);
-      ;
+      char *dup = strdup(arg);
       vector_push_back(files, &dup);
     }
   }
@@ -105,14 +104,14 @@ bool run(int argc, char* argv[]) {
   }
 
   for (size_t i = 0; i < files->size; ++i) {
-    str filename = *(str*)vector_get(files, i);
-    file* file = file_open(filename, FILE_MODE_READ);
+    char *filename = *(char**)vector_get(files, i);
+    file_t* file = file_open(filename, FILE_MODE_READ);
     if (!file) {
       error_fatal("Failed to open %s", filename);
       return false;
     }
 
-    str src = file_read_text(file);
+    char *src = file_read_text(file);
     if (!src) {
       error_fatal("Failed to read %s", filename);
       return false;

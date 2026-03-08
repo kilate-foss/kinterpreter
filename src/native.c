@@ -13,17 +13,19 @@
 #include "kilate/string.h"
 #include "kilate/vector.h"
 
-node_vector* native_functions = NULL;
+node_vector_t* native_functions = NULL;
 
 void native_init() {
-  native_functions = vector_make(sizeof(native_fnentry*));
+  native_functions = vector_make(sizeof(native_fnentry_t*));
   native_load_extern();
 }
 
 void native_load_extern() {
   // Load ALL Native Libs found
+  // IDEA: Add a way to specify which libraries are used
+  // something like -lGL -EGL etc. to avoid loading unused libraries.
   for (size_t i = 0; i < libs_native_directories->size; i++) {
-    str dir = *(str*)vector_get(libs_native_directories, i);
+    char * dir = *(char**)vector_get(libs_native_directories, i);
     DIR* d = opendir(dir);
     if (!d)
       return;
@@ -55,8 +57,8 @@ void native_load_extern() {
 
 void native_end() {
   for (size_t i = 0; i < native_functions->size; ++i) {
-    native_fnentry* entry =
-        *(native_fnentry**)vector_get(native_functions, i);
+    native_fnentry_t* entry =
+        *(native_fnentry_t**)vector_get(native_functions, i);
     free(entry->name);
     if (entry->requiredParams != NULL)
       vector_delete(entry->requiredParams);
@@ -65,24 +67,24 @@ void native_end() {
   vector_delete(native_functions);
 }
 
-void native_register_fnentry(native_fnentry* entry) {
+void native_register_fnentry(native_fnentry_t* entry) {
   vector_push_back(native_functions, &entry);
 }
 
-void native_register_fn(str name,
-                            str_vector* requiredParams,
-                            native_fn fn) {
-  native_fnentry* entry = malloc(sizeof(native_fnentry));
+void native_register_fn(const char * name,
+                            str_vector_t* requiredParams,
+                            native_fn_t fn) {
+  native_fnentry_t* entry = malloc(sizeof(native_fnentry_t));
   entry->name = strdup(name);
   entry->fn = fn;
   entry->requiredParams = requiredParams;
   native_register_fnentry(entry);
 }
 
-native_fnentry* native_find_function(str name) {
+native_fnentry_t* native_find_function(const char * name) {
   for (size_t i = 0; i < native_functions->size; ++i) {
-    native_fnentry* entry =
-        *(native_fnentry**)vector_get(native_functions, i);
+    native_fnentry_t* entry =
+        *(native_fnentry_t**)vector_get(native_functions, i);
     if (str_equals(entry->name, name)) {
       return entry;
     }

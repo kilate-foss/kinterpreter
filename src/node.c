@@ -6,7 +6,7 @@
 #include "kilate/string.h"
 #include "kilate/vector.h"
 
-void node_delete(node* n) {
+void node_delete(node_t* n) {
   if (n == NULL)
     return;
   if (n->type == NODE_FUNCTION) {
@@ -16,18 +16,18 @@ void node_delete(node* n) {
     }
     // free body nodes
     for (size_t j = 0; j < n->function_n.fn_body->size; ++j) {
-      node** body_nodePtr =
-          (node**)vector_get(n->function_n.fn_body, j);
+      node_t** body_nodePtr =
+          (node_t**)vector_get(n->function_n.fn_body, j);
       if (body_nodePtr != NULL) {
-        node* body_node = *body_nodePtr;
+        node_t* body_node = *body_nodePtr;
         node_delete(body_node);
       }
     }
     vector_delete(n->function_n.fn_body);
     // free param nodes
     for (size_t j = 0; j < n->function_n.fn_params->size; ++j) {
-      node_fnparam* param =
-          *(node_fnparam**)vector_get(n->function_n.fn_params, j);
+      node_fnparam_t* param =
+          *(node_fnparam_t**)vector_get(n->function_n.fn_params, j);
       free(param->value);
       free(param);
     }
@@ -44,11 +44,11 @@ void node_delete(node* n) {
   free(n);
 }
 
-node *node_copy(node *n) {
+node_t *node_copy(node_t *n) {
   if (!n)
     return NULL;
 
-  node* new = malloc(sizeof(node));
+  node_t* new = malloc(sizeof(node_t));
   if (!new)
     return NULL;
 
@@ -64,19 +64,19 @@ node *node_copy(node *n) {
       new->function_n.fn_return_type = strdup(n->function_n.fn_return_type);
     }
 
-    new->function_n.fn_body = vector_make(sizeof(node*));
+    new->function_n.fn_body = vector_make(sizeof(node_t*));
     for (size_t i = 0; i < n->function_n.fn_body->size; ++i) {
-      node* child_node =
-          *(node**)vector_get(n->function_n.fn_body, i);
-      node* child_copy = node_copy(child_node);
+      node_t* child_node =
+          *(node_t**)vector_get(n->function_n.fn_body, i);
+      node_t* child_copy = node_copy(child_node);
       vector_push_back(new->function_n.fn_body, &child_copy);
     }
 
-    new->function_n.fn_params = vector_make(sizeof(node_fnparam*));
+    new->function_n.fn_params = vector_make(sizeof(node_fnparam_t*));
     for (size_t i = 0; i < n->function_n.fn_params->size; ++i) {
-      node_fnparam* param =
-          *(node_fnparam**)vector_get(n->function_n.fn_params, i);
-      node_fnparam* param_copy = node_fnparam_copy(param);
+      node_fnparam_t* param =
+          *(node_fnparam_t**)vector_get(n->function_n.fn_params, i);
+      node_fnparam_t* param_copy = node_fnparam_copy(param);
       vector_push_back(new->function_n.fn_params, &param_copy);
     }
   } else if (n->type == NODE_CALL) {
@@ -84,11 +84,11 @@ node *node_copy(node *n) {
     if (n->call_n.fn_call_name != NULL) {
       new->call_n.fn_call_name = strdup(n->call_n.fn_call_name);
     }
-    new->call_n.fn_call_params = vector_make(sizeof(node_fnparam*));
+    new->call_n.fn_call_params = vector_make(sizeof(node_fnparam_t*));
     for (size_t i = 0; i < n->call_n.fn_call_params->size; ++i) {
-      node_fnparam* param =
-          *(node_fnparam**)vector_get(n->call_n.fn_call_params, i);
-      node_fnparam* param_copy = node_fnparam_copy(param);
+      node_fnparam_t* param =
+          *(node_fnparam_t**)vector_get(n->call_n.fn_call_params, i);
+      node_fnparam_t* param_copy = node_fnparam_copy(param);
       vector_push_back(new->call_n.fn_call_params, &param_copy);
     }
   } else if (n->type == NODE_RETURN) {
@@ -111,29 +111,29 @@ node *node_copy(node *n) {
   return new;
 }
 
-node_fnparam* node_fnparam_copy(node_fnparam* param) {
-  node_fnparam* new = malloc(sizeof(node_fnparam));
+node_fnparam_t* node_fnparam_copy(node_fnparam_t* param) {
+  node_fnparam_t* new = malloc(sizeof(node_fnparam_t));
   new->value = strdup(param->value);
   new->type = param->type;
   return new;
 }
 
-void node_delete_params(node_fnparam_vector* params) {
+void node_delete_params(node_fnparam_vector_t* params) {
   if (params == NULL)
     return;
   for (size_t i = 0; i < params->size; ++i) {
-    node_fnparam* param = *(node_fnparam**)vector_get(params, i);
+    node_fnparam_t* param = *(node_fnparam_t**)vector_get(params, i);
     free(param->value);
     free(param);
   }
   vector_delete(params);
 }
 
-node* function_node_make(str name,
-                                 str return_type,
-                                 node_vector* body,
-                                 node_fnparam_vector* params) {
-  node *n = malloc(sizeof(node));
+node_t* function_node_make(const char *name,
+                                 const char *return_type,
+                                 node_vector_t* body,
+                                 node_fnparam_vector_t* params) {
+  node_t *n = malloc(sizeof(node_t));
   n->type = NODE_FUNCTION;
   n->function_n.fn_name = strdup(name);
   if (return_type != NULL) {
@@ -146,29 +146,29 @@ node* function_node_make(str name,
   return n;
 }
 
-node* call_node_make(const str functionName,
-                             node_fnparam_vector* functionParams) {
-  node *n = malloc(sizeof(node));
+node_t* call_node_make(const char *functionName,
+                             node_fnparam_vector_t* functionParams) {
+  node_t *n = malloc(sizeof(node_t));
   n->type = NODE_CALL;
   n->call_n.fn_call_name = strdup(functionName);
   n->call_n.fn_call_params = functionParams;
   return n;
 }
 
-node* return_node_make(node_valuetype return_type,
+node_t* return_node_make(node_value_kind_t return_type,
                                void* return_value) {
-  node *n = malloc(sizeof(node));
+  node_t *n = malloc(sizeof(node_t));
   n->type = NODE_RETURN;
   n->return_n.return_type = return_type;
   n->return_n.return_value = return_value;
   return n;
 }
 
-node* var_dec_node_make(str name,
-                                str type,
-                                node_valuetype valueType,
+node_t* var_dec_node_make(const char *name,
+                                const char *type,
+                                node_value_kind_t valueType,
                                 void* value) {
-  node *n = malloc(sizeof(node));
+  node_t *n = malloc(sizeof(node_t));
   n->type = NODE_VARDEC;
   n->vardec_n.var_name = strdup(name);
   n->vardec_n.var_type = strdup(type);
@@ -177,8 +177,8 @@ node* var_dec_node_make(str name,
   return n;
 }
 
-node* import_node_make(str path) {
-  node *n = malloc(sizeof(node));
+node_t* import_node_make(const char *path) {
+  node_t *n = malloc(sizeof(node_t));
   n->type = NODE_IMPORT;
   n->import_n.import_path = strdup(path);
   return n;

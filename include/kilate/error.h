@@ -3,13 +3,11 @@
 
 #include <stdarg.h>
 
-#include "kilate/string.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void error_fatal(str, ...);
+void error_fatal(char *, ...);
 
 #ifdef __cplusplus
 }

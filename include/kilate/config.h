@@ -7,9 +7,9 @@
 extern "C" {
 #endif
 
-extern vector* files;
-extern vector* libs_directories;
-extern vector* libs_native_directories;
+extern vector_t * files;
+extern vector_t * libs_directories;
+extern vector_t * libs_native_directories;
 
 void config_init();
 void config_end();

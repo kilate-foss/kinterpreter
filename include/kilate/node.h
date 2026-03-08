@@ -9,15 +9,15 @@
 extern "C" {
 #endif
 
-typedef enum {
+typedef enum node_kind_t {
   NODE_FUNCTION,
   NODE_CALL,
   NODE_RETURN,
   NODE_VARDEC,
   NODE_IMPORT
-} nodetype;
+} node_kind_t;
 
-typedef enum {
+typedef enum node_value_kind_t {
   NODE_VALUE_TYPE_INT,
   NODE_VALUE_TYPE_FLOAT,
   NODE_VALUE_TYPE_LONG,
@@ -27,70 +27,70 @@ typedef enum {
   NODE_VALUE_TYPE_FUNC,
   NODE_VALUE_TYPE_CALL,
   NODE_VALUE_TYPE_ANY
-} node_valuetype;
+} node_value_kind_t;
 
-typedef struct node node;
-typedef vector node_vector;
+typedef struct node_t node_t;
+typedef vector_t node_vector_t;
 
-typedef struct {
-  str value;
-  node_valuetype type;
-} node_fnparam;
+typedef struct node_fnparam_t {
+  char *value;
+  node_value_kind_t type;
+} node_fnparam_t;
 
-typedef vector node_fnparam_vector;
+typedef vector_t node_fnparam_vector_t;
 
-struct node {
-  nodetype type;
+struct node_t {
+  node_kind_t type;
 
   struct {
-    str fn_name;
-    str fn_return_type;
-    node_vector* fn_body;
-    node_fnparam_vector* fn_params;
+    char * fn_name;
+    char * fn_return_type;
+    node_vector_t* fn_body;
+    node_fnparam_vector_t* fn_params;
   } function_n;
 
   struct {
-    str fn_call_name;
-    node_fnparam_vector* fn_call_params;
+    char * fn_call_name;
+    node_fnparam_vector_t* fn_call_params;
   } call_n;
 
   struct {
-    node_valuetype return_type;
+    node_value_kind_t return_type;
     void* return_value;
   } return_n;
 
   struct {
-    str var_name;
-    str var_type;
-    node_valuetype var_value_type;
+    char * var_name;
+    char * var_type;
+    node_value_kind_t var_value_type;
     void* var_value;
   } vardec_n;
 
   struct {
-    str import_path;
+    char * import_path;
   } import_n;
 };
 
-void node_delete(node*);
+void node_delete(node_t *);
 
-node* node_copy(node*);
+node_t * node_copy(node_t *);
 
-node_fnparam* node_fnparam_copy(node_fnparam*);
+node_fnparam_t* node_fnparam_copy(node_fnparam_t*);
 
-void node_delete_params(node_fnparam_vector*);
+void node_delete_params(node_fnparam_vector_t*);
 
-node* function_node_make(str,
-                                 str,
-                                 node_vector*,
-                                 node_fnparam_vector*);
+node_t * function_node_make(const char *,
+                            const char *,
+                            node_vector_t*,
+                            node_fnparam_vector_t*);
 
-node* call_node_make(str, node_fnparam_vector*);
+node_t * call_node_make(const char *, node_fnparam_vector_t*);
 
-node* return_node_make(node_valuetype, void*);
+node_t * return_node_make(node_value_kind_t, void*);
 
-node* var_dec_node_make(str, str, node_valuetype, void*);
+node_t * var_dec_node_make(const char *, const char *, node_value_kind_t, void*);
 
-node* import_node_make(str);
+node_t * import_node_make(const char *);
 
 #ifdef __cplusplus
 }

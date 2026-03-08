@@ -12,23 +12,23 @@ typedef struct {
   size_t capacity;
   size_t size;
   size_t itemSize;
-} vector;
+} vector_t;
 
-vector* vector_make(size_t);
+vector_t * vector_make(size_t);
 
-void vector_delete(vector*);
+void vector_delete(vector_t *);
 
-const void* vector_get(vector*, size_t);
+const void* vector_get(vector_t *, size_t);
 
-void vector_set(vector*, const size_t, const void*);
+void vector_set(vector_t *, const size_t, const void*);
 
-void vector_reserve(vector*, const size_t);
+void vector_reserve(vector_t *, const size_t);
 
-void vector_insert(vector*, const size_t, const void*);
+void vector_insert(vector_t *, const size_t, const void*);
 
-void vector_push_back(vector*, const void*);
+void vector_push_back(vector_t *, const void*);
 
-void vector_remove(vector*, size_t);
+void vector_remove(vector_t *, size_t);
 
 #ifdef __cplusplus
 }

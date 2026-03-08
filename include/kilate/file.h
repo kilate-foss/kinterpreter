@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-#include "kilate/string.h"
-
 #define FILE_MODE_READ "r"
 #define FILE_MODE_WRITE "w"
 
@@ -12,18 +10,17 @@
 extern "C" {
 #endif
 
-typedef struct {
-  FILE* std_file;
-  str path;
-} file;
+typedef struct file_t {
+  FILE *std_file;
+} file_t;
 
-file* file_open(str, str);
+file_t* file_open(const char *, const char *);
 
-void file_close(file*);
+void file_close(file_t*);
 
-size_t file_get_length(file*);
+size_t file_get_length(file_t*);
 
-str file_read_text(file*);
+char * file_read_text(file_t*);
 
 #ifdef __cplusplus
 }

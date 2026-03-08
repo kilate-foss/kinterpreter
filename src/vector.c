@@ -6,8 +6,8 @@
 
 #include "kilate/error.h"
 
-vector* vector_make(size_t itemSize) {
-  vector* self = malloc(sizeof(vector));
+vector_t* vector_make(size_t itemSize) {
+  vector_t* self = malloc(sizeof(vector_t));
   if (itemSize == 0)
     error_fatal("Item size cant be 0");
   if (self == NULL) {
@@ -21,7 +21,7 @@ vector* vector_make(size_t itemSize) {
   return self;
 }
 
-void vector_delete(vector* self) {
+void vector_delete(vector_t* self) {
   if (self == NULL)
     error_fatal("Vector is null");
   if (self == NULL)
@@ -30,7 +30,7 @@ void vector_delete(vector* self) {
   free(self);
 }
 
-const void* vector_get(vector* self, size_t index) {
+const void* vector_get(vector_t* self, size_t index) {
   if (self == NULL)
     error_fatal("Vector is null");
   if (index >= self->size)
@@ -39,7 +39,7 @@ const void* vector_get(vector* self, size_t index) {
   return (char*)(self->data) + index * self->itemSize;
 }
 
-void vector_reserve(vector* self, const size_t size) {
+void vector_reserve(vector_t* self, const size_t size) {
   if (self == NULL)
     error_fatal("Vector is null");
   if (self->capacity <= size) {
@@ -50,7 +50,7 @@ void vector_reserve(vector* self, const size_t size) {
   }
 }
 
-void vector_set(vector* self, size_t index, const void* item) {
+void vector_set(vector_t* self, size_t index, const void* item) {
   if (self == NULL)
     error_fatal("Vector is null");
   if (index >= self->size)
@@ -59,7 +59,7 @@ void vector_set(vector* self, size_t index, const void* item) {
   memcpy((char*)self->data + index * self->itemSize, item, self->itemSize);
 }
 
-void vector_insert(vector* self, size_t index, const void* item) {
+void vector_insert(vector_t* self, size_t index, const void* item) {
   if (self == NULL)
     error_fatal("Vector is null");
   if (!(index <= self->size))
@@ -76,11 +76,11 @@ void vector_insert(vector* self, size_t index, const void* item) {
   vector_set(self, index, item);
 }
 
-void vector_push_back(vector* self, const void* item) {
+void vector_push_back(vector_t* self, const void* item) {
   vector_insert(self, self->size, item);
 }
 
-void vector_remove(vector* self, size_t index) {
+void vector_remove(vector_t* self, size_t index) {
   if (self == NULL)
     error_fatal("Vector is null");
   if (index >= self->size)

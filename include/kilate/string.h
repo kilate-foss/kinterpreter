@@ -11,8 +11,7 @@
 extern "C" {
 #endif
 
-typedef char *str;
-typedef vector str_vector;
+typedef vector_t str_vector_t;
 
 size_t str_length(const char *);
 

@@ -9,30 +9,28 @@
 extern "C" {
 #endif
 
-typedef struct env_entry {
-  str name;
-  node* value;
-  struct env_entry* next;
-} env_entry;
+typedef struct env_entry_t {
+  char* name;
+  node_t* value;
+  struct env_entry_t* next;
+} env_entry_t;
 
-typedef struct environment {
-  env_entry* variables;
-  struct environment* parent;
-} environment;
+typedef struct env_t {
+  env_entry_t* variables;
+  struct env_t * parent;
+} env_t;
 
-environment* environment_make(environment* parent);
+env_t * env_make(env_t *);
 
-void environment_destroy(environment* env);
+void env_destroy(env_t *);
 
-bool environment_definevar(environment* env,
-                                   const str name,
-                                   void* value);
+bool env_definevar(env_t *,
+                   const char *,
+                   void*);
 
-node* environment_getvar(environment* env, const str name);
+node_t * env_getvar(env_t *, const char *);
 
-bool environment_setvar(environment* env,
-                                const str name,
-                                void* value);
+bool env_setvar(env_t *, const char *, void *);
 
 #ifdef __cplusplus
 }

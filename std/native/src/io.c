@@ -6,12 +6,12 @@
 
 #include "sys.h"
 
-node* std_print(native_fndata* data) {
+node_t* std_print(native_fndata_t* data) {
   for (size_t i = 0; i < data->params->size; ++i) {
-    node_fnparam* param =
-        *(node_fnparam**)vector_get(data->params, i);
+    node_fnparam_t* param =
+        *(node_fnparam_t**)vector_get(data->params, i);
     if (param->type == NODE_VALUE_TYPE_VAR) {
-      node* var = environment_getvar(data->env, param->value);
+      node_t* var = env_getvar(data->env, param->value);
       void* value = var->vardec_n.var_value;
       switch (var->vardec_n.var_value_type) {
         case NODE_VALUE_TYPE_INT: {
@@ -27,7 +27,7 @@ node* std_print(native_fndata* data) {
           break;
         }
         case NODE_VALUE_TYPE_STRING:
-          printf("%s", (str)value);
+          printf("%s", (char *)value);
           break;
         case NODE_VALUE_TYPE_BOOL:
           printf("%s", (bool)(intptr_t)value ? "true" : "false");
@@ -50,14 +50,14 @@ node* std_print(native_fndata* data) {
   return NULL;
 }
 
-node* std_system(native_fndata* data) {
-  str cmd = native_fndata_getstr(data, 0);
+node_t* std_system(native_fndata_t* data) {
+  char * cmd = native_fndata_getstr(data, 0);
   if (cmd != NULL)
     system(cmd);
   return NULL;
 }
 
-node* std_sleep(native_fndata* data) {
+node_t* std_sleep(native_fndata_t* data) {
   bool ok;
   long time = native_fndata_getlong(data, 0, &ok);
   if (ok)
