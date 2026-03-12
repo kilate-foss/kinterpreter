@@ -635,7 +635,7 @@ node_t *parser_parse_function(parser_t *p)
         }
 
         function_node_t *fn = alloc_node(NODE_FUNCTION);
-        fn->function_n.name = parser_consume(p, TOKEN_IDENTIFIER)->text;
+        fn->function_n.name = strdup(parser_consume(p, TOKEN_IDENTIFIER)->text);
 
         parser_consume(p, TOKEN_LPAREN);
         fn->function_n.params = vector_make(sizeof(param_node_t *));
@@ -667,7 +667,7 @@ node_t *parser_parse_function(parser_t *p)
         if ((parser_current(p, 0))->type == TOKEN_COLON) {
                 parser_consume(p, TOKEN_COLON);
                 fn->function_n.return_type =
-                    parser_consume(p, TOKEN_TYPE)->text;
+                    strdup(parser_consume(p, TOKEN_TYPE)->text);
         }
 
         parser_consume(p, TOKEN_LBRACE);

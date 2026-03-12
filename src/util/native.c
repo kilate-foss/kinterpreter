@@ -139,6 +139,6 @@ void params_add(node_param_vector_t *params, node_value_kind_t type,
 {
         param_node_t *n = alloc_node(NODE_ARG);
         n->arg_n.type = type;
-        n->arg_n.s = (char *)param;
-        vector_push_back(params, n);
+        n->arg_n.s = strdup(param);
+        vector_push_back(params, &n);
 }

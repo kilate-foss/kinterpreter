@@ -85,7 +85,7 @@ void native_register_function_node(native_function_node_t *entry)
 void native_register_fn(const char *name, const char *return_type,
                         node_param_vector_t *params, native_fn_t fn)
 {
-        function_node_t *n = alloc_node(NODE_FUNCTION);
+        function_node_t *n = alloc_node(NODE_NATIVE_FUNCTION);
         n->function_n.name = strdup(name);
         n->function_n.return_type = strdup(return_type);
         n->function_n.params = params;
