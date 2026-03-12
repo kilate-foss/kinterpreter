@@ -92,11 +92,11 @@ interpreter_result_t interpreter_run_fnlow(interpreter_t *self, node_t *fn,
             (fn->type != NODE_FUNCTION && fn->type != NODE_NATIVE_FUNCTION))
                 goto def;
 
-        if (fn->type == NODE_FUNCTION) {
+        if (fn->type == NODE_FUNCTION && !fn->function_n.native) {
                 return interpreter_run_fn(self, fn, args);
         }
 
-        if (fn->type == NODE_NATIVE_FUNCTION) {
+        if (fn->type == NODE_NATIVE_FUNCTION && fn->function_n.native) {
                 native_fndata_t *ndata = malloc(sizeof(*ndata));
                 ndata->args = args;
                 ndata->inter = self;
@@ -210,6 +210,8 @@ interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
         }
 
         case NODE_VARDEC: {
+                printd("213: vname:%s, vtype:%d\n", n->vardec_n.name,
+                       n->vardec_n.type);
                 env_definevar(self->env, n->vardec_n.name, node_copy(n));
                 return (interpreter_result_t){ .type = IRT_FUNC,
                                                .value.type = -1 };
