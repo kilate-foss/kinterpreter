@@ -1,13 +1,9 @@
-import "utils.klt"
+work GetName(): String {
+        return "Aquiles Trindade"
+}
 
 work Main(): Int {
-        String name = "Aquiles"
-        Int age = 14
-        Long agem = 14l
-
-        PrintName -> name
-        PrintLn -> age
-        PrintLn -> agem
-
+        String name = GetName()
+        Print -> name
         return -> 0
 }

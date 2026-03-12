@@ -7,43 +7,41 @@
 
 char *native_fndata_getstr(native_fndata_t *data, size_t index)
 {
-        if (index >= data->params->size)
+        if (index >= data->args->size)
                 return "";
 
-        node_fnparam_t *param =
-            *(node_fnparam_t **)vector_get(data->params, index);
-        if (param->type == NODE_VALUE_TYPE_STRING) {
-                return param->value;
+        param_node_t *param = *(param_node_t **)vector_get(data->args, index);
+        if (param->arg_n.type == NODE_VALUE_TYPE_STRING) {
+                return param->arg_n.s;
         }
 
-        node_t *var = env_getvar(data->env, param->value);
-        if (!var || var->vardec_n.var_value_type != NODE_VALUE_TYPE_STRING)
+        node_t *var = env_getvar(data->inter->env, param->arg_n.s);
+        if (!var || var->vardec_n.value.type != NODE_VALUE_TYPE_STRING)
                 return NULL;
 
-        if (var->vardec_n.var_value == NULL)
-                return "";
+        if (!var->vardec_n.value.s)
+                return NULL;
 
-        return (char *)var->vardec_n.var_value;
+        return var->vardec_n.value.s;
 }
 
 int native_fndata_getint(native_fndata_t *data, size_t index, bool *ok)
 {
-        if (index >= data->params->size) {
+        if (index >= data->args->size) {
                 if (ok)
                         *ok = false;
                 return 0;
         }
 
-        node_fnparam_t *param =
-            *(node_fnparam_t **)vector_get(data->params, index);
-        if (param->type == NODE_VALUE_TYPE_INT) {
+        param_node_t *param = *(param_node_t **)vector_get(data->args, index);
+        if (param->arg_n.type == NODE_VALUE_TYPE_INT) {
                 if (ok)
                         *ok = true;
-                return (int)(intptr_t)param->value;
+                return param->arg_n.i;
         }
 
-        node_t *var = env_getvar(data->env, param->value);
-        if (!var || var->vardec_n.var_value_type != NODE_VALUE_TYPE_INT) {
+        node_t *var = env_getvar(data->inter->env, param->arg_n.s);
+        if (!var || var->vardec_n.value.type != NODE_VALUE_TYPE_INT) {
                 if (ok)
                         *ok = false;
                 return 0;
@@ -51,27 +49,27 @@ int native_fndata_getint(native_fndata_t *data, size_t index, bool *ok)
 
         if (ok)
                 *ok = true;
-        return (int)(intptr_t)var->vardec_n.var_value;
+        return var->vardec_n.value.i;
 }
 
 float native_fndata_getfloat(native_fndata_t *data, size_t index, bool *ok)
 {
-        if (index >= data->params->size) {
+        if (index >= data->args->size) {
                 if (ok)
                         *ok = false;
                 return 0;
         }
 
-        node_fnparam_t *param =
-            *(node_fnparam_t **)vector_get(data->params, index);
-        if (param->type == NODE_VALUE_TYPE_FLOAT) {
+        param_node_t *param = *(param_node_t **)vector_get(data->args, index);
+        if (param->arg_n.type == NODE_VALUE_TYPE_FLOAT) {
                 if (ok)
                         *ok = true;
-                return (float)(intptr_t)param->value;
+                return param->arg_n.f;
+                ;
         }
 
-        node_t *var = env_getvar(data->env, param->value);
-        if (!var || var->vardec_n.var_value_type != NODE_VALUE_TYPE_FLOAT) {
+        node_t *var = env_getvar(data->inter->env, param->arg_n.s);
+        if (!var || var->vardec_n.value.f != NODE_VALUE_TYPE_FLOAT) {
                 if (ok)
                         *ok = false;
                 return 0;
@@ -79,27 +77,26 @@ float native_fndata_getfloat(native_fndata_t *data, size_t index, bool *ok)
 
         if (ok)
                 *ok = true;
-        return *(float *)(intptr_t)var->vardec_n.var_value;
+        return var->vardec_n.value.f;
 }
 
 long native_fndata_getlong(native_fndata_t *data, size_t index, bool *ok)
 {
-        if (index >= data->params->size) {
+        if (index >= data->args->size) {
                 if (ok)
                         *ok = false;
                 return 0;
         }
 
-        node_fnparam_t *param =
-            *(node_fnparam_t **)vector_get(data->params, index);
-        if (param->type == NODE_VALUE_TYPE_LONG) {
+        param_node_t *param = *(param_node_t **)vector_get(data->args, index);
+        if (param->arg_n.type == NODE_VALUE_TYPE_LONG) {
                 if (ok)
                         *ok = true;
-                return (long)(intptr_t)param->value;
+                return param->arg_n.l;
         }
 
-        node_t *var = env_getvar(data->env, param->value);
-        if (!var || var->vardec_n.var_value_type != NODE_VALUE_TYPE_LONG) {
+        node_t *var = env_getvar(data->inter->env, param->arg_n.s);
+        if (!var || var->vardec_n.value.type != NODE_VALUE_TYPE_LONG) {
                 if (ok)
                         *ok = false;
                 return 0;
@@ -107,27 +104,26 @@ long native_fndata_getlong(native_fndata_t *data, size_t index, bool *ok)
 
         if (ok)
                 *ok = true;
-        return (long)(intptr_t)var->vardec_n.var_value;
+        return var->vardec_n.value.l;
 }
 
 bool native_fndata_getbool(native_fndata_t *data, size_t index, bool *ok)
 {
-        if (index >= data->params->size) {
+        if (index >= data->args->size) {
                 if (ok)
                         *ok = false;
                 return false;
         }
 
-        node_fnparam_t *param =
-            *(node_fnparam_t **)vector_get(data->params, index);
-        if (param->type == NODE_VALUE_TYPE_BOOL) {
+        param_node_t *param = *(param_node_t **)vector_get(data->args, index);
+        if (param->arg_n.type == NODE_VALUE_TYPE_BOOL) {
                 if (ok)
                         *ok = true;
-                return (bool)(intptr_t)param->value;
+                return param->arg_n.b;
         }
 
-        node_t *var = env_getvar(data->env, param->value);
-        if (!var || var->vardec_n.var_value_type != NODE_VALUE_TYPE_BOOL) {
+        node_t *var = env_getvar(data->inter->env, param->arg_n.s);
+        if (!var || var->vardec_n.value.type != NODE_VALUE_TYPE_BOOL) {
                 if (ok)
                         *ok = false;
                 return false;
@@ -135,22 +131,14 @@ bool native_fndata_getbool(native_fndata_t *data, size_t index, bool *ok)
 
         if (ok)
                 *ok = true;
-        return (bool)(intptr_t)var->vardec_n.var_value;
+        return var->vardec_n.value.b;
 }
 
-void params_add(str_vector_t *params, const char *param)
+void params_add(node_param_vector_t *params, node_value_kind_t type,
+                const char *param)
 {
-        char *s = (char *)param;
-        vector_push_back(params, &s);
-}
-
-native_fnentry_t *native_fnentry_make(const char *name,
-                                      str_vector_t *reqParams, native_fn_t fn)
-{
-        native_fnentry_t *entry =
-            (native_fnentry_t *)malloc(sizeof(native_fnentry_t));
-        entry->name = strdup(name);
-        entry->requiredParams = reqParams;
-        entry->fn = fn;
-        return entry;
+        param_node_t *n = alloc_node(NODE_ARG);
+        n->arg_n.type = type;
+        n->arg_n.s = (char *)param;
+        vector_push_back(params, n);
 }

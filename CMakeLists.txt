@@ -27,6 +27,7 @@ set(CMAKE_EXE_LINKER_FLAGS
 
 set(LIB_SOURCES
     src/config.c
+    src/debug.c
     src/environment.c
     src/error.c
     src/file.c
@@ -84,6 +85,13 @@ add_executable(${PROJECT_NAME} ${EXE_SOURCES})
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
   Kilate::Kilate)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(${PROJECT_NAME}
+      PRIVATE
+      -DDEBUG)
+    message(STATUS "Debug Build")
+endif()
 
 if(INSTALL)
   include(GNUInstallDirs)

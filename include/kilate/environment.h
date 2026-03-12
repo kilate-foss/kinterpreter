@@ -3,7 +3,6 @@
 
 #include "kilate/bool.h"
 #include "kilate/node.h"
-#include "kilate/string.h"
 
 #ifdef __cplusplus
 extern "C" {

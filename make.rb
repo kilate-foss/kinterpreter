@@ -91,7 +91,7 @@ if lib_so_arg
       "-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake " \
       "-DANDROID_ABI=#{abi} " \
       "-DANDROID_PLATFORM=android-26 " \
-      "-DCMAKE_BUILD_TYPE=Release"
+      "-DCMAKE_BUILD_TYPE=#{asan_arg ? "Debug" : "Release"}"
     )
     run("cmake --build #{build_dir}")
   end
@@ -101,7 +101,8 @@ else
     "-DASAN=#{asan_arg ? "ON" : "OFF"} " \
     "-DINSTALL=#{install_arg ? "ON" : "OFF"} " \
     "-DCMAKE_EXPORT_COMPILE_COMMANDS=#{compile_commands_json_arg ? "ON" : "OFF"} " \
-    "-DCMAKE_INSTALL_PREFIX=$HOME/../usr"
+    "-DCMAKE_INSTALL_PREFIX=$HOME/../usr " \
+    "-DCMAKE_BUILD_TYPE=#{asan_arg ? "Debug" : "Release"}"
   )
   run("cmake --build build")
 end

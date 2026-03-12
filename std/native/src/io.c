@@ -7,58 +7,18 @@
 
 #include "sys.h"
 
-return_node_t *std_print(native_fndata_t *data)
-{
-        int printf_ret = 0;
-        for (size_t i = 0; i < data->params->size; ++i) {
-                node_fnparam_t *param =
-                    *(node_fnparam_t **)vector_get(data->params, i);
-                if (param->type == NODE_VALUE_TYPE_VAR) {
-                        node_t *var = env_getvar(data->env, param->value);
-                        void *value = var->vardec_n.var_value;
-                        switch (var->vardec_n.var_value_type) {
-                        case NODE_VALUE_TYPE_INT: {
-                                printf_ret =
-                                    printf("%d", (int)(intptr_t)value);
-                                break;
-                        }
-                        case NODE_VALUE_TYPE_FLOAT: {
-                                printf_ret = printf("%f", *(float *)value);
-                                break;
-                        }
-                        case NODE_VALUE_TYPE_LONG: {
-                                printf_ret =
-                                    printf("%ld", (long)(intptr_t)value);
-                                break;
-                        }
-                        case NODE_VALUE_TYPE_STRING:
-                                printf_ret = printf("%s", (char *)value);
-                                break;
-                        case NODE_VALUE_TYPE_BOOL:
-                                printf_ret = printf(
-                                    "%s",
-                                    (bool)(intptr_t)value ? "true" : "false");
-                                break;
-                        case NODE_VALUE_TYPE_FUNC:
-                                // Does nothing for now
-                                break;
-                        case NODE_VALUE_TYPE_VAR:
-                                // Does nothing for now
-                                break;
-                        default:
-                                // Does nothing for now
-                                break;
-                        }
-                        continue;
-                }
-                printf_ret = printf("%s", param->value);
-        }
-        free(data);
+return_node_t *std_print(native_fndata_t *data) {
+    for (size_t i = 0; i < data->args->size; ++i) {
+        arg_node_t *param = *(arg_node_t **)vector_get(data->args, i);
+        safe_value_t v = get_safe_value(data->inter, param);
+        printf("%s", safe_to_string(v));
+    }
 
-        node_t *node = alloc_node(NODE_RETURN);
-        node->return_n.type = NODE_VALUE_TYPE_INT;
-        node->return_n.i = printf_ret;
-        return node;
+    free(data);
+    node_t *node = alloc_node(NODE_RETURN);
+    node->return_n.type = NODE_VALUE_TYPE_INT;
+    node->return_n.i = 0;
+    return node;
 }
 
 node_t *std_system(native_fndata_t *data)

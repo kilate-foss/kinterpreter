@@ -1,11 +1,14 @@
 #include "kilate/parser.h"
 
+#include <malloc.h>
 #include <stdarg.h>
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "kilate/debug.h"
 #include "kilate/file.h"
 #include "kilate/lexer.h"
 #include "kilate/native.h"
@@ -18,6 +21,7 @@ parser_t *parser_make(token_vector_t *tokens)
         parser_t *p = malloc(sizeof(*p));
         p->tokens = tokens;
         p->nodes = vector_make(sizeof(node_t *));
+        p->scope_body = NULL;
         p->__pos__ = 0;
         return p;
 }
@@ -32,9 +36,19 @@ void parser_delete(parser_t *p)
         free(p);
 }
 
+token_t *parser_current(parser_t *p, size_t offset)
+{
+        size_t pos = p->__pos__ + offset;
+
+        if (pos >= p->tokens->size)
+                return NULL;
+
+        return *(token_t **)vector_get(p->tokens, pos);
+}
+
 token_t *parser_consume(parser_t *p, token_kind_t exType)
 {
-        token_t *tk = *(token_t **)vector_get(p->tokens, p->__pos__);
+        token_t *tk = parser_current(p, 0);
         if (tk->type != exType) {
                 parser_error(tk, "Expected %s, but got %s",
                              tokentype_tostr(exType),
@@ -45,16 +59,74 @@ token_t *parser_consume(parser_t *p, token_kind_t exType)
         return tk;
 }
 
-node_t *parser_find_function(parser_t *p, char *name)
+static void print_nodes(parser_t *p)
 {
+        printd("Nodes am: %zu\n", p->nodes->size);
         for (size_t i = 0; i < p->nodes->size; i++) {
-                node_t *fn = *(node_t **)vector_get(p->nodes, i);
-                if (fn != NULL) {
-                        if (fn->type == NODE_FUNCTION) {
-                                if (str_equals(fn->function_n.fn_name, name)) {
-                                        return fn;
-                                }
-                        }
+                node_t *n = *(node_t **)vector_get(p->nodes, i);
+                printd("Node(%lu).type = (%s)\n", i,
+                       (n) ? node_kind_tostr(n->type) : "(null)");
+        }
+}
+
+function_node_t *parser_find_function(parser_t *p, char *name)
+{
+        printd("Searching for fn: %s\n", name);
+        printd("Total nodes: %zu\n", p->nodes->size);
+
+        for (size_t i = 0; i < p->nodes->size; i++) {
+                function_node_t *fn = *(node_t **)vector_get(p->nodes, i);
+
+                if (!fn)
+                        continue;
+
+                printd("Node %zu type: %d\n", i, fn->type);
+
+                if (fn->type == NODE_FUNCTION) {
+                        if (!str_equals(fn->function_n.name, name))
+                                continue;
+                        printd("Fn found: %s\n", fn->function_n.name);
+                        return fn;
+                }
+        }
+        return NULL;
+}
+
+vardec_node_t *parser_find_var(parser_t *p, char *name)
+{
+        printd("Searching for var: %s\n", name);
+        printd("Total nodes: %zu\n", p->nodes->size);
+
+        // find at top-level nodes
+        for (size_t i = 0; i < p->nodes->size; i++) {
+                vardec_node_t *var = *(node_t **)vector_get(p->nodes, i);
+
+                if (!var)
+                        continue;
+
+                printd("Node %zu type: %d\n", i, var->type);
+
+                if (var->type == NODE_VARDEC) {
+                        if (!str_equals(var->vardec_n.name, name))
+                                continue;
+                        printd("Var found: %s\n", var->vardec_n.name);
+                        return var;
+                }
+        }
+
+        // find at local scope nodes
+        for (size_t i = 0; i < p->scope_body->size; i++) {
+                vardec_node_t *var = *(node_t **)vector_get(p->scope_body, i);
+                if (!var)
+                        continue;
+
+                printd("Node %zu type: %d\n", i, var->type);
+
+                if (var->type == NODE_VARDEC) {
+                        if (!str_equals(var->vardec_n.name, name))
+                                continue;
+                        printd("Var found: %s\n", var->vardec_n.name);
+                        return var;
                 }
         }
         return NULL;
@@ -102,6 +174,7 @@ char *parser_nodevaluetype_to_str(node_value_kind_t type)
 
 node_value_kind_t parser_tokentype_to_nodevaluetype(parser_t *p, token_t *tk)
 {
+        // printd("121: %d, %s\n", tk->type, tk->text);
         switch (tk->type) {
         case TOKEN_STRING:
                 return NODE_VALUE_TYPE_STRING;
@@ -114,11 +187,14 @@ node_value_kind_t parser_tokentype_to_nodevaluetype(parser_t *p, token_t *tk)
         case TOKEN_LONG:
                 return NODE_VALUE_TYPE_LONG;
         case TOKEN_IDENTIFIER: {
-                token_t *next = *(token_t **)vector_get(p->tokens, p->__pos__);
-                if (next->type == TOKEN_LPAREN) {
-                        return NODE_VALUE_TYPE_FUNC;
+                token_t *next = parser_current(p, 1);
+                // printd("CUR:%s NEXT:%s\n", tk->text, next ? next->text :
+                // "NULL"); printd("135:%s\n", next->text);
+                if (next->type == TOKEN_LPAREN || next->type == TOKEN_LARROW ||
+                    next->type == TOKEN_RARROW) {
+                        return NODE_VALUE_TYPE_CALL;
                 } else {
-                        return NODE_VALUE_TYPE_VAR;
+                        return NODE_VALUE_TYPE_FUNC_OR_VAR;
                 }
         }
         case TOKEN_TYPE: {
@@ -158,21 +234,23 @@ node_value_kind_t parser_str_to_nodevaluetype(char *value)
 
 node_t *parser_parse_statement(parser_t *p)
 {
-        token_t *tk = *(token_t **)vector_get(p->tokens, p->__pos__);
+        static int am = 0;
+        am++;
+
+        token_t *tk = parser_current(p, 0);
+        printd("parser_parse_statement called %d times, cur token: %s\n", am,
+               tk->text);
 
         if (tk->type == TOKEN_KEYWORD && str_equals(tk->text, "return")) {
                 parser_consume(p, TOKEN_KEYWORD);
-                token_t *arrow =
-                    *(token_t **)vector_get(p->tokens, p->__pos__);
+                token_t *arrow = parser_current(p, 0);
                 if (arrow->type == TOKEN_RARROW ||
                     arrow->type == TOKEN_LARROW) {
                         parser_consume(p, arrow->type);
                 }
 
-                token_t *next = *(token_t **)vector_get(p->tokens, p->__pos__);
-
-                node_t *rn = malloc(sizeof(node_t));
-                rn->type = NODE_RETURN;
+                token_t *next = parser_current(p, 0);
+                node_t *rn = alloc_node(NODE_RETURN);
 
                 if (next->type == TOKEN_BOOL) {
                         rn->return_n.b = str_equals(
@@ -195,8 +273,7 @@ node_t *parser_parse_statement(parser_t *p)
                         rn->return_n.type = NODE_VALUE_TYPE_STRING;
                 } else if (next->type == TOKEN_IDENTIFIER) {
                         token_t *id_token = next;
-                        token_t *after =
-                            *(token_t **)vector_get(p->tokens, p->__pos__ + 1);
+                        token_t *after = parser_current(p, 1);
                         if (after->type == TOKEN_RARROW ||
                             after->type == TOKEN_LARROW ||
                             after->type == TOKEN_LPAREN) {
@@ -225,54 +302,56 @@ node_t *parser_parse_statement(parser_t *p)
                 return parser_parse_function(p);
 
         } else if (tk->type == TOKEN_TYPE) {
-                char *var_type = parser_consume(p, TOKEN_TYPE)->text;
-                char *var_name = parser_consume(p, TOKEN_IDENTIFIER)->text;
-                parser_consume(p, TOKEN_ASSIGN);
-                token_t *valueTk =
-                    *(token_t **)vector_get(p->tokens, p->__pos__);
+                char *vartype = parser_consume(p, TOKEN_TYPE)->text;
+                char *varname = parser_consume(p, TOKEN_IDENTIFIER)->text;
 
-                node_value_kind_t var_value_type;
-                void *var_value;
+                parser_consume(p, TOKEN_ASSIGN);
+
+                token_t *valueTk = parser_current(p, 0);
+
+                vardec_node_t *varnode = alloc_node(NODE_VARDEC);
+                varnode->vardec_n.name = strdup(varname);
+                varnode->vardec_n.type = strdup(vartype);
 
                 if (valueTk->type == TOKEN_STRING) {
                         valueTk = parser_consume(p, TOKEN_STRING);
-                        var_value = valueTk->text;
-                        var_value_type = NODE_VALUE_TYPE_STRING;
+                        varnode->vardec_n.value.s = valueTk->text;
+                        varnode->vardec_n.value.type = NODE_VALUE_TYPE_STRING;
                 } else if (valueTk->type == TOKEN_INT) {
                         valueTk = parser_consume(p, TOKEN_INT);
                         int temp = str_to_int(valueTk->text);
-                        var_value = (void *)(intptr_t)temp;
-                        var_value_type = NODE_VALUE_TYPE_INT;
+                        varnode->vardec_n.value.i = temp;
+                        varnode->vardec_n.value.type = NODE_VALUE_TYPE_INT;
                 } else if (valueTk->type == TOKEN_FLOAT) {
                         valueTk = parser_consume(p, TOKEN_FLOAT);
-                        float fval = str_to_float(valueTk->text);
-                        var_value = malloc(sizeof(float));
-                        memcpy(var_value, &fval, sizeof(float));
-                        var_value_type = NODE_VALUE_TYPE_FLOAT;
+                        float temp = str_to_float(valueTk->text);
+                        varnode->vardec_n.value.f = temp;
+                        varnode->vardec_n.value.type = NODE_VALUE_TYPE_FLOAT;
                 } else if (valueTk->type == TOKEN_LONG) {
                         valueTk = parser_consume(p, TOKEN_LONG);
-                        long lval = str_to_long(valueTk->text);
-                        var_value = (void *)(intptr_t)lval;
-                        var_value_type = NODE_VALUE_TYPE_LONG;
+                        long temp = str_to_long(valueTk->text);
+                        varnode->vardec_n.value.l = temp;
+                        varnode->vardec_n.value.type = NODE_VALUE_TYPE_LONG;
                 } else if (valueTk->type == TOKEN_BOOL) {
                         valueTk = parser_consume(p, TOKEN_BOOL);
-                        bool bval = str_equals(valueTk->text, "true");
-                        var_value = (void *)(intptr_t)bval;
-                        var_value_type = NODE_VALUE_TYPE_BOOL;
+                        bool temp = str_equals(valueTk->text, "true");
+                        varnode->vardec_n.value.b = temp;
+                        varnode->vardec_n.value.type = NODE_VALUE_TYPE_BOOL;
                 } else if (valueTk->type == TOKEN_IDENTIFIER) {
-                        token_t *next =
-                            *(token_t **)vector_get(p->tokens, p->__pos__ + 1);
+                        token_t *next = parser_current(p, 1);
                         if (next->type == TOKEN_RARROW ||
                             next->type == TOKEN_LARROW ||
                             next->type == TOKEN_LPAREN) {
                                 node_t *call_node =
                                     parser_parse_call_node(p, valueTk);
-                                var_value = call_node;
-                                var_value_type = NODE_VALUE_TYPE_CALL;
+                                varnode->vardec_n.value.n = call_node;
+                                varnode->vardec_n.value.type =
+                                    NODE_VALUE_TYPE_CALL;
                         } else {
                                 valueTk = parser_consume(p, TOKEN_IDENTIFIER);
-                                var_value = valueTk->text;
-                                var_value_type = NODE_VALUE_TYPE_VAR;
+                                varnode->vardec_n.value.s = valueTk->text;
+                                varnode->vardec_n.value.type =
+                                    NODE_VALUE_TYPE_VAR;
                         }
                 } else {
                         parser_error(valueTk, "Unsupported value in typed "
@@ -280,18 +359,41 @@ node_t *parser_parse_statement(parser_t *p)
                         return NULL;
                 }
 
-                char *expected = var_type;
+                char *expected = vartype;
                 char *actual = parser_tokentype_to_str(valueTk->type);
+
+                if (varnode->vardec_n.value.type == NODE_VALUE_TYPE_VAR) {
+                        node_t *var =
+                            parser_find_var(p, varnode->vardec_n.value.s);
+                        if (!var)
+                                return NULL; // IMPORTANT TODO: Notice Error
+                        actual = var->vardec_n.type;
+                }
+
+                // if valuetype is a call, so we need to get called function
+                // return type
+                if (varnode->vardec_n.value.type == NODE_VALUE_TYPE_CALL) {
+                        node_t *call = varnode->vardec_n.value.n;
+                        node_t *fn =
+                            parser_find_function(p, call->call_n.name);
+                        if (!fn)
+                                return NULL; // IMPORTANT TODO: Notice Error
+                        actual = fn->function_n.return_type;
+                }
+
                 if (!str_equals(expected, "any") &&
                     !str_equals(expected, actual)) {
                         parser_error(valueTk,
                                      "Type mismatch in declaration of '%s': "
-                                     "expected '%s', got '%s",
-                                     var_name, expected, actual);
+                                     "expected '%s', got '%s', raw: %d",
+                                     varname, expected, actual, valueTk->type);
                 }
-                return var_dec_node_make(var_name, var_type, var_value_type,
-                                         var_value);
+                printd("Var(%s) = (%s)\n", varname, valueTk->text);
+                return varnode;
         } else if (tk->type == TOKEN_IDENTIFIER) {
+                // TODO: This case can be also a variable declarion of user own
+                // types so we need more checks here to really know if its a
+                // call or a var decl
                 return parser_parse_call_node(p, tk);
         }
 
@@ -299,14 +401,17 @@ node_t *parser_parse_statement(parser_t *p)
         return NULL;
 }
 
-node_fnparam_vector_t *parser_parse_fnparams(parser_t *p)
+node_param_vector_t *parser_parse_fnparams(parser_t *p)
 {
-        node_fnparam_vector_t *params =
-            vector_make(sizeof(node_fnparam_vector_t *));
+        node_param_vector_t *params = vector_make(sizeof(param_node_t *));
+        print_nodes(p);
 
         while (true) {
-                token_t *param =
-                    *(token_t **)vector_get(p->tokens, p->__pos__);
+                token_t *param = parser_current(p, 0);
+                if (!param || !param->text) {
+                        parser_error(param, "Somehow param value is null.");
+                        return NULL;
+                }
 
                 if (param->type != TOKEN_STRING && param->type != TOKEN_BOOL &&
                     param->type != TOKEN_INT && param->type != TOKEN_FLOAT &&
@@ -315,15 +420,61 @@ node_fnparam_vector_t *parser_parse_fnparams(parser_t *p)
                         break;
                 }
 
-                node_fnparam_t *fnParam = malloc(sizeof(node_fnparam_t));
-                fnParam->value = strdup(param->text);
-                fnParam->type = parser_tokentype_to_nodevaluetype(p, param);
-                vector_push_back(params, &fnParam);
+                param_node_t *fn_param = alloc_node(NODE_ARG);
+                node_value_kind_t vkind =
+                    parser_tokentype_to_nodevaluetype(p, param);
+                // printd("358: %d, %s\n", vkind, param->text);
+                if (vkind == NODE_VALUE_TYPE_CALL) {
+                        call_node_t *callnode =
+                            parser_parse_call_node(p, param);
+                        fn_param->arg_n.type = NODE_VALUE_TYPE_CALL;
+                        fn_param->arg_n.n = callnode;
+                } else if (vkind == NODE_VALUE_TYPE_FUNC_OR_VAR) {
+                        printd("before consume: %s\n", param->text);
+                        parser_consume(p, param->type);
+                        printd("after consume: %s\n", param->text);
+                        bool f = false;
+                        function_node_t *fn =
+                            parser_find_function(p, param->text);
+                        if (fn && !f) {
+                                fn_param->arg_n.type = NODE_VALUE_TYPE_FUNC;
+                                fn_param->arg_n.n = fn;
+                                printd("fn: %s\n", param->text);
+                                f = true;
+                        }
 
-                parser_consume(p, param->type);
+                        native_function_node_t *nfn =
+                            native_find_function(param->text);
+                        if (nfn && !f) {
+                                fn_param->arg_n.type = NODE_VALUE_TYPE_FUNC;
+                                fn_param->arg_n.n = nfn;
+                                printd("nfn: %s\n", param->text);
+                                f = true;
+                        }
 
-                token_t *comma =
-                    *(token_t **)vector_get(p->tokens, p->__pos__);
+                        vardec_node_t *var = parser_find_var(p, param->text);
+                        if (var && !f) {
+                                fn_param->arg_n.type = NODE_VALUE_TYPE_VAR;
+                                fn_param->arg_n.s = param->text;
+                                printd("var: %s\n", param->text);
+                                f = true;
+                        }
+
+                        if (!f) {
+                                parser_error(param,
+                                             "Param '%s' is not a Function, "
+                                             "NativeFunction nor a Variable.",
+                                             param->text);
+                                return NULL;
+                        }
+                } else {
+                        parser_consume(p, param->type);
+                        fn_param->arg_n.type = vkind;
+                        fn_param->arg_n.s = strdup(param->text);
+                }
+                vector_push_back(params, &fn_param);
+
+                token_t *comma = parser_current(p, 0);
                 if (comma->type == TOKEN_COMMA) {
                         parser_consume(p, TOKEN_COMMA);
                 } else {
@@ -333,33 +484,33 @@ node_fnparam_vector_t *parser_parse_fnparams(parser_t *p)
         return params;
 }
 
-void parser_fn_validate_params(node_t *fn, node_fnparam_vector_t *params,
+void parser_fn_validate_params(node_t *fn, node_param_vector_t *params,
                                token_t *tk)
 {
-        size_t expected = fn->function_n.fn_params->size;
+        size_t expected = fn->function_n.params->size;
         if (params->size != expected) {
                 parser_error(
                     tk, "Function '%s' expects %zu parameters but got %zu.",
-                    fn->function_n.fn_name, expected, params->size);
+                    fn->function_n.name, expected, params->size);
         }
 
         for (size_t i = 0; i < expected; ++i) {
-                node_fnparam_t *param = *(node_fnparam_t **)vector_get(
-                    fn->function_n.fn_params, i);
+                param_node_t *param =
+                    *(param_node_t **)vector_get(fn->function_n.params, i);
 
-                node_fnparam_t *callParam =
-                    *(node_fnparam_t **)vector_get(params, i);
-                node_value_kind_t actualType = callParam->type;
+                param_node_t *callParam =
+                    *(param_node_t **)vector_get(params, i);
+                node_value_kind_t actualType = callParam->arg_n.type;
                 if (actualType == NODE_VALUE_TYPE_VAR ||
                     actualType == NODE_VALUE_TYPE_FUNC)
                         continue;
-                if (param->type != NODE_VALUE_TYPE_ANY &&
-                    param->type != actualType) {
+                if (param->arg_n.type != NODE_VALUE_TYPE_ANY &&
+                    param->arg_n.type != actualType) {
                         parser_error(
                             tk,
                             "Argument %zu to '%s' must be of type %s, got %s",
-                            i + 1, fn->function_n.fn_name,
-                            parser_nodevaluetype_to_str(param->type),
+                            i + 1, fn->function_n.name,
+                            parser_nodevaluetype_to_str(param->arg_n.type),
                             parser_nodevaluetype_to_str(actualType));
                 }
         }
@@ -368,7 +519,9 @@ void parser_fn_validate_params(node_t *fn, node_fnparam_vector_t *params,
 node_t *parser_parse_call_node(parser_t *p, token_t *tk)
 {
         char *name = parser_consume(p, TOKEN_IDENTIFIER)->text;
-        token_t *next = *(token_t **)vector_get(p->tokens, p->__pos__);
+        token_t *next = parser_current(p, 0);
+
+        // printd("446: %d, %s\n", next->type, next->text);
 
         // call with () no params
         if (next->type == TOKEN_LPAREN) {
@@ -377,7 +530,7 @@ node_t *parser_parse_call_node(parser_t *p, token_t *tk)
 
                 node_t *fn = parser_find_function(p, name);
                 if (fn != NULL) {
-                        size_t expected = fn->function_n.fn_params->size;
+                        size_t expected = fn->function_n.params->size;
                         if (expected > 0) {
                                 parser_error(
                                     next,
@@ -386,18 +539,18 @@ node_t *parser_parse_call_node(parser_t *p, token_t *tk)
                                     name, expected);
                         }
                 } else {
-                        native_fnentry_t *nativeFn =
-                            native_find_function(name);
+                        function_node_t *nativeFn = native_find_function(name);
+                        nativeFn->function_n.native = true;
                         if (nativeFn != NULL) {
-                                if (nativeFn->requiredParams != NULL &&
-                                    nativeFn->requiredParams->size > 0) {
+                                if (nativeFn->function_n.params != NULL &&
+                                    nativeFn->function_n.params->size > 0) {
                                         parser_error(
                                             next,
                                             "Native function '%s' expects %zu "
                                             "parameters but none "
                                             "were provided.",
                                             name,
-                                            nativeFn->requiredParams->size);
+                                            nativeFn->function_n.params->size);
                                 }
                         } else {
                                 parser_error(tk,
@@ -413,7 +566,7 @@ node_t *parser_parse_call_node(parser_t *p, token_t *tk)
         // call with ->
         if (next->type == TOKEN_RARROW || next->type == TOKEN_LARROW) {
                 parser_consume(p, next->type);
-                node_fnparam_vector_t *params = parser_parse_fnparams(p);
+                node_arg_vector_t *params = parser_parse_fnparams(p);
 
                 node_t *fn = parser_find_function(p, name);
                 if (fn != NULL) {
@@ -422,7 +575,7 @@ node_t *parser_parse_call_node(parser_t *p, token_t *tk)
                 }
 
                 // check if its native
-                native_fnentry_t *nativeFn = native_find_function(name);
+                native_function_node_t *nativeFn = native_find_function(name);
                 if (nativeFn != NULL) {
                         return call_node_make(name, params);
                 }
@@ -432,7 +585,8 @@ node_t *parser_parse_call_node(parser_t *p, token_t *tk)
                              "native function.",
                              name);
         }
-        parser_error(tk, "Unexpected token after identifier: %s", next->text);
+        parser_error(next, "Unexpected token after identifier: %s",
+                     next->text);
         return NULL;
 }
 
@@ -479,13 +633,16 @@ node_t *parser_parse_function(parser_t *p)
         if (!(str_equals(tk->text, "work"))) {
                 parser_error(tk, "Unexpected token: %s\n", tk->text);
         }
-        char *name = parser_consume(p, TOKEN_IDENTIFIER)->text;
+
+        function_node_t *fn = alloc_node(NODE_FUNCTION);
+        fn->function_n.name = parser_consume(p, TOKEN_IDENTIFIER)->text;
 
         parser_consume(p, TOKEN_LPAREN);
-        node_fnparam_vector_t *params = vector_make(sizeof(node_fnparam_t *));
+        fn->function_n.params = vector_make(sizeof(param_node_t *));
+        fn->function_n.native = false;
 
         while (true) {
-                token_t *next = *(token_t **)vector_get(p->tokens, p->__pos__);
+                token_t *next = parser_current(p, 0);
                 if (next->type == TOKEN_RPAREN) {
                         parser_consume(p, TOKEN_RPAREN);
                         break;
@@ -495,64 +652,69 @@ node_t *parser_parse_function(parser_t *p)
                 parser_consume(p, TOKEN_COLON);
                 char *name = parser_consume(p, TOKEN_IDENTIFIER)->text;
 
-                node_fnparam_t *param = malloc(sizeof(node_fnparam_t));
-                param->value = strdup(name);
-                param->type = parser_str_to_nodevaluetype(type);
+                param_node_t *param = malloc(sizeof(*param));
+                param->arg_n.s = strdup(name);
+                param->arg_n.type = parser_str_to_nodevaluetype(type);
                 // param->typeStr = strdup(type);
-                vector_push_back(params, &param);
+                vector_push_back(fn->function_n.params, &param);
 
-                next = *(token_t **)vector_get(p->tokens, p->__pos__);
+                next = parser_current(p, 0);
                 if (next->type == TOKEN_COMMA) {
                         parser_consume(p, TOKEN_COMMA);
                 }
         }
 
-        char *return_type = NULL;
-        if ((*(token_t **)vector_get(p->tokens, p->__pos__))->type ==
-            TOKEN_COLON) {
+        if ((parser_current(p, 0))->type == TOKEN_COLON) {
                 parser_consume(p, TOKEN_COLON);
-                return_type = parser_consume(p, TOKEN_TYPE)->text;
+                fn->function_n.return_type =
+                    parser_consume(p, TOKEN_TYPE)->text;
         }
 
         parser_consume(p, TOKEN_LBRACE);
-        node_vector_t *body = vector_make(sizeof(node_t *));
-        while ((*(token_t **)vector_get(p->tokens, p->__pos__))->type !=
-               TOKEN_RBRACE) {
+        fn->function_n.body = vector_make(sizeof(node_t *));
+        p->scope_body = fn->function_n.body;
+        while ((parser_current(p, 0))->type != TOKEN_RBRACE) {
                 node_t *n = parser_parse_statement(p);
-                vector_push_back(body, &n);
+                vector_push_back(fn->function_n.body, &n);
         }
 
         parser_consume(p, TOKEN_RBRACE);
+        p->scope_body = NULL;
 
-        if (body->size == 0) {
-                parser_error((*(token_t **)vector_get(p->tokens, p->__pos__)),
+        if (fn->function_n.body->size == 0) {
+                parser_error((parser_current(p, 0)),
                              "Function '%s' is empty, remove or implement it.",
-                             name);
+                             fn->function_n.name);
         }
 
-        if (return_type != NULL) {
-                node_t *lastnode =
-                    *(node_t **)vector_get(body, body->size - 1);
+        if (fn->function_n.return_type != NULL) {
+                node_t *lastnode = *(node_t **)vector_get(
+                    fn->function_n.body, fn->function_n.body->size - 1);
                 if (lastnode != NULL) {
                         if (lastnode->type != NODE_RETURN) {
                                 parser_error((*(token_t **)vector_get(
                                                  p->tokens, p->__pos__)),
                                              "Function '%s' must end with "
                                              "return statement.",
-                                             name);
+                                             fn->function_n.name);
                         }
                         node_value_kind_t retType;
-                        if (str_equals(return_type, "int")) {
+                        if (str_equals(fn->function_n.return_type, "Int")) {
                                 retType = NODE_VALUE_TYPE_INT;
-                        } else if (str_equals(return_type, "float")) {
+                        } else if (str_equals(fn->function_n.return_type,
+                                              "Flat")) {
                                 retType = NODE_VALUE_TYPE_FLOAT;
-                        } else if (str_equals(return_type, "long")) {
+                        } else if (str_equals(fn->function_n.return_type,
+                                              "Long")) {
                                 retType = NODE_VALUE_TYPE_LONG;
-                        } else if (str_equals(return_type, "string")) {
+                        } else if (str_equals(fn->function_n.return_type,
+                                              "Dtring")) {
                                 retType = NODE_VALUE_TYPE_STRING;
-                        } else if (str_equals(return_type, "bool")) {
+                        } else if (str_equals(fn->function_n.return_type,
+                                              "Bool")) {
                                 retType = NODE_VALUE_TYPE_BOOL;
-                        } else if (str_equals(return_type, "any")) {
+                        } else if (str_equals(fn->function_n.return_type,
+                                              "Any")) {
                                 retType = NODE_VALUE_TYPE_ANY;
                         } else {
                                 retType = lastnode->return_n.type;
@@ -564,13 +726,13 @@ node_t *parser_parse_function(parser_t *p)
                                     "The expected return type of function "
                                     "'%s' is '%s', but what was "
                                     "received was: '%s'",
-                                    name, return_type,
+                                    fn->function_n.name,
+                                    fn->function_n.return_type,
                                     parser_nodevaluetype_to_str(retType));
                         }
                 }
         }
-
-        return function_node_make(name, return_type, body, params);
+        return fn;
 }
 
 void parser_parse_program(parser_t *p)
@@ -581,8 +743,7 @@ void parser_parse_program(parser_t *p)
                 if (n != NULL) {
                         vector_push_back(p->nodes, &n);
                 }
-        } while ((*(token_t **)vector_get(p->tokens, p->__pos__))->type !=
-                 TOKEN_EOF);
+        } while ((parser_current(p, 0))->type != TOKEN_EOF);
 }
 
 void parser_error(token_t *tk, char *fmt, ...)

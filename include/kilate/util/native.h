@@ -11,13 +11,6 @@
 extern "C" {
 #endif
 
-static inline node_t *alloc_node(node_kind_t kind)
-{
-        node_t *node = malloc(sizeof(*node));
-        node->type = kind;
-        return node;
-}
-
 /** These methods also checks the 'var' type. */
 /** Returns a string value from a param in native_fndata */
 char *native_fndata_getstr(native_fndata_t *data, size_t index);
@@ -35,11 +28,7 @@ long native_fndata_getlong(native_fndata_t *data, size_t index, bool *ok);
 bool native_fndata_getbool(native_fndata_t *data, size_t index, bool *ok);
 
 /** Adds a param in params vector */
-void params_add(str_vector_t *params, const char *param);
-
-/** Creates a native_fnentry */
-native_fnentry_t *native_fnentry_make(const char *name,
-                                      str_vector_t *reqParams, native_fn_t fn);
+void params_add(node_param_vector_t *params, node_value_kind_t, const char *param);
 
 #ifdef __cplusplus
 }

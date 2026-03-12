@@ -3,12 +3,12 @@
 #include <dirent.h>
 #include <dlfcn.h>
 
+#include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "kilate/config.h"
-#include "kilate/lexer.h"
 #include "kilate/node.h"
 #include "kilate/string.h"
 #include "kilate/vector.h"
@@ -17,7 +17,7 @@ node_vector_t *native_functions = NULL;
 
 void native_init()
 {
-        native_functions = vector_make(sizeof(native_fnentry_t *));
+        native_functions = vector_make(sizeof(native_function_node_t *));
         native_load_extern();
 }
 
@@ -67,37 +67,39 @@ void native_load_extern()
 void native_end()
 {
         for (size_t i = 0; i < native_functions->size; ++i) {
-                native_fnentry_t *entry =
-                    *(native_fnentry_t **)vector_get(native_functions, i);
-                free(entry->name);
-                if (entry->requiredParams != NULL)
-                        vector_delete(entry->requiredParams);
+                function_node_t *entry =
+                    *(function_node_t **)vector_get(native_functions, i);
+                free(entry->function_n.name);
+                if (entry->function_n.params != NULL)
+                        vector_delete(entry->function_n.params);
                 free(entry);
         }
         vector_delete(native_functions);
 }
 
-void native_register_fnentry(native_fnentry_t *entry)
+void native_register_function_node(native_function_node_t *entry)
 {
         vector_push_back(native_functions, &entry);
 }
 
-void native_register_fn(const char *name, str_vector_t *requiredParams,
-                        native_fn_t fn)
+void native_register_fn(const char *name, const char *return_type,
+                        node_param_vector_t *params, native_fn_t fn)
 {
-        native_fnentry_t *entry = malloc(sizeof(native_fnentry_t));
-        entry->name = strdup(name);
-        entry->fn = fn;
-        entry->requiredParams = requiredParams;
-        native_register_fnentry(entry);
+        function_node_t *n = alloc_node(NODE_FUNCTION);
+        n->function_n.name = strdup(name);
+        n->function_n.return_type = strdup(return_type);
+        n->function_n.params = params;
+        n->function_n.native = true;
+        n->function_n.native_fn = fn;
+        native_register_function_node(n);
 }
 
-native_fnentry_t *native_find_function(const char *name)
+native_function_node_t *native_find_function(const char *name)
 {
         for (size_t i = 0; i < native_functions->size; ++i) {
-                native_fnentry_t *entry =
-                    *(native_fnentry_t **)vector_get(native_functions, i);
-                if (str_equals(entry->name, name)) {
+                native_function_node_t *entry = *(
+                    native_function_node_t **)vector_get(native_functions, i);
+                if (str_equals(entry->function_n.name, name)) {
                         return entry;
                 }
         }

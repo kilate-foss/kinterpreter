@@ -1,5 +1,6 @@
 #include <kilate/native.h>
 #include <kilate/string.h>
+#include <kilate/util/native.h>
 #include <kilate/vector.h>
 
 #include "io.h"
@@ -8,23 +9,23 @@ KILATE_NATIVE_REGISTER()
 {
         {
                 // Register native print method
-                str_vector_t *requiredParams = vector_make(sizeof(char **));
-                char *any = "any";
-                vector_push_back(requiredParams, &any);
-                native_register_fn(EXPORT_STD_PRINT_NAME, requiredParams, std_print);
+                node_arg_vector_t *req_params = vector_make(sizeof(arg_node_t *));
+                params_add(req_params, NODE_VALUE_TYPE_ANY, "value");
+                native_register_fn(EXPORT_STD_PRINT_NAME, "Int",
+                                   req_params, std_print);
         }
         {
                 // Register native system method
-                str_vector_t *requiredParams = vector_make(sizeof(char **));
-                char *str = "string";
-                vector_push_back(requiredParams, &str);
-                native_register_fn(EXPORT_STD_SYSTEM_NAME, requiredParams, std_system);
+                node_arg_vector_t *req_params = vector_make(sizeof(arg_node_t *));
+                params_add(req_params, NODE_VALUE_TYPE_STRING, "cmd");
+                native_register_fn(EXPORT_STD_SYSTEM_NAME, "Int",
+                                   req_params, std_system);
         }
         {
                 // Register native system method
-                str_vector_t *requiredParams = vector_make(sizeof(char **));
-                char *str = "long";
-                vector_push_back(requiredParams, &str);
-                native_register_fn(EXPORT_STD_SLEEP_NAME, requiredParams, std_sleep);
+                node_arg_vector_t *req_params = vector_make(sizeof(arg_node_t *));
+                params_add(req_params, NODE_VALUE_TYPE_LONG, "ms");
+                native_register_fn(EXPORT_STD_SLEEP_NAME, "Work",
+                                   req_params, std_sleep);
         }
 }

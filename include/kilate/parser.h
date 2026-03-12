@@ -4,10 +4,8 @@
 #include <stdarg.h>
 
 #include "kilate/lexer.h"
-#include "kilate/native.h"
 #include "kilate/node.h"
 #include "kilate/string.h"
-#include "kilate/vector.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +15,7 @@ typedef struct {
         size_t __pos__;
         token_vector_t *tokens;
         node_vector_t *nodes;
+        node_vector_t *scope_body; // the current scope body nodes
 } parser_t;
 
 parser_t *parser_make(token_vector_t *);
@@ -39,9 +38,9 @@ node_value_kind_t parser_str_to_nodevaluetype(char *);
 
 node_t *parser_parse_statement(parser_t *);
 
-node_fnparam_vector_t *parser_parse_fnparams(parser_t *);
+node_param_vector_t *parser_parse_fnparams(parser_t *);
 
-void parser_fn_validate_params(node_t *, node_fnparam_vector_t *, token_t *);
+void parser_fn_validate_params(node_t *, node_param_vector_t *, token_t *);
 
 node_t *parser_parse_call_node(parser_t *, token_t *);
 
