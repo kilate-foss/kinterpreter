@@ -1,6 +1,6 @@
 // EXAMPLE!!! FILE OF REAL STANDARD LIBRARY PRINT.
 
-import "mate/stream.mt"
+import "mate/stream.mate"
 
 work Print(const text: String) {
         stdout.Write -> text

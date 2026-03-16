@@ -1,5 +1,5 @@
 {
-    name: ["Mate", ".mt"]
+    name: ["Mate", ".mate"]
     comment: {startsWith: "//"}
     contains: [
         {builtin: #C_QUOTED_STRING#}
