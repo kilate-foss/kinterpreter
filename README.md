@@ -1,5 +1,5 @@
-# Mate
-- An easy interpreted programming language.
+# Mate (formerly Kilate)
+- Another yet interpreted programming language.
 
 ## Syntax
 ```
@@ -14,12 +14,12 @@ work Main(): Int {
 
 ### 🐧 Linux
 
-> Requirements: ruby, cmake, make, C++ compiler (g++ or clang)
+> Requirements: ruby, cmake, make, and a C Compiler.
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/mate-lang/mate
+git clone https://github.com/kilate-foss/mate
 cd mate
 ```
 
@@ -29,7 +29,7 @@ cd mate
 ruby build.rb --install
 ```
 
-## How to use Mate-Interpreter
+## How to use Mate
 Below we have the basic interpreter commands.
 
 ## Run
