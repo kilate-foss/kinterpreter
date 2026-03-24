@@ -1,8 +1,8 @@
 #ifndef __ENVIRONMENT_H__
 #define __ENVIRONMENT_H__
 
-#include "mate/bool.h"
-#include "mate/node.h"
+#include "kilate/bool.h"
+#include "kilate/node.h"
 
 #ifdef __cplusplus
 extern "C" {

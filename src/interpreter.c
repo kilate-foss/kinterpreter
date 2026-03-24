@@ -1,16 +1,16 @@
-#include "mate/interpreter.h"
+#include "kilate/interpreter.h"
 
 #include <alloca.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "mate/debug.h"
-#include "mate/environment.h"
-#include "mate/error.h"
-#include "mate/hashmap.h"
-#include "mate/native.h"
-#include "mate/node.h"
-#include "mate/parser.h"
+#include "kilate/debug.h"
+#include "kilate/environment.h"
+#include "kilate/error.h"
+#include "kilate/hashmap.h"
+#include "kilate/native.h"
+#include "kilate/node.h"
+#include "kilate/parser.h"
 
 interpreter_t *interpreter_make(node_vector_t *nodes_vector,
                                 node_vector_t *native_functions_nodes_vector)
@@ -161,12 +161,12 @@ interpreter_result_t interpreter_run_fn(interpreter_t *self, node_t *func,
 
         printd("158: %s\n", func->function_n.name);
         for (size_t i = 0; i < func->function_n.body->size; i++) {
-                node_t **stmatePtr =
+                node_t **stmtPtr =
                     (node_t **)vector_get(func->function_n.body, i);
-                if (stmatePtr != NULL) {
-                        node_t *stmate = *stmatePtr;
+                if (stmtPtr != NULL) {
+                        node_t *stmt = *stmtPtr;
                         interpreter_result_t result =
-                            interpreter_run_node(self, stmate);
+                            interpreter_run_node(self, stmt);
                         if (result.type == IRT_RETURN) {
                                 env_t *to_destroy = self->env;
                                 self->env = old;

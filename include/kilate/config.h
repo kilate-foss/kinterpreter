@@ -1,7 +1,7 @@
 #ifndef __CONFIG__
 #define __CONFIG__
 
-#include "mate/vector.h"
+#include "kilate/vector.h"
 
 #ifdef __cplusplus
 extern "C" {

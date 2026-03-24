@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mate/config.h"
-#include "mate/error.h"
-#include "mate/file.h"
-#include "mate/interpreter.h"
-#include "mate/lexer.h"
-#include "mate/native.h"
-#include "mate/parser.h"
-#include "mate/string.h"
-#include "mate/vector.h"
+#include "kilate/config.h"
+#include "kilate/error.h"
+#include "kilate/file.h"
+#include "kilate/interpreter.h"
+#include "kilate/lexer.h"
+#include "kilate/native.h"
+#include "kilate/parser.h"
+#include "kilate/string.h"
+#include "kilate/vector.h"
 
 int interpret(char *src)
 {
@@ -54,8 +54,8 @@ int run(int argc, char *argv[])
                 printf("Usage:\n");
                 printf("  %s run <mainfile> [-I<path>] [-l<lib>]\n", argv[0]);
                 printf("Options:\n");
-                printf("  -L<path>    Mate Libraries path\n");
-                printf("  -LN<path>   Mate Native Libraries path\n");
+                printf("  -L<path>    Kilate Libraries path\n");
+                printf("  -LN<path>   Kilate Native Libraries path\n");
                 return 0;
         }
 
@@ -77,13 +77,13 @@ int run(int argc, char *argv[])
                 const char *PREFIX = getenv("PREFIX");
                 if (PREFIX != NULL) {
                         char path[512];
-                        snprintf(path, sizeof(path), "%s/mate/native_libs/",
+                        snprintf(path, sizeof(path), "%s/kilate/native_libs/",
                                  PREFIX);
                         char *dup = strdup(path);
                         vector_push_back(libs_native_directories, &dup);
 
                         memset(path, 0, sizeof(path));
-                        snprintf(path, sizeof(path), "%s/mate/libs/",
+                        snprintf(path, sizeof(path), "%s/kilate/libs/",
                                  PREFIX);
                         dup = strdup(path);
                         vector_push_back(libs_directories, &dup);

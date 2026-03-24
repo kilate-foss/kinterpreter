@@ -1,4 +1,4 @@
-#include "mate/file.h"
+#include "kilate/file.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -9,8 +9,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "mate/error.h"
-#include "mate/string.h"
+#include "kilate/error.h"
+#include "kilate/string.h"
 
 // Opens a file
 // After do all uses with file, close it

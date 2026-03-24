@@ -1,9 +1,9 @@
 #ifndef __NATIVE_H__
 #define __NATIVE_H__
 
-#include "mate/environment.h"
-#include "mate/interpreter.h"
-#include "mate/string.h"
+#include "kilate/environment.h"
+#include "kilate/interpreter.h"
+#include "kilate/string.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +16,7 @@ typedef struct native_fndata_t {
 
 typedef return_node_t *(*native_fn_t)(native_fndata_t *);
 
-#define MATE_NATIVE_REGISTER() void MATE_NATIVE_REGISTER()
+#define KILATE_NATIVE_REGISTER() void KILATE_NATIVE_REGISTER()
 
 extern node_vector_t *native_functions;
 

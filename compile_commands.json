@@ -1,242 +1,242 @@
 [
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/config.c.o -c /sdcard/.projects/kinterpreter/src/config.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/config.c.o -c /sdcard/.projects/kinterpreter/src/config.c",
   "file": "/sdcard/.projects/kinterpreter/src/config.c",
-  "output": "CMakeFiles/mate_shared.dir/src/config.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/config.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/environment.c.o -c /sdcard/.projects/kinterpreter/src/environment.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/environment.c.o -c /sdcard/.projects/kinterpreter/src/environment.c",
   "file": "/sdcard/.projects/kinterpreter/src/environment.c",
-  "output": "CMakeFiles/mate_shared.dir/src/environment.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/environment.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/error.c.o -c /sdcard/.projects/kinterpreter/src/error.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/error.c.o -c /sdcard/.projects/kinterpreter/src/error.c",
   "file": "/sdcard/.projects/kinterpreter/src/error.c",
-  "output": "CMakeFiles/mate_shared.dir/src/error.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/error.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/file.c.o -c /sdcard/.projects/kinterpreter/src/file.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/file.c.o -c /sdcard/.projects/kinterpreter/src/file.c",
   "file": "/sdcard/.projects/kinterpreter/src/file.c",
-  "output": "CMakeFiles/mate_shared.dir/src/file.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/file.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/interpreter.c.o -c /sdcard/.projects/kinterpreter/src/interpreter.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/interpreter.c.o -c /sdcard/.projects/kinterpreter/src/interpreter.c",
   "file": "/sdcard/.projects/kinterpreter/src/interpreter.c",
-  "output": "CMakeFiles/mate_shared.dir/src/interpreter.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/interpreter.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/hashmap.c.o -c /sdcard/.projects/kinterpreter/src/hashmap.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/hashmap.c.o -c /sdcard/.projects/kinterpreter/src/hashmap.c",
   "file": "/sdcard/.projects/kinterpreter/src/hashmap.c",
-  "output": "CMakeFiles/mate_shared.dir/src/hashmap.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/hashmap.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/lexer.c.o -c /sdcard/.projects/kinterpreter/src/lexer.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/lexer.c.o -c /sdcard/.projects/kinterpreter/src/lexer.c",
   "file": "/sdcard/.projects/kinterpreter/src/lexer.c",
-  "output": "CMakeFiles/mate_shared.dir/src/lexer.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/lexer.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/node.c.o -c /sdcard/.projects/kinterpreter/src/node.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/node.c.o -c /sdcard/.projects/kinterpreter/src/node.c",
   "file": "/sdcard/.projects/kinterpreter/src/node.c",
-  "output": "CMakeFiles/mate_shared.dir/src/node.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/node.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/parser.c.o -c /sdcard/.projects/kinterpreter/src/parser.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/parser.c.o -c /sdcard/.projects/kinterpreter/src/parser.c",
   "file": "/sdcard/.projects/kinterpreter/src/parser.c",
-  "output": "CMakeFiles/mate_shared.dir/src/parser.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/parser.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/native.c.o -c /sdcard/.projects/kinterpreter/src/native.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/native.c.o -c /sdcard/.projects/kinterpreter/src/native.c",
   "file": "/sdcard/.projects/kinterpreter/src/native.c",
-  "output": "CMakeFiles/mate_shared.dir/src/native.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/native.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/string.c.o -c /sdcard/.projects/kinterpreter/src/string.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/string.c.o -c /sdcard/.projects/kinterpreter/src/string.c",
   "file": "/sdcard/.projects/kinterpreter/src/string.c",
-  "output": "CMakeFiles/mate_shared.dir/src/string.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/string.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/vector.c.o -c /sdcard/.projects/kinterpreter/src/vector.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/vector.c.o -c /sdcard/.projects/kinterpreter/src/vector.c",
   "file": "/sdcard/.projects/kinterpreter/src/vector.c",
-  "output": "CMakeFiles/mate_shared.dir/src/vector.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/vector.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc -Dmate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/mate_shared.dir/src/util/native.c.o -c /sdcard/.projects/kinterpreter/src/util/native.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc -Dkilate_shared_EXPORTS -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -fPIC -Wall -Wextra -Wunused -o CMakeFiles/kilate_shared.dir/src/util/native.c.o -c /sdcard/.projects/kinterpreter/src/util/native.c",
   "file": "/sdcard/.projects/kinterpreter/src/util/native.c",
-  "output": "CMakeFiles/mate_shared.dir/src/util/native.c.o"
+  "output": "CMakeFiles/kilate_shared.dir/src/util/native.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/config.c.o -c /sdcard/.projects/kinterpreter/src/config.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/config.c.o -c /sdcard/.projects/kinterpreter/src/config.c",
   "file": "/sdcard/.projects/kinterpreter/src/config.c",
-  "output": "CMakeFiles/mate_static.dir/src/config.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/config.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/environment.c.o -c /sdcard/.projects/kinterpreter/src/environment.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/environment.c.o -c /sdcard/.projects/kinterpreter/src/environment.c",
   "file": "/sdcard/.projects/kinterpreter/src/environment.c",
-  "output": "CMakeFiles/mate_static.dir/src/environment.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/environment.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/error.c.o -c /sdcard/.projects/kinterpreter/src/error.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/error.c.o -c /sdcard/.projects/kinterpreter/src/error.c",
   "file": "/sdcard/.projects/kinterpreter/src/error.c",
-  "output": "CMakeFiles/mate_static.dir/src/error.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/error.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/file.c.o -c /sdcard/.projects/kinterpreter/src/file.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/file.c.o -c /sdcard/.projects/kinterpreter/src/file.c",
   "file": "/sdcard/.projects/kinterpreter/src/file.c",
-  "output": "CMakeFiles/mate_static.dir/src/file.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/file.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/interpreter.c.o -c /sdcard/.projects/kinterpreter/src/interpreter.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/interpreter.c.o -c /sdcard/.projects/kinterpreter/src/interpreter.c",
   "file": "/sdcard/.projects/kinterpreter/src/interpreter.c",
-  "output": "CMakeFiles/mate_static.dir/src/interpreter.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/interpreter.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/hashmap.c.o -c /sdcard/.projects/kinterpreter/src/hashmap.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/hashmap.c.o -c /sdcard/.projects/kinterpreter/src/hashmap.c",
   "file": "/sdcard/.projects/kinterpreter/src/hashmap.c",
-  "output": "CMakeFiles/mate_static.dir/src/hashmap.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/hashmap.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/lexer.c.o -c /sdcard/.projects/kinterpreter/src/lexer.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/lexer.c.o -c /sdcard/.projects/kinterpreter/src/lexer.c",
   "file": "/sdcard/.projects/kinterpreter/src/lexer.c",
-  "output": "CMakeFiles/mate_static.dir/src/lexer.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/lexer.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/node.c.o -c /sdcard/.projects/kinterpreter/src/node.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/node.c.o -c /sdcard/.projects/kinterpreter/src/node.c",
   "file": "/sdcard/.projects/kinterpreter/src/node.c",
-  "output": "CMakeFiles/mate_static.dir/src/node.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/node.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/parser.c.o -c /sdcard/.projects/kinterpreter/src/parser.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/parser.c.o -c /sdcard/.projects/kinterpreter/src/parser.c",
   "file": "/sdcard/.projects/kinterpreter/src/parser.c",
-  "output": "CMakeFiles/mate_static.dir/src/parser.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/parser.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/native.c.o -c /sdcard/.projects/kinterpreter/src/native.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/native.c.o -c /sdcard/.projects/kinterpreter/src/native.c",
   "file": "/sdcard/.projects/kinterpreter/src/native.c",
-  "output": "CMakeFiles/mate_static.dir/src/native.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/native.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/string.c.o -c /sdcard/.projects/kinterpreter/src/string.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/string.c.o -c /sdcard/.projects/kinterpreter/src/string.c",
   "file": "/sdcard/.projects/kinterpreter/src/string.c",
-  "output": "CMakeFiles/mate_static.dir/src/string.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/string.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/vector.c.o -c /sdcard/.projects/kinterpreter/src/vector.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/vector.c.o -c /sdcard/.projects/kinterpreter/src/vector.c",
   "file": "/sdcard/.projects/kinterpreter/src/vector.c",
-  "output": "CMakeFiles/mate_static.dir/src/vector.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/vector.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate_static.dir/src/util/native.c.o -c /sdcard/.projects/kinterpreter/src/util/native.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate_static.dir/src/util/native.c.o -c /sdcard/.projects/kinterpreter/src/util/native.c",
   "file": "/sdcard/.projects/kinterpreter/src/util/native.c",
-  "output": "CMakeFiles/mate_static.dir/src/util/native.c.o"
+  "output": "CMakeFiles/kilate_static.dir/src/util/native.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/main.c.o -c /sdcard/.projects/kinterpreter/src/main.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/main.c.o -c /sdcard/.projects/kinterpreter/src/main.c",
   "file": "/sdcard/.projects/kinterpreter/src/main.c",
-  "output": "CMakeFiles/mate.dir/src/main.c.o"
+  "output": "CMakeFiles/kilate.dir/src/main.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/config.c.o -c /sdcard/.projects/kinterpreter/src/config.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/config.c.o -c /sdcard/.projects/kinterpreter/src/config.c",
   "file": "/sdcard/.projects/kinterpreter/src/config.c",
-  "output": "CMakeFiles/mate.dir/src/config.c.o"
+  "output": "CMakeFiles/kilate.dir/src/config.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/environment.c.o -c /sdcard/.projects/kinterpreter/src/environment.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/environment.c.o -c /sdcard/.projects/kinterpreter/src/environment.c",
   "file": "/sdcard/.projects/kinterpreter/src/environment.c",
-  "output": "CMakeFiles/mate.dir/src/environment.c.o"
+  "output": "CMakeFiles/kilate.dir/src/environment.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/error.c.o -c /sdcard/.projects/kinterpreter/src/error.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/error.c.o -c /sdcard/.projects/kinterpreter/src/error.c",
   "file": "/sdcard/.projects/kinterpreter/src/error.c",
-  "output": "CMakeFiles/mate.dir/src/error.c.o"
+  "output": "CMakeFiles/kilate.dir/src/error.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/file.c.o -c /sdcard/.projects/kinterpreter/src/file.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/file.c.o -c /sdcard/.projects/kinterpreter/src/file.c",
   "file": "/sdcard/.projects/kinterpreter/src/file.c",
-  "output": "CMakeFiles/mate.dir/src/file.c.o"
+  "output": "CMakeFiles/kilate.dir/src/file.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/interpreter.c.o -c /sdcard/.projects/kinterpreter/src/interpreter.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/interpreter.c.o -c /sdcard/.projects/kinterpreter/src/interpreter.c",
   "file": "/sdcard/.projects/kinterpreter/src/interpreter.c",
-  "output": "CMakeFiles/mate.dir/src/interpreter.c.o"
+  "output": "CMakeFiles/kilate.dir/src/interpreter.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/hashmap.c.o -c /sdcard/.projects/kinterpreter/src/hashmap.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/hashmap.c.o -c /sdcard/.projects/kinterpreter/src/hashmap.c",
   "file": "/sdcard/.projects/kinterpreter/src/hashmap.c",
-  "output": "CMakeFiles/mate.dir/src/hashmap.c.o"
+  "output": "CMakeFiles/kilate.dir/src/hashmap.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/lexer.c.o -c /sdcard/.projects/kinterpreter/src/lexer.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/lexer.c.o -c /sdcard/.projects/kinterpreter/src/lexer.c",
   "file": "/sdcard/.projects/kinterpreter/src/lexer.c",
-  "output": "CMakeFiles/mate.dir/src/lexer.c.o"
+  "output": "CMakeFiles/kilate.dir/src/lexer.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/node.c.o -c /sdcard/.projects/kinterpreter/src/node.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/node.c.o -c /sdcard/.projects/kinterpreter/src/node.c",
   "file": "/sdcard/.projects/kinterpreter/src/node.c",
-  "output": "CMakeFiles/mate.dir/src/node.c.o"
+  "output": "CMakeFiles/kilate.dir/src/node.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/parser.c.o -c /sdcard/.projects/kinterpreter/src/parser.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/parser.c.o -c /sdcard/.projects/kinterpreter/src/parser.c",
   "file": "/sdcard/.projects/kinterpreter/src/parser.c",
-  "output": "CMakeFiles/mate.dir/src/parser.c.o"
+  "output": "CMakeFiles/kilate.dir/src/parser.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/native.c.o -c /sdcard/.projects/kinterpreter/src/native.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/native.c.o -c /sdcard/.projects/kinterpreter/src/native.c",
   "file": "/sdcard/.projects/kinterpreter/src/native.c",
-  "output": "CMakeFiles/mate.dir/src/native.c.o"
+  "output": "CMakeFiles/kilate.dir/src/native.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/string.c.o -c /sdcard/.projects/kinterpreter/src/string.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/string.c.o -c /sdcard/.projects/kinterpreter/src/string.c",
   "file": "/sdcard/.projects/kinterpreter/src/string.c",
-  "output": "CMakeFiles/mate.dir/src/string.c.o"
+  "output": "CMakeFiles/kilate.dir/src/string.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/vector.c.o -c /sdcard/.projects/kinterpreter/src/vector.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/vector.c.o -c /sdcard/.projects/kinterpreter/src/vector.c",
   "file": "/sdcard/.projects/kinterpreter/src/vector.c",
-  "output": "CMakeFiles/mate.dir/src/vector.c.o"
+  "output": "CMakeFiles/kilate.dir/src/vector.c.o"
 },
 {
   "directory": "/sdcard/.projects/kinterpreter/build",
-  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/mate.dir/src/util/native.c.o -c /sdcard/.projects/kinterpreter/src/util/native.c",
+  "command": "/data/data/com.termux/files/usr/bin/cc  -I/sdcard/.projects/kinterpreter/include -O2 -g -DNDEBUG -Wall -Wextra -Wunused -o CMakeFiles/kilate.dir/src/util/native.c.o -c /sdcard/.projects/kinterpreter/src/util/native.c",
   "file": "/sdcard/.projects/kinterpreter/src/util/native.c",
-  "output": "CMakeFiles/mate.dir/src/util/native.c.o"
+  "output": "CMakeFiles/kilate.dir/src/util/native.c.o"
 }
 ]

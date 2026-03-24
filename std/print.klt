@@ -1,0 +1,11 @@
+// EXAMPLE!!! FILE OF REAL STANDARD LIBRARY PRINT.
+
+<<<<<<<< HEAD:std/print.mate
+import "mate/stream.mate"
+========
+import "kilate/stream.klt"
+>>>>>>>> parent of a859bdb (refactor: Rename the project to Mate):std/print.klt
+
+work print(const text: String) {
+        stdout.Write -> text
+}

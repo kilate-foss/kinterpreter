@@ -1,0 +1,9 @@
+work GetName(): String {
+        return "Aquiles Trindade"
+}
+
+work Main(): Int {
+        String name = GetName()
+        Print -> name
+        return -> 0
+}

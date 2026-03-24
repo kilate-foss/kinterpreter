@@ -1,4 +1,4 @@
-# Mate
+# Kilate
 - An easy interpreted programming language.
 
 ## Syntax
@@ -10,7 +10,7 @@ work Main(): Int {
 }
 ```
 
-## How to install Mate-Interpreter
+## How to install Kilate-Interpreter
 
 ### 🐧 Linux
 
@@ -19,8 +19,8 @@ work Main(): Int {
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/mate-lang/mate
-cd mate
+git clone https://github.com/kilate-lang/kilate
+cd kilate
 ```
 
 ### 3. Install
@@ -29,15 +29,15 @@ cd mate
 ruby build.rb --install
 ```
 
-## How to use Mate-Interpreter
+## How to use Kilate-Interpreter
 Below we have the basic interpreter commands.
 
 ## Run
 ```bash
-mate run <files>
+kilate run <files>
 ```
 
 ## Help
 ```bash
-mate help
+kilate help
 ```

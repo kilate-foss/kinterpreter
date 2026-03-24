@@ -1,10 +1,10 @@
 #ifndef __INTERPRETER_H__
 #define __INTERPRETER_H__
 
-#include "mate/environment.h"
-#include "mate/hashmap.h"
-#include "mate/node.h"
-#include "mate/string.h"
+#include "kilate/environment.h"
+#include "kilate/hashmap.h"
+#include "kilate/node.h"
+#include "kilate/string.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,11 +32,11 @@ void interpreter_delete(interpreter_t *);
 interpreter_result_t interpreter_run(interpreter_t *);
 
 // Low function node runner
-// it will call interpreter_run_fn for Mate Functions.
+// it will call interpreter_run_fn for Kilate Functions.
 // and runs directly for native functions.
 interpreter_result_t interpreter_run_fnlow(interpreter_t *, node_t *, node_arg_vector_t *);
 
-// Runs a Mate Node
+// Runs a Kilate Node
 interpreter_result_t interpreter_run_fn(interpreter_t *, node_t *,
                                         node_arg_vector_t *);
 

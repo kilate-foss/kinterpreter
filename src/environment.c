@@ -1,11 +1,11 @@
-#include "mate/environment.h"
+#include "kilate/environment.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "mate/bool.h"
-#include "mate/error.h"
-#include "mate/string.h"
+#include "kilate/bool.h"
+#include "kilate/error.h"
+#include "kilate/string.h"
 
 env_t *env_make(env_t *parent)
 {

@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.22)
 
-set(PROJECT_NAME mate)
+set(PROJECT_NAME kilate)
 project(${PROJECT_NAME} LANGUAGES C CXX)
 
 option(BUILD_SHARED_LIBS "Build shared libraries (.so)" ON)
 option(BUILD_STATIC_LIBS "Build static libraries (.a)" ON)
-option(INSTALL "Install libmate and executable." OFF)
+option(INSTALL "Install libkilate and executable." OFF)
 option(ASAN "Enable Address Sanitizer" OFF)
 
 add_compile_options(-Wall -Wextra -Wunused)
@@ -42,19 +42,19 @@ set(LIB_SOURCES
     src/util/native.c)
 
 set(HEADERS
-    include/mate/config.h
-    include/mate/environment.h
-    include/mate/error.h
-    include/mate/file.h
-    include/mate/hashmap.h
-    include/mate/interpreter.h
-    include/mate/lexer.h
-    include/mate/node.h
-    include/mate/parser.h
-    include/mate/native.h
-    include/mate/string.h
-    include/mate/vector.h
-    include/mate/util/native.h)
+    include/kilate/config.h
+    include/kilate/environment.h
+    include/kilate/error.h
+    include/kilate/file.h
+    include/kilate/hashmap.h
+    include/kilate/interpreter.h
+    include/kilate/lexer.h
+    include/kilate/node.h
+    include/kilate/parser.h
+    include/kilate/native.h
+    include/kilate/string.h
+    include/kilate/vector.h
+    include/kilate/util/native.h)
 
 set(EXE_SOURCES
     src/main.c
@@ -67,7 +67,7 @@ if(BUILD_SHARED_LIBS)
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-  add_library(Mate::MateShared ALIAS ${PROJECT_NAME}_shared)
+  add_library(Kilate::KilateShared ALIAS ${PROJECT_NAME}_shared)
 endif()
 
 if(BUILD_STATIC_LIBS)
@@ -77,14 +77,14 @@ if(BUILD_STATIC_LIBS)
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-  add_library(Mate::Mate ALIAS ${PROJECT_NAME}_static)
+  add_library(Kilate::Kilate ALIAS ${PROJECT_NAME}_static)
 endif()
 
 # Main Binary
 add_executable(${PROJECT_NAME} ${EXE_SOURCES})
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
-  Mate::Mate)
+  Kilate::Kilate)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(${PROJECT_NAME}
@@ -122,6 +122,6 @@ if(INSTALL)
         PATTERN "*.hpp")
 
   install(EXPORT ${PROJECT_NAME}Targets
-    NAMESPACE Mate::
+    NAMESPACE Kilate::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 endif()
