@@ -1,4 +1,4 @@
-# derKilate
+# Kilate
 - An easy interpreted programming language.
 
 ## Syntax
@@ -10,7 +10,7 @@ work Main(): Int {
 }
 ```
 
-## How to install drrKilate
+## How to install Kilate
 
 ### 🐧 Linux
 
@@ -19,7 +19,7 @@ work Main(): Int {
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/der-foss/derKilate
+git clone https://codeberg.org/trindadedev/Kilate
 cd kilate
 ```
 
@@ -29,7 +29,7 @@ cd kilate
 ruby build.rb --install
 ```
 
-## How to use derKilate
+## How to use Kilate
 Below we have the basic interpreter commands.
 
 ## Run
