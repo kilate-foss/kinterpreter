@@ -44,8 +44,8 @@ void node_delete(node_t *n)
                 free(n->call_n.name);
 
                 for (size_t i = 0; i < n->call_n.args->size; ++i) {
-                        arg_node_t *arg = *(arg_node_t **)vector_get(
-                            n->call_n.args, i);
+                        arg_node_t *arg =
+                            *(arg_node_t **)vector_get(n->call_n.args, i);
                         node_delete(arg);
                 }
 
@@ -78,6 +78,75 @@ const char *node_kind_tostr(node_kind_t k)
         };
 }
 
+const char *token_kind_to_str(token_kind_t type)
+{
+        switch (type) {
+        case TOKEN_STRING:
+                return "String";
+        case TOKEN_BOOL:
+                return "Nool";
+        case TOKEN_INT:
+                return "Int";
+        case TOKEN_FLOAT:
+                return "Float";
+        case TOKEN_LONG:
+                return "Long";
+        default:
+                return "<?>";
+        }
+}
+
+const char *node_value_kind_to_str(node_value_kind_t type)
+{
+        switch (type) {
+        case NODE_VALUE_TYPE_INT:
+                return "Int";
+        case NODE_VALUE_TYPE_FLOAT:
+                return "Float";
+        case NODE_VALUE_TYPE_LONG:
+                return "Long";
+        case NODE_VALUE_TYPE_STRING:
+                return "String";
+        case NODE_VALUE_TYPE_BOOL:
+                return "Bool";
+        case NODE_VALUE_TYPE_VAR:
+                return "Var";
+        case NODE_VALUE_TYPE_FUNC:
+                return "Func";
+        case NODE_VALUE_TYPE_FUNC_OR_VAR:
+                return "FuncOrVar";
+        case NODE_VALUE_TYPE_CALL:
+                return "Call";
+        default:
+                return "Any";
+        }
+}
+
+node_value_kind_t str_to_node_value_kind(const char *value)
+{
+#ifndef ct
+#define ct(str) str_equals(value, str)
+#endif
+
+        if (ct("String")) {
+                return NODE_VALUE_TYPE_STRING;
+        } else if (ct("Bool")) {
+                return NODE_VALUE_TYPE_BOOL;
+        } else if (ct("Int")) {
+                return NODE_VALUE_TYPE_INT;
+        } else if (ct("Float")) {
+                return NODE_VALUE_TYPE_FLOAT;
+        } else if (ct("Long")) {
+                return NODE_VALUE_TYPE_LONG;
+        } else {
+                return NODE_VALUE_TYPE_ANY;
+        }
+
+#ifdef ct
+#undef ct
+#endif
+}
+
 node_t *node_copy(node_t *n)
 {
         if (!n)
@@ -90,9 +159,8 @@ node_t *node_copy(node_t *n)
         new->type = n->type;
 
         if (n->type == NODE_FUNCTION) {
-                new->function_n.name = n->function_n.name ?
-                                              strdup(n->function_n.name) :
-                                              NULL;
+                new->function_n.name =
+                    n->function_n.name ? strdup(n->function_n.name) : NULL;
 
                 new->function_n.return_type =
                     n->function_n.return_type ?
@@ -109,8 +177,7 @@ node_t *node_copy(node_t *n)
                         vector_push_back(new->function_n.body, &copy);
                 }
 
-                new->function_n.params =
-                    vector_make(sizeof(param_node_t *));
+                new->function_n.params = vector_make(sizeof(param_node_t *));
                 for (size_t i = 0; i < n->function_n.params->size; ++i) {
 
                         param_node_t *param = *(param_node_t **)vector_get(
@@ -119,25 +186,22 @@ node_t *node_copy(node_t *n)
                         param_node_t *param_copy =
                             (param_node_t *)node_copy((node_t *)param);
 
-                        vector_push_back(new->function_n.params,
-                                         &param_copy);
+                        vector_push_back(new->function_n.params, &param_copy);
                 }
         } else if (n->type == NODE_CALL) {
-                new->call_n.name = n->call_n.name ?
-                                               strdup(n->call_n.name) :
-                                               NULL;
+                new->call_n.name =
+                    n->call_n.name ? strdup(n->call_n.name) : NULL;
 
                 new->call_n.args = vector_make(sizeof(arg_node_t *));
                 for (size_t i = 0; i < n->call_n.args->size; ++i) {
 
-                        arg_node_t *arg = *(arg_node_t **)vector_get(
-                            n->call_n.args, i);
+                        arg_node_t *arg =
+                            *(arg_node_t **)vector_get(n->call_n.args, i);
 
                         arg_node_t *arg_copy =
                             (arg_node_t *)node_copy((node_t *)arg);
 
-                        vector_push_back(new->call_n.args,
-                                         &arg_copy);
+                        vector_push_back(new->call_n.args, &arg_copy);
                 }
         } else if (n->type == NODE_RETURN) {
                 new->return_n = n->return_n;
@@ -157,8 +221,7 @@ node_t *node_copy(node_t *n)
         return new;
 }
 
-call_node_t *call_node_make(const char *name,
-                            node_arg_vector_t *args)
+call_node_t *call_node_make(const char *name, node_arg_vector_t *args)
 {
         node_t *n = alloc_node(NODE_CALL);
         n->call_n.name = strdup(name);
@@ -186,18 +249,25 @@ safe_value_t get_safe_value(interpreter_t *inter, arg_node_t *arg)
 {
         safe_value_t result = { 0 };
 
-        printd("213: %d\n", arg->arg_n.type);
+        printd("node::get_safe_value+3: %s\n",
+               node_value_kind_to_str(arg->arg_n.type));
         if (arg->arg_n.type == NODE_VALUE_TYPE_VAR) {
                 node_t *var = env_getvar(inter->env, arg->arg_n.s);
+                printf("node::get_safe_value+7: var(%s)\n", arg->arg_n.s);
                 if (var) {
                         result.type = var->vardec_n.value.type;
                         result.value = var->vardec_n.value;
+                        if (result.type == NODE_VALUE_TYPE_STRING) {
+                                printf(
+                                    "node::get_safe_value+13: var(%s) = %s\n",
+                                    arg->arg_n.s, result.value.s);
+                        }
                 }
         } else if (arg->arg_n.type == NODE_VALUE_TYPE_CALL) {
                 node_t *fn = arg->arg_n.n;
                 if (fn) {
-                        interpreter_result_t ret = interpreter_run_fnlow(
-                            inter, fn, arg->call_n.args);
+                        interpreter_result_t ret =
+                            interpreter_run_fnlow(inter, fn, arg->call_n.args);
                         result.type = ret.value.type;
                         result.value = ret.value;
                 }

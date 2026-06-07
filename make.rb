@@ -101,7 +101,6 @@ end
 if install_arg
   run("cmake --install build")
   # Install Std Native
-  Kilate::Std::Native.install("knative") unless nostd_arg
 end
 
 if !install_arg && run_arg

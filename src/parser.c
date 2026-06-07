@@ -69,6 +69,41 @@ static void print_nodes(parser_t *p)
         }
 }
 
+static node_value_kind_t parser_tokentype_to_nodevaluetype(parser_t *p, token_t *tk)
+{
+        // printd("121: %d, %s\n", tk->type, tk->text);
+        switch (tk->type) {
+        case TOKEN_STRING:
+                return NODE_VALUE_TYPE_STRING;
+        case TOKEN_BOOL:
+                return NODE_VALUE_TYPE_BOOL;
+        case TOKEN_INT:
+                return NODE_VALUE_TYPE_INT;
+        case TOKEN_FLOAT:
+                return NODE_VALUE_TYPE_FLOAT;
+        case TOKEN_LONG:
+                return NODE_VALUE_TYPE_LONG;
+        case TOKEN_IDENTIFIER: {
+                token_t *next = parser_current(p, 1);
+                // printd("CUR:%s NEXT:%s\n", tk->text, next ? next->text :
+                // "NULL"); printd("135:%s\n", next->text);
+                if (next->type == TOKEN_LPAREN || next->type == TOKEN_LARROW ||
+                    next->type == TOKEN_RARROW) {
+                        return NODE_VALUE_TYPE_CALL;
+                } else {
+                        return NODE_VALUE_TYPE_FUNC_OR_VAR;
+                }
+        }
+        case TOKEN_TYPE: {
+                if (str_equals(tk->text, "any")) {
+                        return NODE_VALUE_TYPE_ANY;
+                }
+        }
+        default:
+                return NODE_VALUE_TYPE_ANY;
+        }
+}
+
 function_node_t *parser_find_function(parser_t *p, char *name)
 {
         printd("Searching for fn: %s\n", name);
@@ -130,106 +165,6 @@ vardec_node_t *parser_find_var(parser_t *p, char *name)
                 }
         }
         return NULL;
-}
-
-char *parser_tokentype_to_str(token_kind_t type)
-{
-        switch (type) {
-        case TOKEN_STRING:
-                return "String";
-        case TOKEN_BOOL:
-                return "Nool";
-        case TOKEN_INT:
-                return "Int";
-        case TOKEN_FLOAT:
-                return "Float";
-        case TOKEN_LONG:
-                return "Long";
-        default:
-                return "unknown";
-        }
-}
-
-char *parser_nodevaluetype_to_str(node_value_kind_t type)
-{
-        switch (type) {
-        case NODE_VALUE_TYPE_INT:
-                return "Int";
-        case NODE_VALUE_TYPE_FLOAT:
-                return "Float";
-        case NODE_VALUE_TYPE_LONG:
-                return "Long";
-        case NODE_VALUE_TYPE_STRING:
-                return "String";
-        case NODE_VALUE_TYPE_BOOL:
-                return "Bool";
-        case NODE_VALUE_TYPE_FUNC:
-                return "Function";
-        case NODE_VALUE_TYPE_VAR:
-                return "Var";
-        default:
-                return "Any";
-        }
-}
-
-node_value_kind_t parser_tokentype_to_nodevaluetype(parser_t *p, token_t *tk)
-{
-        // printd("121: %d, %s\n", tk->type, tk->text);
-        switch (tk->type) {
-        case TOKEN_STRING:
-                return NODE_VALUE_TYPE_STRING;
-        case TOKEN_BOOL:
-                return NODE_VALUE_TYPE_BOOL;
-        case TOKEN_INT:
-                return NODE_VALUE_TYPE_INT;
-        case TOKEN_FLOAT:
-                return NODE_VALUE_TYPE_FLOAT;
-        case TOKEN_LONG:
-                return NODE_VALUE_TYPE_LONG;
-        case TOKEN_IDENTIFIER: {
-                token_t *next = parser_current(p, 1);
-                // printd("CUR:%s NEXT:%s\n", tk->text, next ? next->text :
-                // "NULL"); printd("135:%s\n", next->text);
-                if (next->type == TOKEN_LPAREN || next->type == TOKEN_LARROW ||
-                    next->type == TOKEN_RARROW) {
-                        return NODE_VALUE_TYPE_CALL;
-                } else {
-                        return NODE_VALUE_TYPE_FUNC_OR_VAR;
-                }
-        }
-        case TOKEN_TYPE: {
-                if (str_equals(tk->text, "any")) {
-                        return NODE_VALUE_TYPE_ANY;
-                }
-        }
-        default:
-                return NODE_VALUE_TYPE_ANY;
-        }
-}
-
-node_value_kind_t parser_str_to_nodevaluetype(char *value)
-{
-#ifndef ct
-#define ct(str) str_equals(value, str)
-#endif
-
-        if (ct("String")) {
-                return NODE_VALUE_TYPE_STRING;
-        } else if (ct("Bool")) {
-                return NODE_VALUE_TYPE_BOOL;
-        } else if (ct("Int")) {
-                return NODE_VALUE_TYPE_INT;
-        } else if (ct("Float")) {
-                return NODE_VALUE_TYPE_FLOAT;
-        } else if (ct("Long")) {
-                return NODE_VALUE_TYPE_LONG;
-        } else {
-                return NODE_VALUE_TYPE_ANY;
-        }
-
-#ifdef ct
-#undef ct
-#endif
 }
 
 node_t *parser_parse_statement(parser_t *p)
@@ -360,7 +295,7 @@ node_t *parser_parse_statement(parser_t *p)
                 }
 
                 char *expected = vartype;
-                char *actual = parser_tokentype_to_str(valueTk->type);
+                const char *actual = token_kind_to_str(valueTk->type);
 
                 if (varnode->vardec_n.value.type == NODE_VALUE_TYPE_VAR) {
                         node_t *var =
@@ -510,8 +445,8 @@ void parser_fn_validate_params(node_t *fn, node_param_vector_t *params,
                             tk,
                             "Argument %zu to '%s' must be of type %s, got %s",
                             i + 1, fn->function_n.name,
-                            parser_nodevaluetype_to_str(param->arg_n.type),
-                            parser_nodevaluetype_to_str(actualType));
+                            node_value_kind_to_str(param->arg_n.type),
+                            node_value_kind_to_str(actualType));
                 }
         }
 }
@@ -654,7 +589,7 @@ node_t *parser_parse_function(parser_t *p)
 
                 param_node_t *param = malloc(sizeof(*param));
                 param->arg_n.s = strdup(name);
-                param->arg_n.type = parser_str_to_nodevaluetype(type);
+                param->arg_n.type = str_to_node_value_kind(type);
                 // param->typeStr = strdup(type);
                 vector_push_back(fn->function_n.params, &param);
 
@@ -728,7 +663,7 @@ node_t *parser_parse_function(parser_t *p)
                                     "received was: '%s'",
                                     fn->function_n.name,
                                     fn->function_n.return_type,
-                                    parser_nodevaluetype_to_str(retType));
+                                    node_value_kind_to_str(retType));
                         }
                 }
         }

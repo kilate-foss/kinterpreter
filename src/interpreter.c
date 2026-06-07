@@ -1,6 +1,7 @@
 #include "kilate/interpreter.h"
 
 #include <alloca.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -113,14 +114,15 @@ def:
 interpreter_result_t interpreter_run_fn(interpreter_t *self, node_t *func,
                                         node_arg_vector_t *params)
 {
-        if (self == NULL)
+        if (self == NULL) {
                 error_fatal("Interpreter is invalid.");
+        }
 
         if (func == NULL || func->type != NODE_FUNCTION) {
                 error_fatal("Function Node Not is a Valid Function.");
         }
 
-        printd("125: %s\n", (func->function_n.native) ? "true" : "false");
+        printd("interpreter::interpreter_run_fn+8: %s\n", (func->function_n.native) ? "true" : "false");
 
         if (!func->function_n.body) {
                 error_fatal("Function body is not Valid.");
@@ -144,14 +146,14 @@ interpreter_result_t interpreter_run_fn(interpreter_t *self, node_t *func,
                                     "Argument %zu to function '%s' expected "
                                     "type '%s', but got '%s'",
                                     i + 1, func->function_n.name,
-                                    parser_nodevaluetype_to_str(
+                                    node_value_kind_to_str(
                                         fnParam->arg_n.type),
-                                    parser_nodevaluetype_to_str(svalue.type));
+                                    node_value_kind_to_str(svalue.type));
                         }
 
                         node_t *var = var_dec_node_make(
                             fnParam->arg_n.s,
-                            parser_nodevaluetype_to_str(fnParam->arg_n.type),
+                            node_value_kind_to_str(fnParam->arg_n.type),
                             svalue.value);
                         node_t *var_copy = node_copy(var);
                         env_definevar(self->env, var_copy->vardec_n.name,
@@ -159,7 +161,7 @@ interpreter_result_t interpreter_run_fn(interpreter_t *self, node_t *func,
                 }
         }
 
-        printd("158: %s\n", func->function_n.name);
+        printd("interpreter::interpreter_run_fn+47: %s\n", func->function_n.name);
         for (size_t i = 0; i < func->function_n.body->size; i++) {
                 node_t **stmtPtr =
                     (node_t **)vector_get(func->function_n.body, i);
@@ -203,6 +205,9 @@ interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
                 function_node_t *fn = *fnptr;
                 interpreter_result_t r =
                     interpreter_run_fnlow(self, fn, n->call_n.args);
+
+                printd("interpreter::interpreter_run_node+18: valueKind: %s\n", node_value_kind_to_str(r.value.type));
+
                 return (interpreter_result_t){ .type = IRT_FUNC,
                                                .value = r.value };
         }
@@ -213,7 +218,7 @@ interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
         }
 
         case NODE_VARDEC: {
-                printd("213: vname:%s, vtype:%d\n", n->vardec_n.name,
+                printd("interpreter::interpreter_run_node+30: vname:%s, vtype:%d\n", n->vardec_n.name,
                        n->vardec_n.type);
                 env_definevar(self->env, n->vardec_n.name, node_copy(n));
                 return (interpreter_result_t){ .type = IRT_FUNC,

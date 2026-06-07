@@ -28,14 +28,6 @@ token_t *parser_consume(parser_t *, token_kind_t);
 
 node_t *parser_find_function(parser_t *, char *);
 
-char *parser_tokentype_to_str(token_kind_t);
-
-char *parser_nodevaluetype_to_str(node_value_kind_t);
-
-node_value_kind_t parser_tokentype_to_nodevaluetype(parser_t *, token_t *);
-
-node_value_kind_t parser_str_to_nodevaluetype(char *);
-
 node_t *parser_parse_statement(parser_t *);
 
 node_param_vector_t *parser_parse_fnparams(parser_t *);
