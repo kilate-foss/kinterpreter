@@ -10,29 +10,29 @@ extern "C" {
 #endif
 
 typedef vector_t hashmap_vector_t;
-typedef vector_t hashentry_vector_t;
+typedef vector_t hm_entry_vector_t;
 
 typedef struct hashmap_t {
-        hashentry_vector_t *itens;
-        size_t itemSize;
+        hm_entry_vector_t *itens;
+        size_t item_size;
         size_t capacity;
 } hashmap_t;
 
-typedef struct hashentry_t {
+typedef struct hm_entry_t {
         char *key;
         void *value;
         void *next;
-} hashentry_t;
+} hm_entry_t;
 
-hashmap_t *hash_map_make(size_t);
+hashmap_t *hm_make(size_t);
 
-void hash_map_delete(hashmap_t *);
+void hm_delete(hashmap_t *);
 
-unsigned int hash_map_hash(hashmap_t *, char *);
+unsigned int hm_hash(hashmap_t *, char *);
 
-void *hash_map_get(hashmap_t *, char *);
+void *hm_get(hashmap_t *, char *);
 
-void hash_map_put(hashmap_t *, char *, void *);
+void hm_put(hashmap_t *, char *, void *);
 
 #ifdef __cplusplus
 }

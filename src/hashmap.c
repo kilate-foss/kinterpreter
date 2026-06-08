@@ -7,24 +7,24 @@
 #include "kilate/error.h"
 #include "kilate/string.h"
 
-hashmap_t *hash_map_make(size_t itemSize)
+hashmap_t *hm_make(size_t item_size)
 {
-        hashmap_t *hashMap = malloc(sizeof(hashmap_t));
-        hashMap->itemSize = itemSize;
-        hashMap->capacity = 64;
-        hashMap->itens = vector_make(sizeof(hashentry_t *));
-        for (size_t i = 0; i < hashMap->capacity; i++) {
-                hashentry_t *null_ptr = NULL;
-                vector_push_back(hashMap->itens, &null_ptr);
+        hashmap_t *hm = malloc(sizeof(hashmap_t));
+        hm->item_size = item_size;
+        hm->capacity = 64;
+        hm->itens = vector_make(sizeof(hm_entry_t *));
+        for (size_t i = 0; i < hm->capacity; i++) {
+                hm_entry_t *null_ptr = NULL;
+                vector_push_back(hm->itens, &null_ptr);
         }
-        return hashMap;
+        return hm;
 }
 
-void hash_map_delete(hashmap_t *self)
+void hm_delete(hashmap_t *self)
 {
         for (size_t i = 0; i < self->itens->size; ++i) {
-                hashentry_t *item =
-                    *(hashentry_t **)vector_get(self->itens, i);
+                hm_entry_t *item =
+                    *(hm_entry_t **)vector_get(self->itens, i);
                 if (item != NULL) {
                         free(item->key);
                         free(item->value);
@@ -35,7 +35,7 @@ void hash_map_delete(hashmap_t *self)
         free(self);
 }
 
-unsigned int hash_map_hash(hashmap_t *self, char *key)
+unsigned int hm_hash(hashmap_t *self, char *key)
 {
         if (self == NULL)
                 error_fatal("Hashmap is null.");
@@ -49,17 +49,17 @@ unsigned int hash_map_hash(hashmap_t *self, char *key)
         }
         return hash % self->capacity;
 }
-void *hash_map_get(hashmap_t *self, char *key)
+void *hm_get(hashmap_t *self, char *key)
 {
         if (self == NULL)
                 error_fatal("Hashmap is null.");
         if (key == NULL)
                 error_fatal("Key is null.");
 
-        unsigned int index = hash_map_hash(self, key);
+        unsigned int index = hm_hash(self, key);
 
-        hashentry_t **itemPtr = (hashentry_t **)vector_get(self->itens, index);
-        hashentry_t *item = *itemPtr;
+        hm_entry_t **item_ptr = (hm_entry_t **)vector_get(self->itens, index);
+        hm_entry_t *item = *item_ptr;
 
         while (item) {
                 if (str_equals(item->key, key)) {
@@ -70,31 +70,31 @@ void *hash_map_get(hashmap_t *self, char *key)
         return NULL;
 }
 
-void hash_map_put(hashmap_t *self, char *key, void *value)
+void hm_put(hashmap_t *self, char *key, void *value)
 {
         if (self == NULL)
                 error_fatal("Hashmap is null.");
         if (key == NULL)
                 error_fatal("Key is null.");
 
-        unsigned int index = hash_map_hash(self, key);
-        hashentry_t **headPtr = (hashentry_t **)vector_get(self->itens, index);
-        hashentry_t *head = *headPtr;
+        unsigned int index = hm_hash(self, key);
+        hm_entry_t **head_ptr = (hm_entry_t **)vector_get(self->itens, index);
+        hm_entry_t *head = *head_ptr;
 
-        hashentry_t *item = head;
+        hm_entry_t *item = head;
         while (item) {
                 if (str_equals(item->key, key)) {
-                        memcpy(item->value, value, self->itemSize);
+                        memcpy(item->value, value, self->item_size);
                         return;
                 }
                 item = item->next;
         }
 
-        hashentry_t *newItem = malloc(sizeof(hashentry_t));
-        newItem->key = strdup(key);
-        newItem->value = malloc(self->itemSize);
-        memcpy(newItem->value, value, self->itemSize);
-        newItem->next = head;
+        hm_entry_t *new_item = malloc(sizeof(hm_entry_t));
+        new_item->key = strdup(key);
+        new_item->value = malloc(self->item_size);
+        memcpy(new_item->value, value, self->item_size);
+        new_item->next = head;
 
-        *headPtr = newItem;
+        *head_ptr = new_item;
 }

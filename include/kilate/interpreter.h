@@ -1,5 +1,5 @@
-#ifndef __INTERPRETER_H__
-#define __INTERPRETER_H__
+#ifndef kilate_interpreter_h
+#define kilate_interpreter_h
 
 #include "kilate/environment.h"
 #include "kilate/hashmap.h"
@@ -29,17 +29,14 @@ interpreter_t *interpreter_make(node_vector_t *, node_vector_t *);
 
 void interpreter_delete(interpreter_t *);
 
+// Start interpreting.
 interpreter_result_t interpreter_run(interpreter_t *);
 
-// Low function node runner
-// it will call interpreter_run_fn for Kilate Functions.
-// and runs directly for native functions.
-interpreter_result_t interpreter_run_fnlow(interpreter_t *, node_t *, node_arg_vector_t *);
+// Executes a Function Node
+// it can run KilateFunctions either NativeFunctions
+interpreter_result_t interpreter_run_fn(interpreter_t *, node_t *, node_arg_vector_t *);
 
-// Runs a Kilate Node
-interpreter_result_t interpreter_run_fn(interpreter_t *, node_t *,
-                                        node_arg_vector_t *);
-
+// Executes a Node
 interpreter_result_t interpreter_run_node(interpreter_t *, node_t *);
 
 #ifdef __cplusplus
