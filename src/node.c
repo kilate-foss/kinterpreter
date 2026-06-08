@@ -253,12 +253,12 @@ safe_value_t get_safe_value(interpreter_t *inter, arg_node_t *arg)
                node_value_kind_to_str(arg->arg_n.type));
         if (arg->arg_n.type == NODE_VALUE_TYPE_VAR) {
                 node_t *var = env_getvar(inter->env, arg->arg_n.s);
-                printf("node::get_safe_value+7: var(%s)\n", arg->arg_n.s);
+                printd("node::get_safe_value+7: var(%s)\n", arg->arg_n.s);
                 if (var) {
                         result.type = var->vardec_n.value.type;
                         result.value = var->vardec_n.value;
                         if (result.type == NODE_VALUE_TYPE_STRING) {
-                                printf(
+                                printd(
                                     "node::get_safe_value+13: var(%s) = %s\n",
                                     arg->arg_n.s, result.value.s);
                         }

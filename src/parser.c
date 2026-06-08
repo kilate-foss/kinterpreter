@@ -61,10 +61,10 @@ token_t *parser_consume(parser_t *p, token_kind_t exType)
 
 static void print_nodes(parser_t *p)
 {
-        printd("Nodes am: %zu\n", p->nodes->size);
+        printd("parser::print_nodes+1: Nodes am: %zu\n", p->nodes->size);
         for (size_t i = 0; i < p->nodes->size; i++) {
                 node_t *n = *(node_t **)vector_get(p->nodes, i);
-                printd("Node(%lu).type = (%s)\n", i,
+                printd("parser::print_nodes+4: Node(%lu).type = (%s)\n", i,
                        (n) ? node_kind_tostr(n->type) : "(null)");
         }
 }
@@ -106,8 +106,8 @@ static node_value_kind_t parser_tokentype_to_nodevaluetype(parser_t *p, token_t 
 
 function_node_t *parser_find_function(parser_t *p, char *name)
 {
-        printd("Searching for fn: %s\n", name);
-        printd("Total nodes: %zu\n", p->nodes->size);
+        printd("parser::parser_find_function+1: Searching for fn: %s\n", name);
+        printd("parser::parser_find_function+2: Total nodes: %zu\n", p->nodes->size);
 
         for (size_t i = 0; i < p->nodes->size; i++) {
                 function_node_t *fn = *(node_t **)vector_get(p->nodes, i);
@@ -115,12 +115,12 @@ function_node_t *parser_find_function(parser_t *p, char *name)
                 if (!fn)
                         continue;
 
-                printd("Node %zu type: %d\n", i, fn->type);
+                printd("parser::parser_find_function+10: Node %zu type: %d\n", i, fn->type);
 
                 if (fn->type == NODE_FUNCTION) {
                         if (!str_equals(fn->function_n.name, name))
                                 continue;
-                        printd("Fn found: %s\n", fn->function_n.name);
+                        printd("parser::parser_find_function+15: Fn found: %s\n", fn->function_n.name);
                         return fn;
                 }
         }
@@ -129,38 +129,36 @@ function_node_t *parser_find_function(parser_t *p, char *name)
 
 vardec_node_t *parser_find_var(parser_t *p, char *name)
 {
-        printd("Searching for var: %s\n", name);
-        printd("Total nodes: %zu\n", p->nodes->size);
+        printd("parser::parser_find_var+1: Searching for var: %s\n", name);
+        printd("parser::parser_find_var+2: Total nodes: %zu\n", p->nodes->size);
 
-        // find at top-level nodes
         for (size_t i = 0; i < p->nodes->size; i++) {
                 vardec_node_t *var = *(node_t **)vector_get(p->nodes, i);
 
                 if (!var)
                         continue;
 
-                printd("Node %zu type: %d\n", i, var->type);
+                printd("parser::parser_find_function+1: Node %zu type: %d\n", i, var->type);
 
                 if (var->type == NODE_VARDEC) {
                         if (!str_equals(var->vardec_n.name, name))
                                 continue;
-                        printd("Var found: %s\n", var->vardec_n.name);
+                        printd("parser::parser_find_var+15: Var found: %s\n", var->vardec_n.name);
                         return var;
                 }
         }
 
-        // find at local scope nodes
         for (size_t i = 0; i < p->scope_body->size; i++) {
                 vardec_node_t *var = *(node_t **)vector_get(p->scope_body, i);
                 if (!var)
                         continue;
 
-                printd("Node %zu type: %d\n", i, var->type);
+                printd("parser::parser_find_var+25: Node %zu type: %d\n", i, var->type);
 
                 if (var->type == NODE_VARDEC) {
                         if (!str_equals(var->vardec_n.name, name))
                                 continue;
-                        printd("Var found: %s\n", var->vardec_n.name);
+                        printd("parser::parser_find_var+30: Var found: %s\n", var->vardec_n.name);
                         return var;
                 }
         }
@@ -173,7 +171,7 @@ node_t *parser_parse_statement(parser_t *p)
         am++;
 
         token_t *tk = parser_current(p, 0);
-        printd("parser_parse_statement called %d times, cur token: %s\n", am,
+        printd("parser::parser_parse_statement called %d times, cur token: %s\n", am,
                tk->text);
 
         if (tk->type == TOKEN_KEYWORD && str_equals(tk->text, "return")) {
@@ -323,7 +321,7 @@ node_t *parser_parse_statement(parser_t *p)
                                      "expected '%s', got '%s', raw: %d",
                                      varname, expected, actual, valueTk->type);
                 }
-                printd("Var(%s) = (%s)\n", varname, valueTk->text);
+                printd("parser::parser_parse_statement+154: Var(%s) = (%s)\n", varname, valueTk->text);
                 return varnode;
         } else if (tk->type == TOKEN_IDENTIFIER) {
                 // TODO: This case can be also a variable declarion of user own
@@ -365,16 +363,16 @@ node_param_vector_t *parser_parse_fnparams(parser_t *p)
                         fn_param->arg_n.type = NODE_VALUE_TYPE_CALL;
                         fn_param->arg_n.n = callnode;
                 } else if (vkind == NODE_VALUE_TYPE_FUNC_OR_VAR) {
-                        printd("before consume: %s\n", param->text);
+                        printd("parser::parser_parse_fnparams+27: before consume: %s\n", param->text);
                         parser_consume(p, param->type);
-                        printd("after consume: %s\n", param->text);
+                        printd("parser::parser_parse_fnparams+29: after consume: %s\n", param->text);
                         bool f = false;
                         function_node_t *fn =
                             parser_find_function(p, param->text);
                         if (fn && !f) {
                                 fn_param->arg_n.type = NODE_VALUE_TYPE_FUNC;
                                 fn_param->arg_n.n = fn;
-                                printd("fn: %s\n", param->text);
+                                printd("parser::parser_parse_fnparams+36: fn: %s\n", param->text);
                                 f = true;
                         }
 
@@ -383,7 +381,7 @@ node_param_vector_t *parser_parse_fnparams(parser_t *p)
                         if (nfn && !f) {
                                 fn_param->arg_n.type = NODE_VALUE_TYPE_FUNC;
                                 fn_param->arg_n.n = nfn;
-                                printd("nfn: %s\n", param->text);
+                                printd("parser::parser_parse_fnparams+44: nfn: %s\n", param->text);
                                 f = true;
                         }
 
@@ -391,7 +389,7 @@ node_param_vector_t *parser_parse_fnparams(parser_t *p)
                         if (var && !f) {
                                 fn_param->arg_n.type = NODE_VALUE_TYPE_VAR;
                                 fn_param->arg_n.s = param->text;
-                                printd("var: %s\n", param->text);
+                                printd("parser::parser_parse_fnparams+51: var: %s\n", param->text);
                                 f = true;
                         }
 
