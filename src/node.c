@@ -1,8 +1,10 @@
 #include "kilate/node.h"
 
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "kilate/bool.h"
 #include "kilate/debug.h"
 #include "kilate/environment.h"
 #include "kilate/interpreter.h"
@@ -245,6 +247,20 @@ import_node_t *import_node_make(const char *path)
         return n;
 }
 
+static bool is_lit(node_value_kind_t kind)
+{
+        switch (kind) {
+        case NODE_VALUE_TYPE_BOOL:
+        case NODE_VALUE_TYPE_INT:
+        case NODE_VALUE_TYPE_FLOAT:
+        case NODE_VALUE_TYPE_LONG:
+        case NODE_VALUE_TYPE_STRING:
+                return true;
+        default:
+                return false;
+        };
+}
+
 safe_value_t get_safe_value(interpreter_t *inter, arg_node_t *arg)
 {
         safe_value_t result = { 0 };
@@ -253,21 +269,28 @@ safe_value_t get_safe_value(interpreter_t *inter, arg_node_t *arg)
                node_value_kind_to_str(arg->arg_n.type));
         if (arg->arg_n.type == NODE_VALUE_TYPE_VAR) {
                 node_t *var = env_getvar(inter->env, arg->arg_n.s);
-                printd("node::get_safe_value+7: var(%s)\n", arg->arg_n.s);
                 if (var) {
-                        result.type = var->vardec_n.value.type;
-                        result.value = var->vardec_n.value;
-                        if (result.type == NODE_VALUE_TYPE_STRING) {
-                                printd(
-                                    "node::get_safe_value+13: var(%s) = %s\n",
-                                    arg->arg_n.s, result.value.s);
+                        printd(
+                            "node::get_safe_value+7: var(%s) = value(%s)\n",
+                            var->vardec_n.name,
+                            node_value_kind_to_str(var->vardec_n.value.type));
+                        if (!is_lit(var->vardec_n.value.type)) {
+                                arg_node_t arg = { .arg_n =
+                                                       var->vardec_n.value };
+                                safe_value_t sv = get_safe_value(inter, &arg);
+                                result = sv;
+                        } else {
+                                result.type = var->vardec_n.value.type;
+                                result.value = var->vardec_n.value;
                         }
                 }
         } else if (arg->arg_n.type == NODE_VALUE_TYPE_CALL) {
-                node_t *fn = arg->arg_n.n;
-                if (fn) {
+                call_node_t *call = arg->arg_n.n;
+                printd("node::get_safe_value+23: fn(%s)\n",
+                       node_kind_tostr(call->type));
+                if (call) {
                         interpreter_result_t ret =
-                            interpreter_run_fnlow(inter, fn, arg->call_n.args);
+                            interpreter_run_node(inter, call);
                         result.type = ret.value.type;
                         result.value = ret.value;
                 }

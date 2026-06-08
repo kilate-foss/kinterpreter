@@ -1,5 +1,6 @@
 work GetName(): String {
-        return "Aquiles Trindade"
+        String a = "Trindade"
+        return a
 }
 
 work Main(): Int {

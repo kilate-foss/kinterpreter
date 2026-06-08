@@ -198,26 +198,31 @@ interpreter_result_t interpreter_run_fn(interpreter_t *self, node_t *func,
         return (interpreter_result_t){ .type = IRT_FUNC, .value.type = -1 };
 }
 
-static node_t *interpret_variable(interpreter_t *self, node_t *var)
+static node_t *interpret_variable_value(interpreter_t *self,
+                                        vardec_node_t *var)
 {
-        printd("interpreter::interpret_var+1: var(%s, %s) = value(%s)\n",
+        printd("interpreter::interpret_variable_value+1: var(%s, %s) = "
+               "value(%s)\n",
                var->vardec_n.name, var->vardec_n.type,
                node_value_kind_to_str(var->vardec_n.value.type));
 
-        value_t value = var->vardec_n.value;
-        if (value.type == NODE_VALUE_TYPE_CALL) {
-                node_t *call = value.n;
-                interpreter_result_t result = interpreter_run_node(self, call);
-                printd("interpreter::interpret_var+8: call_result(%s) = "
-                       "value(%s)\n",
-                       irk_to_str(result.type),
-                       node_value_kind_to_str(result.value.type));
+        arg_node_t arg;
+        arg.arg_n = var->vardec_n.value;
+        safe_value_t sv = get_safe_value(self, &arg);
+        vardec_node_t *nvar = var_dec_node_make(var->vardec_n.name,
+                                                var->vardec_n.type, sv.value);
+        return nvar;
+}
 
-                node_t *nvar = var_dec_node_make(
-                    var->vardec_n.name, var->vardec_n.type, result.value);
-                return nvar;
-        }
-        return node_copy(var);
+static value_t interpret_return_value(interpreter_t *self, return_node_t *ret)
+{
+        printd("interpreter::interpret_return_value+1: return() = value(%s)\n",
+               node_value_kind_to_str(ret->return_n.type));
+
+        arg_node_t arg;
+        arg.arg_n = ret->return_n;
+        safe_value_t sv = get_safe_value(self, &arg);
+        return sv.value;
 }
 
 interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
@@ -237,10 +242,17 @@ interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
                 }
 
                 function_node_t *fn = *fnptr;
+
+                printd(
+                    "interpreter::interpreter_run_node+16: exec_fnlow(%s)\n",
+                    fn->function_n.name);
                 interpreter_result_t r =
                     interpreter_run_fnlow(self, fn, n->call_n.args);
 
-                printd("interpreter::interpreter_run_node+18: valueKind: %s\n",
+                printd("interpreter::interpreter_run_node+21: call_result(%s, "
+                       "%s) "
+                       "= value(%s)\n",
+                       fn->function_n.name, irk_to_str(r.type),
                        node_value_kind_to_str(r.value.type));
 
                 return (interpreter_result_t){ .type = IRT_FUNC,
@@ -248,13 +260,15 @@ interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
         }
 
         case NODE_RETURN: {
+
                 return (interpreter_result_t){ .type = IRT_RETURN,
-                                               .value = n->return_n };
+                                               .value = interpret_return_value(
+                                                   self, n) };
         }
 
         case NODE_VARDEC: {
                 env_definevar(self->env, n->vardec_n.name,
-                              interpret_variable(self, n));
+                              interpret_variable_value(self, n));
                 return (interpreter_result_t){ .type = IRT_FUNC,
                                                .value.type = -1 };
         }
