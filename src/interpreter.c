@@ -11,7 +11,17 @@
 #include "kilate/hashmap.h"
 #include "kilate/native.h"
 #include "kilate/node.h"
-#include "kilate/parser.h"
+
+static const char *irk_to_str(interpreter_result_kind_t irk)
+{
+        switch (irk) {
+        case IRT_FUNC:
+                return "irk::func";
+        case IRT_RETURN:
+                return "irk::return";
+        }
+        return "irk::<?>";
+}
 
 interpreter_t *interpreter_make(node_vector_t *nodes_vector,
                                 node_vector_t *native_functions_nodes_vector)
@@ -122,7 +132,8 @@ interpreter_result_t interpreter_run_fn(interpreter_t *self, node_t *func,
                 error_fatal("Function Node Not is a Valid Function.");
         }
 
-        printd("interpreter::interpreter_run_fn+8: %s\n", (func->function_n.native) ? "true" : "false");
+        printd("interpreter::interpreter_run_fn+8: %s\n",
+               (func->function_n.native) ? "true" : "false");
 
         if (!func->function_n.body) {
                 error_fatal("Function body is not Valid.");
@@ -161,7 +172,8 @@ interpreter_result_t interpreter_run_fn(interpreter_t *self, node_t *func,
                 }
         }
 
-        printd("interpreter::interpreter_run_fn+47: %s\n", func->function_n.name);
+        printd("interpreter::interpreter_run_fn+47: %s\n",
+               func->function_n.name);
         for (size_t i = 0; i < func->function_n.body->size; i++) {
                 node_t **stmtPtr =
                     (node_t **)vector_get(func->function_n.body, i);
@@ -186,6 +198,28 @@ interpreter_result_t interpreter_run_fn(interpreter_t *self, node_t *func,
         return (interpreter_result_t){ .type = IRT_FUNC, .value.type = -1 };
 }
 
+static node_t *interpret_variable(interpreter_t *self, node_t *var)
+{
+        printd("interpreter::interpret_var+1: var(%s, %s) = value(%s)\n",
+               var->vardec_n.name, var->vardec_n.type,
+               node_value_kind_to_str(var->vardec_n.value.type));
+
+        value_t value = var->vardec_n.value;
+        if (value.type == NODE_VALUE_TYPE_CALL) {
+                node_t *call = value.n;
+                interpreter_result_t result = interpreter_run_node(self, call);
+                printd("interpreter::interpret_var+8: call_result(%s) = "
+                       "value(%s)\n",
+                       irk_to_str(result.type),
+                       node_value_kind_to_str(result.value.type));
+
+                node_t *nvar = var_dec_node_make(
+                    var->vardec_n.name, var->vardec_n.type, result.value);
+                return nvar;
+        }
+        return node_copy(var);
+}
+
 interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
 {
         if (self == NULL)
@@ -206,7 +240,8 @@ interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
                 interpreter_result_t r =
                     interpreter_run_fnlow(self, fn, n->call_n.args);
 
-                printd("interpreter::interpreter_run_node+18: valueKind: %s\n", node_value_kind_to_str(r.value.type));
+                printd("interpreter::interpreter_run_node+18: valueKind: %s\n",
+                       node_value_kind_to_str(r.value.type));
 
                 return (interpreter_result_t){ .type = IRT_FUNC,
                                                .value = r.value };
@@ -218,9 +253,8 @@ interpreter_result_t interpreter_run_node(interpreter_t *self, node_t *n)
         }
 
         case NODE_VARDEC: {
-                printd("interpreter::interpreter_run_node+30: vname:%s, vtype:%d\n", n->vardec_n.name,
-                       n->vardec_n.type);
-                env_definevar(self->env, n->vardec_n.name, node_copy(n));
+                env_definevar(self->env, n->vardec_n.name,
+                              interpret_variable(self, n));
                 return (interpreter_result_t){ .type = IRT_FUNC,
                                                .value.type = -1 };
         }
