@@ -95,7 +95,7 @@ static node_value_kind_t parser_tokentype_to_nodevaluetype(parser_t *p, token_t 
                 }
         }
         case TOKEN_TYPE: {
-                if (str_equals(tk->text, "any")) {
+                if (str_equals(tk->text, "Any")) {
                         return NODE_VALUE_TYPE_ANY;
                 }
         }
@@ -314,7 +314,7 @@ node_t *parser_parse_statement(parser_t *p)
                         actual = fn->function_n.return_type;
                 }
 
-                if (!str_equals(expected, "any") &&
+                if (!str_equals(expected, "Any") &&
                     !str_equals(expected, actual)) {
                         parser_error(valueTk,
                                      "Type mismatch in declaration of '%s': "
@@ -641,7 +641,7 @@ node_t *parser_parse_function(parser_t *p)
                                               "Long")) {
                                 retType = NODE_VALUE_TYPE_LONG;
                         } else if (str_equals(fn->function_n.return_type,
-                                              "Dtring")) {
+                                              "String")) {
                                 retType = NODE_VALUE_TYPE_STRING;
                         } else if (str_equals(fn->function_n.return_type,
                                               "Bool")) {
