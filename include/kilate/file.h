@@ -14,7 +14,7 @@ typedef enum file_mode_t {
 } file_mode_t;
 
 typedef struct file_t {
-        int fd;
+        FILE *raw;
 } file_t;
 
 int file_open(file_t *, const char *, file_mode_t);
