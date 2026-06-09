@@ -38,8 +38,7 @@ set(LIB_SOURCES
     src/parser.c
     src/native.c
     src/string.c
-    src/vector.c
-    src/util/native.c)
+    src/vector.c)
 
 set(HEADERS
     include/kilate/config.h
@@ -53,8 +52,7 @@ set(HEADERS
     include/kilate/parser.h
     include/kilate/native.h
     include/kilate/string.h
-    include/kilate/vector.h
-    include/kilate/util/native.h)
+    include/kilate/vector.h)
 
 set(EXE_SOURCES
     src/main.c
