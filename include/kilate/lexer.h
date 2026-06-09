@@ -8,10 +8,12 @@
 #include "kilate/vector.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef enum {
+typedef enum
+{
         TOKEN_KEYWORD,    // work, return
         TOKEN_IDENTIFIER, // hello, main
         TOKEN_STRING,     // "Hello world!"
@@ -32,7 +34,8 @@ typedef enum {
         TOKEN_EOF         // end of file.
 } token_kind_t;
 
-typedef struct {
+typedef struct
+{
         size_t column;
         size_t line;
         token_kind_t type;
@@ -41,11 +44,12 @@ typedef struct {
 
 typedef vector_t token_vector_t;
 
-token_t *token_make(token_kind_t, char *, size_t, size_t);
+token_t *token_make (token_kind_t, char *, size_t, size_t);
 
-char *tokentype_tostr(token_kind_t);
+char *tokentype_tostr (token_kind_t);
 
-typedef struct {
+typedef struct
+{
         size_t __pos__;
         size_t __column__;
         size_t __line__;
@@ -53,17 +57,17 @@ typedef struct {
         char *__input__;
 } lexer_t;
 
-lexer_t *lexer_make(char *);
+lexer_t *lexer_make (char *);
 
-void lexer_delete(lexer_t *);
+void lexer_delete (lexer_t *);
 
-void lexer_advance(lexer_t *);
+void lexer_advance (lexer_t *);
 
-char *lexer_read_string(lexer_t *, bool *);
+char *lexer_read_string (lexer_t *, bool *);
 
-void lexer_tokenize(lexer_t *);
+void lexer_tokenize (lexer_t *);
 
-void lexer_error(lexer_t *, char *, ...);
+void lexer_error (lexer_t *, char *, ...);
 
 #ifdef __cplusplus
 }

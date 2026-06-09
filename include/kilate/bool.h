@@ -2,7 +2,8 @@
 #define __BOOL__
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #define bool unsigned char

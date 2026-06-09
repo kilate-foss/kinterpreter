@@ -4,10 +4,11 @@
 #include <stdarg.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-void error_fatal(char *, ...);
+void error_fatal (char *, ...);
 
 #ifdef __cplusplus
 }

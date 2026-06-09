@@ -3,6 +3,6 @@
 
 #include <stdarg.h>
 
-void printd(const char *, ...);
+void printd (const char *, ...);
 
 #endif

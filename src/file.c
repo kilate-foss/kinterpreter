@@ -11,82 +11,89 @@
 // Opens a file
 // After do all uses with file, close it
 // with file_close
-int file_open(file_t *file, const char *filepath, file_mode_t mode)
+int
+file_open (file_t *file, const char *filepath, file_mode_t mode)
 {
-    const char *fmode = NULL;
+        const char *fmode = NULL;
 
-    if (mode == FILE_MODE_READ)
-        fmode = "r";
-    else if (mode == FILE_MODE_WRITE)
-        fmode = "w";
-    else if (mode == FILE_MODE_RW)
-        fmode = "r+";
-    else
-        return -1;
+        if (mode == FILE_MODE_READ)
+                fmode = "r";
+        else if (mode == FILE_MODE_WRITE)
+                fmode = "w";
+        else if (mode == FILE_MODE_RW)
+                fmode = "r+";
+        else
+                return -1;
 
-    file->raw = fopen(filepath, fmode);
+        file->raw = fopen (filepath, fmode);
 
-    if (!file->raw) {
-        perror("Failed to open file");
-        return -1;
-    }
+        if (!file->raw)
+        {
+                perror ("Failed to open file");
+                return -1;
+        }
 
-    return 0;
+        return 0;
 }
 
-int file_close(file_t *file)
+int
+file_close (file_t *file)
 {
-    if (!file || !file->raw)
-        return -1;
+        if (!file || !file->raw)
+                return -1;
 
-    fclose(file->raw);
-    file->raw = NULL;
+        fclose (file->raw);
+        file->raw = NULL;
 
-    return 0;
+        return 0;
 }
 
 // Returns the length of file content.
-size_t file_get_length(file_t *file)
+size_t
+file_get_length (file_t *file)
 {
-    if (!file || !file->raw)
-        return 0;
+        if (!file || !file->raw)
+                return 0;
 
-    long current = ftell(file->raw);
-    fseek(file->raw, 0, SEEK_END);
+        long current = ftell (file->raw);
+        fseek (file->raw, 0, SEEK_END);
 
-    long len = ftell(file->raw);
+        long len = ftell (file->raw);
 
-    fseek(file->raw, current, SEEK_SET);
+        fseek (file->raw, current, SEEK_SET);
 
-    return (size_t)len;
+        return (size_t)len;
 }
 
 // Reads the content of file.
 // Result should be free.
-char *file_read_text(file_t *file)
+char *
+file_read_text (file_t *file)
 {
-    if (!file || !file->raw)
-        return NULL;
+        if (!file || !file->raw)
+                return NULL;
 
-    size_t len = file_get_length(file);
+        size_t len = file_get_length (file);
 
-    char *buffer = malloc(len + 1);
-    if (!buffer) {
-        error_fatal("Can't alloc memory for reading file. Errno: %s",
-                    strerror(errno));
-        return NULL;
-    }
+        char *buffer = malloc (len + 1);
+        if (!buffer)
+        {
+                error_fatal ("Can't alloc memory for reading file. Errno: %s",
+                             strerror (errno));
+                return NULL;
+        }
 
-    rewind(file->raw);
+        rewind (file->raw);
 
-    size_t readed = fread(buffer, 1, len, file->raw);
-    if (readed != len && ferror(file->raw)) {
-        error_fatal("Failed to read file. Errno: %s",
-                    strerror(errno));
-        free(buffer);
-        return NULL;
-    }
+        size_t readed = fread (buffer, 1, len, file->raw);
+        if (readed != len && ferror (file->raw))
+        {
+                error_fatal ("Failed to read file. Errno: %s",
+                             strerror (errno));
+                free (buffer);
+                return NULL;
+        }
 
-    buffer[readed] = '\0';
-    return buffer;
+        buffer[readed] = '\0';
+        return buffer;
 }

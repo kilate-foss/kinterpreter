@@ -4,26 +4,29 @@
 #include <stdio.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef enum file_mode_t {
+typedef enum file_mode_t
+{
         FILE_MODE_READ,
         FILE_MODE_WRITE,
         FILE_MODE_RW
 } file_mode_t;
 
-typedef struct file_t {
+typedef struct file_t
+{
         FILE *raw;
 } file_t;
 
-int file_open(file_t *, const char *, file_mode_t);
+int file_open (file_t *, const char *, file_mode_t);
 
-int file_close(file_t *);
+int file_close (file_t *);
 
-size_t file_get_length(file_t *);
+size_t file_get_length (file_t *);
 
-char *file_read_text(file_t *);
+char *file_read_text (file_t *);
 
 #ifdef __cplusplus
 }
