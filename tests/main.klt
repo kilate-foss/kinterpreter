@@ -1,18 +1,18 @@
-native work Print(Any: value): Long
+native work Print(value: Int): Long
 
 work GetName(): String {
-        String a = "Aquiles Trindade"
+        let a: String = "Aquiles Trindade"
         return a
 }
 
 work GetAge(): Int {
-        Int a = 15
+        let a: Int = 15
         return a
 }
 
 work Main(): Int {
-        String name = GetName()
-        Int age = GetAge()
+        let name: String = GetName()
+        let age: Int = GetAge()
         Print -> name, " ", age
         return -> 0
 }

@@ -398,7 +398,8 @@ parser_parse_call_node (parser_t *p, token_t *tk)
                 parser_consume (p, TOKEN_LPAREN);
                 parser_consume (p, TOKEN_RPAREN);
                 return call;
-        } else if (next->type == TOKEN_RARROW || next->type == TOKEN_LARROW)
+        }
+        else if (next->type == TOKEN_RARROW || next->type == TOKEN_LARROW)
         {
                 parser_consume (p, next->type);
 
@@ -477,9 +478,9 @@ parser_parse_function (parser_t *p)
                         break;
                 }
 
-                char *type = parser_consume (p, TOKEN_TYPE)->text;
-                parser_consume (p, TOKEN_COLON);
                 char *name = parser_consume (p, TOKEN_IDENTIFIER)->text;
+                parser_consume (p, TOKEN_COLON);
+                char *type = parser_consume (p, TOKEN_TYPE)->text;
 
                 param_node_t *param = malloc (sizeof (*param));
                 param->arg_n.s = strdup (name);
@@ -631,9 +632,9 @@ parse_fndecl_params (parser_t *p)
                         break;
                 }
 
-                const char *type = parser_consume (p, TOKEN_TYPE)->text;
-                parser_consume (p, TOKEN_COLON);
                 const char *name = parser_consume (p, TOKEN_IDENTIFIER)->text;
+                parser_consume (p, TOKEN_COLON);
+                const char *type = parser_consume (p, TOKEN_TYPE)->text;
 
                 vector_push_back (
                     params,
@@ -682,6 +683,124 @@ parser_parse_native_decl (parser_t *p)
                 f->return_type = parser_consume (p, TOKEN_TYPE)->text;
         }
         return node;
+}
+
+static node_t
+parser_parse_variable (parser_t *p, token_t *tk)
+{
+        token_t *k;
+        if ((k = parser_consume(p, TOKEN_KEYWORD), !str_equals(k->text, "let")))
+        {
+                parser_error (p, k, "Unexpected token after %s: %s", tk->text,
+                      k->text);
+        }
+        const char *varname = parser_consume (p, TOKEN_IDENTIFIER)->text;
+        parser_consume (p, TOKEN_COLON);
+        const char *vartype = parser_consume (p, TOKEN_TYPE)->text;
+        parser_consume (p, TOKEN_ASSIGN);
+
+        token_t *valueTk = parser_current (p, 0);
+
+        vardecl_node_t varnode = make_node (NODE_VARDECL);
+        varnode.vardecl_n.name = strdup (varname);
+        varnode.vardecl_n.type = strdup (vartype);
+
+        if (valueTk->type == TOKEN_STRING)
+        {
+                valueTk = parser_consume (p, TOKEN_STRING);
+                varnode.vardecl_n.value.s = strdup (valueTk->text);
+                varnode.vardecl_n.value.type = NODE_VALUE_TYPE_STRING;
+        }
+        else if (valueTk->type == TOKEN_INT)
+        {
+                valueTk = parser_consume (p, TOKEN_INT);
+                int temp = str_to_int (valueTk->text);
+                varnode.vardecl_n.value.i = temp;
+                varnode.vardecl_n.value.type = NODE_VALUE_TYPE_INT;
+        }
+        else if (valueTk->type == TOKEN_FLOAT)
+        {
+                valueTk = parser_consume (p, TOKEN_FLOAT);
+                float temp = str_to_float (valueTk->text);
+                varnode.vardecl_n.value.f = temp;
+                varnode.vardecl_n.value.type = NODE_VALUE_TYPE_FLOAT;
+        }
+        else if (valueTk->type == TOKEN_LONG)
+        {
+                valueTk = parser_consume (p, TOKEN_LONG);
+                long temp = str_to_long (valueTk->text);
+                varnode.vardecl_n.value.l = temp;
+                varnode.vardecl_n.value.type = NODE_VALUE_TYPE_LONG;
+        }
+        else if (valueTk->type == TOKEN_BOOL)
+        {
+                valueTk = parser_consume (p, TOKEN_BOOL);
+                bool temp = str_equals (valueTk->text, "true");
+                varnode.vardecl_n.value.b = temp;
+                varnode.vardecl_n.value.type = NODE_VALUE_TYPE_BOOL;
+        }
+        else if (valueTk->type == TOKEN_IDENTIFIER)
+        {
+                token_t *next = parser_current (p, 1);
+                if (next->type == TOKEN_RARROW || next->type == TOKEN_LARROW
+                    || next->type == TOKEN_LPAREN)
+                {
+                        node_t call_node = parser_parse_call_node (p, valueTk);
+                        varnode.vardecl_n.value.n = node_copy (&call_node);
+                        varnode.vardecl_n.value.type = NODE_VALUE_TYPE_CALL;
+                }
+                else
+                {
+                        valueTk = parser_consume (p, TOKEN_IDENTIFIER);
+                        varnode.vardecl_n.value.s = strdup (valueTk->text);
+                        varnode.vardecl_n.value.type = NODE_VALUE_TYPE_VAR;
+                }
+        }
+        else
+        {
+                parser_error (p, valueTk,
+                              "Unsupported value in typed "
+                              "variable declaration.");
+                return (node_t){ .type = NODE_INVALID };
+        }
+
+        const char *expected = vartype;
+        const char *actual = token_kind_to_str (valueTk->type);
+
+        if (varnode.vardecl_n.value.type == NODE_VALUE_TYPE_VAR)
+        {
+                node_t *var = parser_find_var (p, varnode.vardecl_n.value.s);
+                if (!var)
+                {
+                        parser_error (p, valueTk, "Variable not exists: %s",
+                                      varnode.vardecl_n.value.s);
+                }
+                actual = var->vardecl_n.type;
+        }
+
+        // if valuetype is a call, so we need to get called function
+        // return type
+        if (varnode.vardecl_n.value.type == NODE_VALUE_TYPE_CALL)
+        {
+                node_t *call = varnode.vardecl_n.value.n;
+                node_t *fn = parser_find_function (p, call->call_n.name);
+                if (!fn)
+                        return (node_t){
+                                .type = NODE_INVALID
+                        }; // IMPORTANT TODO: Notice Error
+                actual = fn->function_n.return_type;
+        }
+
+        if (!str_equals (expected, "Any") && !str_equals (expected, actual))
+        {
+                parser_error (p, valueTk,
+                              "Type mismatch in declaration of '%s': "
+                              "expected '%s', got '%s', raw: %d",
+                              varname, expected, actual, valueTk->type);
+        }
+        printd ("parser::parser_parse_statement+154: Var(%s) = (%s)\n",
+                varname, valueTk->text);
+        return varnode;
 }
 
 static node_t
@@ -779,135 +898,20 @@ parser_parse_statement (parser_t *p)
         {
                 return parser_parse_native_decl (p);
         }
-        else if (tk->type == TOKEN_TYPE)
+        else if (tk->type == TOKEN_KEYWORD && str_equals(tk->text, "let"))
         {
-                char *vartype = parser_consume (p, TOKEN_TYPE)->text;
-                char *varname = parser_consume (p, TOKEN_IDENTIFIER)->text;
-
-                parser_consume (p, TOKEN_ASSIGN);
-
-                token_t *valueTk = parser_current (p, 0);
-
-                vardecl_node_t varnode = make_node (NODE_VARDECL);
-                varnode.vardecl_n.name = strdup (varname);
-                varnode.vardecl_n.type = strdup (vartype);
-
-                if (valueTk->type == TOKEN_STRING)
-                {
-                        valueTk = parser_consume (p, TOKEN_STRING);
-                        varnode.vardecl_n.value.s = strdup (valueTk->text);
-                        varnode.vardecl_n.value.type = NODE_VALUE_TYPE_STRING;
-                }
-                else if (valueTk->type == TOKEN_INT)
-                {
-                        valueTk = parser_consume (p, TOKEN_INT);
-                        int temp = str_to_int (valueTk->text);
-                        varnode.vardecl_n.value.i = temp;
-                        varnode.vardecl_n.value.type = NODE_VALUE_TYPE_INT;
-                }
-                else if (valueTk->type == TOKEN_FLOAT)
-                {
-                        valueTk = parser_consume (p, TOKEN_FLOAT);
-                        float temp = str_to_float (valueTk->text);
-                        varnode.vardecl_n.value.f = temp;
-                        varnode.vardecl_n.value.type = NODE_VALUE_TYPE_FLOAT;
-                }
-                else if (valueTk->type == TOKEN_LONG)
-                {
-                        valueTk = parser_consume (p, TOKEN_LONG);
-                        long temp = str_to_long (valueTk->text);
-                        varnode.vardecl_n.value.l = temp;
-                        varnode.vardecl_n.value.type = NODE_VALUE_TYPE_LONG;
-                }
-                else if (valueTk->type == TOKEN_BOOL)
-                {
-                        valueTk = parser_consume (p, TOKEN_BOOL);
-                        bool temp = str_equals (valueTk->text, "true");
-                        varnode.vardecl_n.value.b = temp;
-                        varnode.vardecl_n.value.type = NODE_VALUE_TYPE_BOOL;
-                }
-                else if (valueTk->type == TOKEN_IDENTIFIER)
-                {
-                        token_t *next = parser_current (p, 1);
-                        if (next->type == TOKEN_RARROW
-                            || next->type == TOKEN_LARROW
-                            || next->type == TOKEN_LPAREN)
-                        {
-                                node_t call_node
-                                    = parser_parse_call_node (p, valueTk);
-                                varnode.vardecl_n.value.n
-                                    = node_copy (&call_node);
-                                varnode.vardecl_n.value.type
-                                    = NODE_VALUE_TYPE_CALL;
-                        }
-                        else
-                        {
-                                valueTk = parser_consume (p, TOKEN_IDENTIFIER);
-                                varnode.vardecl_n.value.s
-                                    = strdup (valueTk->text);
-                                varnode.vardecl_n.value.type
-                                    = NODE_VALUE_TYPE_VAR;
-                        }
-                }
-                else
-                {
-                        parser_error (p, valueTk,
-                                      "Unsupported value in typed "
-                                      "variable declaration.");
-                        return (node_t){ .type = NODE_INVALID };
-                }
-
-                char *expected = vartype;
-                const char *actual = token_kind_to_str (valueTk->type);
-
-                if (varnode.vardecl_n.value.type == NODE_VALUE_TYPE_VAR)
-                {
-                        node_t *var
-                            = parser_find_var (p, varnode.vardecl_n.value.s);
-                        if (!var)
-                        {
-                                parser_error (p, valueTk,
-                                              "Variable not exists: %s",
-                                              varnode.vardecl_n.value.s);
-                        }
-                        actual = var->vardecl_n.type;
-                }
-
-                // if valuetype is a call, so we need to get called function
-                // return type
-                if (varnode.vardecl_n.value.type == NODE_VALUE_TYPE_CALL)
-                {
-                        node_t *call = varnode.vardecl_n.value.n;
-                        node_t *fn
-                            = parser_find_function (p, call->call_n.name);
-                        if (!fn)
-                                return (node_t){
-                                        .type = NODE_INVALID
-                                }; // IMPORTANT TODO: Notice Error
-                        actual = fn->function_n.return_type;
-                }
-
-                if (!str_equals (expected, "Any")
-                    && !str_equals (expected, actual))
-                {
-                        parser_error (p, valueTk,
-                                      "Type mismatch in declaration of '%s': "
-                                      "expected '%s', got '%s', raw: %d",
-                                      varname, expected, actual,
-                                      valueTk->type);
-                }
-                printd ("parser::parser_parse_statement+154: Var(%s) = (%s)\n",
-                        varname, valueTk->text);
-                return varnode;
+                return parser_parse_variable(p, tk);
         }
         else if (tk->type == TOKEN_IDENTIFIER)
         {
-                // TODO: This case can be also a variable declarion of user own
-                // types so we need more checks here to really know if its a
-                // call or a var decl
-                return parser_parse_call_node (p, tk);
+                token_t *next = parser_current (p, 1);
+                if (next->type == TOKEN_LPAREN || next->type == TOKEN_LARROW
+                    || next->type == TOKEN_RARROW)
+                {
+                        return parser_parse_call_node (p, tk);
+                }
+                return parser_parse_variable (p, tk);
         }
-
         parser_error (p, tk, "Unknown statement: %s", tk->text);
         return (node_t){ .type = NODE_INVALID };
 }

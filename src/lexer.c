@@ -422,7 +422,8 @@ lexer_tokenize (lexer_t *lexer)
                         if (str_equals (word, "work")
                             || str_equals (word, "return")
                             || str_equals (word, "import")
-                            || str_equals (word, "native"))
+                            || str_equals (word, "native")
+                            || str_equals (word, "let"))
                         {
                                 token_t *token = token_make (TOKEN_KEYWORD,
                                                              word, tkl, tkc);

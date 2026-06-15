@@ -6,7 +6,7 @@
         {builtin: #C_NUMBER#}
         {match: keywordsToRegex(
                 "work return false true let"
-                "import"
+                "import native"
             ), 0: "keyword"}
     ]
 }
