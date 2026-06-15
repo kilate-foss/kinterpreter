@@ -1,10 +1,18 @@
+native work Print(Any: value): Long
+
 work GetName(): String {
-        String a = "Trindade"
+        String a = "Aquiles Trindade"
+        return a
+}
+
+work GetAge(): Int {
+        Int a = 15
         return a
 }
 
 work Main(): Int {
         String name = GetName()
-        Print -> name
+        Int age = GetAge()
+        Print -> name, " ", age
         return -> 0
 }

@@ -26,9 +26,9 @@ void vector_set (vector_t *, const size_t, const void *);
 
 void vector_reserve (vector_t *, const size_t);
 
-void vector_insert (vector_t *, const size_t, const void *);
+const void *vector_insert (vector_t *, const size_t, const void *);
 
-void vector_push_back (vector_t *, const void *);
+const void *vector_push_back (vector_t *, const void *);
 
 void vector_remove (vector_t *, size_t);
 

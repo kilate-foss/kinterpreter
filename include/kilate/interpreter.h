@@ -14,7 +14,9 @@ extern "C"
 typedef struct interpreter_t
 {
         hashmap_t *functions;
+        hashmap_t *decls;
         env_t *env;
+        const char *filename;
 } interpreter_t;
 
 typedef enum interpreter_result_kind_t
@@ -29,7 +31,7 @@ typedef struct interpreter_result_t
         value_t value;
 } interpreter_result_t;
 
-interpreter_t *interpreter_make (node_vector_t *, node_vector_t *);
+interpreter_t *interpreter_make (const char *, node_vector_t *, node_vector_t *);
 
 void interpreter_delete (interpreter_t *);
 

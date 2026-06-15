@@ -11,13 +11,27 @@
 #include "kilate/bool.h"
 #include "kilate/string.h"
 
+static void
+lexer_error (lexer_t *lexer, char *fmt, ...)
+{
+        va_list args;
+        va_start (args, fmt);
+        fprintf (stderr, "lexer::error[%s:%zu:%zu] ", lexer->filename, lexer->__line__, lexer->__column__);
+        vprintf (fmt, args);
+        printf ("\n");
+        va_end (args);
+        exit (1);
+}
+
+
 lexer_t *
-lexer_make (char *input)
+lexer_make (const char *input, const char *filename)
 {
         lexer_t *lexer = malloc (sizeof (lexer_t));
-        lexer->__pos__ = 0;
-        lexer->__input__ = strdup (input);
         lexer->tokens = vector_make (sizeof (token_t *));
+        lexer->__pos__ = 0;
+        lexer->__input__ = input;
+        lexer->__input__ = filename;
         lexer->__line__ = 1;
         lexer->__column__ = 1;
         return lexer;
@@ -33,7 +47,6 @@ lexer_delete (lexer_t *lexer)
                 free (tk);
         }
         vector_delete (lexer->tokens);
-        free (lexer->__input__);
         free (lexer);
 }
 
@@ -408,7 +421,8 @@ lexer_tokenize (lexer_t *lexer)
                         size_t tkc = lexer->__column__;
                         if (str_equals (word, "work")
                             || str_equals (word, "return")
-                            || str_equals (word, "import"))
+                            || str_equals (word, "import")
+                            || str_equals (word, "native"))
                         {
                                 token_t *token = token_make (TOKEN_KEYWORD,
                                                              word, tkl, tkc);
@@ -448,17 +462,4 @@ lexer_tokenize (lexer_t *lexer)
         size_t tkc = lexer->__column__;
         token_t *token = token_make (TOKEN_EOF, "", tkl, tkc);
         vector_push_back (lexer->tokens, &token);
-}
-
-void
-lexer_error (lexer_t *lexer, char *fmt, ...)
-{
-        va_list args;
-        va_start (args, fmt);
-        fprintf (stderr, "[Error at %zu:%zu] ", lexer->__line__,
-                 lexer->__column__);
-        vprintf (fmt, args);
-        printf ("\n");
-        va_end (args);
-        exit (1);
 }

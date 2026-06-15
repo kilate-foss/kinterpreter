@@ -12,36 +12,47 @@
 #include "kilate/vector.h"
 
 int
-interpret (char *src)
+interpret (const char *src, const char *filename)
 {
-        lexer_t *lexer = lexer_make (src);
-        if (lexer == NULL)
-                error_fatal ("Lexer is null.");
-        lexer_tokenize (lexer);
-
         native_init ();
 
-        parser_t *parser = parser_make (lexer->tokens);
+        lexer_t *lexer = lexer_make (filename, src);
+        if (lexer == NULL)
+        {
+                error_fatal ("Lexer is null.");
+        }
+
+        lexer_tokenize (lexer);
+
+        parser_t *parser = parser_make (filename, lexer->tokens);
         if (parser == NULL)
+        {
                 error_fatal ("Parser is null.");
+        }
 
         parser_parse_program (parser);
 
-        interpreter_t *interpreter
-            = interpreter_make (parser->nodes, native_functions);
+        interpreter_t *interpreter = interpreter_make (
+            filename, parser_get_nodes (parser), native_functions);
+
         if (interpreter == NULL)
+        {
                 error_fatal ("Interpreter is null.");
+        }
+
         interpreter_result_t result = interpreter_run (interpreter);
+
         parser_delete (parser);
         interpreter_delete (interpreter);
         lexer_delete (lexer);
+
         native_end ();
 
         if (result.value.type == NODE_VALUE_TYPE_INT)
         {
                 return result.value.i;
         }
-        return -1;
+        return 0;
 }
 
 int
@@ -124,18 +135,18 @@ run (int argc, char *argv[])
         file_t file;
         if (file_open (&file, filename, FILE_MODE_READ) != 0)
         {
-                error_fatal ("Failed to open %s", filename);
+                error_fatal ("error: failed to open %s", filename);
                 return -1;
         }
         char *src = file_read_text (&file);
         if (!src)
         {
-                error_fatal ("Failed to read %s", filename);
+                error_fatal ("error: failed to read %s", filename);
                 return -1;
         }
         file_close (&file);
 
-        int res = interpret (src);
+        int res = interpret (src, filename);
         free (src);
         return res;
 }

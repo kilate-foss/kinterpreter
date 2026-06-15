@@ -2,6 +2,7 @@
 #define __NODE_H__
 
 #include <malloc.h>
+#include <string.h>
 
 #include "kilate/bool.h"
 #include "kilate/lexer.h"
@@ -18,12 +19,14 @@ extern "C"
 
 typedef enum node_kind_t
 {
+        NODE_INVALID = -1,
         NODE_FUNCTION,
         NODE_NATIVE_FUNCTION,
         NODE_CALL,
         NODE_ARG,
         NODE_RETURN,
-        NODE_VARDEC,
+        NODE_VARDECL,
+        NODE_NATIVEDECL,
         NODE_IMPORT
 } node_kind_t;
 
@@ -48,16 +51,17 @@ typedef node_t native_function_node_t;
 typedef node_t call_node_t;
 typedef node_t arg_node_t;
 typedef node_t return_node_t;
-typedef node_t vardec_node_t;
+typedef node_t vardecl_node_t;
+typedef node_t nativedecl_node_t;
 typedef node_t import_node_t;
 typedef node_t param_node_t;
 
 typedef vector_t node_vector_t;
-typedef vector_t node_arg_vector_t;
-typedef vector_t node_param_vector_t;
+typedef node_vector_t node_arg_vector_t;
+typedef node_vector_t node_param_vector_t;
 
 typedef struct native_fndata_t native_fndata_t;
-typedef return_node_t *(*native_fn_t) (native_fndata_t *);
+typedef return_node_t (*native_fn_t) (native_fndata_t *);
 
 typedef struct interpreter_t interpreter_t;
 
@@ -86,28 +90,31 @@ typedef struct safe_value_t
         value_t value;
 } safe_value_t;
 
+struct __function_node
+{
+        bool native;
+
+        char *name;
+        char *return_type;
+        node_param_vector_t *params;
+
+        union
+        {
+                node_vector_t *body;   // if its a normal
+                                       // function so its valid
+                native_fn_t native_fn; // if its a native
+                                       // function so its valid
+        };
+};
+
 struct node_t
 {
         node_kind_t type;
 
         union
         {
-                struct
-                {
-                        bool native;
-
-                        char *name;
-                        char *return_type;
-                        node_param_vector_t *params;
-
-                        union
-                        {
-                                node_vector_t *body;   // if its a normal
-                                                       // function so its valid
-                                native_fn_t native_fn; // if its a native
-                                                       // function so its valid
-                        };
-                } function_n;
+                struct __function_node function_n;
+                struct __function_node nativedecl_n;
 
                 struct
                 {
@@ -124,7 +131,7 @@ struct node_t
                         char *name;
                         char *type;
                         value_t value;
-                } vardec_n;
+                } vardecl_n;
 
                 struct
                 {
@@ -133,11 +140,12 @@ struct node_t
         };
 };
 
-static inline node_t *
-alloc_node (node_kind_t kind)
+static inline node_t
+make_node (node_kind_t kind)
 {
-        node_t *node = malloc (sizeof (*node));
-        node->type = kind;
+        node_t node;
+        memset (&node, 0, sizeof node);
+        node.type = kind;
         return node;
 }
 
@@ -150,9 +158,6 @@ const char *token_kind_to_str (token_kind_t);
 const char *node_value_kind_to_str (node_value_kind_t);
 node_value_kind_t str_to_node_value_kind (const char *);
 
-call_node_t *call_node_make (const char *, node_arg_vector_t *);
-vardec_node_t *var_dec_node_make (const char *, const char *, value_t);
-import_node_t *import_node_make (const char *);
 safe_value_t get_safe_value (interpreter_t *, arg_node_t *);
 
 int safe_to_int (safe_value_t);

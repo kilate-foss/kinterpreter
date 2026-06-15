@@ -23,28 +23,33 @@ node_delete (node_t *n)
                 if (n->function_n.return_type != NULL)
                         free (n->function_n.return_type);
 
-                for (size_t j = 0; j < n->function_n.body->size; ++j)
+                if (n->function_n.body)
                 {
-                        node_t **body_nodePtr
-                            = (node_t **)vector_get (n->function_n.body, j);
-
-                        if (body_nodePtr != NULL)
+                        for (size_t j = 0; j < n->function_n.body->size; ++j)
                         {
-                                node_t *body_node = *body_nodePtr;
-                                node_delete (body_node);
+                                node_t *body_node = (node_t *)vector_get (
+                                    n->function_n.body, j);
+
+                                if (body_node != NULL)
+                                {
+                                        node_delete (body_node);
+                                }
                         }
+                        vector_delete (n->function_n.body);
                 }
 
-                vector_delete (n->function_n.body);
-
-                for (size_t i = 0; i < n->function_n.params->size; ++i)
+                if (n->function_n.params)
                 {
-                        param_node_t *param = *(param_node_t **)vector_get (
-                            n->function_n.params, i);
-                        node_delete (param);
-                }
+                        for (size_t i = 0; i < n->function_n.params->size; ++i)
+                        {
+                                param_node_t *param
+                                    = (param_node_t *)vector_get (
+                                        n->function_n.params, i);
+                                node_delete (param);
+                        }
 
-                vector_delete (n->function_n.params);
+                        vector_delete (n->function_n.params);
+                }
         }
         else if (n->type == NODE_IMPORT)
         {
@@ -57,19 +62,17 @@ node_delete (node_t *n)
                 for (size_t i = 0; i < n->call_n.args->size; ++i)
                 {
                         arg_node_t *arg
-                            = *(arg_node_t **)vector_get (n->call_n.args, i);
+                            = (arg_node_t *)vector_get (n->call_n.args, i);
                         node_delete (arg);
                 }
 
                 vector_delete (n->call_n.args);
         }
-        else if (n->type == NODE_VARDEC)
+        else if (n->type == NODE_VARDECL)
         {
-                free (n->vardec_n.name);
-                free (n->vardec_n.type);
+                free (n->vardecl_n.name);
+                free (n->vardecl_n.type);
         }
-
-        free (n);
 }
 
 const char *
@@ -77,6 +80,8 @@ node_kind_tostr (node_kind_t k)
 {
         switch (k)
         {
+        case NODE_INVALID:
+                return "Invalid";
         case NODE_FUNCTION:
                 return "Function";
         case NODE_NATIVE_FUNCTION:
@@ -89,8 +94,10 @@ node_kind_tostr (node_kind_t k)
                 return "Import";
         case NODE_ARG:
                 return "Arg";
-        case NODE_VARDEC:
+        case NODE_VARDECL:
                 return "VarDecl";
+        case NODE_NATIVEDECL:
+                return "NativeDecl";
         };
 }
 
@@ -189,6 +196,7 @@ node_copy (node_t *n)
         if (!new)
                 return NULL;
 
+        memset (new, 0, sizeof *new);
         new->type = n->type;
 
         if (n->type == NODE_FUNCTION)
@@ -205,24 +213,24 @@ node_copy (node_t *n)
                 for (size_t i = 0; i < n->function_n.body->size; ++i)
                 {
                         node_t *child
-                            = *(node_t **)vector_get (n->function_n.body, i);
+                            = (node_t *)vector_get (n->function_n.body, i);
 
                         node_t *copy = node_copy (child);
 
-                        vector_push_back (new->function_n.body, &copy);
+                        vector_push_back (new->function_n.body, copy);
                 }
 
                 new->function_n.params = vector_make (sizeof (param_node_t *));
                 for (size_t i = 0; i < n->function_n.params->size; ++i)
                 {
 
-                        param_node_t *param = *(param_node_t **)vector_get (
+                        param_node_t *param = (param_node_t *)vector_get (
                             n->function_n.params, i);
 
                         param_node_t *param_copy
                             = (param_node_t *)node_copy ((node_t *)param);
 
-                        vector_push_back (new->function_n.params, &param_copy);
+                        vector_push_back (new->function_n.params, param_copy);
                 }
         }
         else if (n->type == NODE_CALL)
@@ -230,33 +238,36 @@ node_copy (node_t *n)
                 new->call_n.name
                     = n->call_n.name ? strdup (n->call_n.name) : NULL;
 
-                new->call_n.args = vector_make (sizeof (arg_node_t *));
-                for (size_t i = 0; i < n->call_n.args->size; ++i)
+                if (n->call_n.args)
                 {
+                        new->call_n.args = vector_make (sizeof (arg_node_t));
+                        for (size_t i = 0; i < n->call_n.args->size; ++i)
+                        {
 
-                        arg_node_t *arg
-                            = *(arg_node_t **)vector_get (n->call_n.args, i);
+                                arg_node_t *arg = (arg_node_t *)vector_get (
+                                    n->call_n.args, i);
 
-                        arg_node_t *arg_copy
-                            = (arg_node_t *)node_copy ((node_t *)arg);
+                                arg_node_t *arg_copy
+                                    = (arg_node_t *)node_copy ((node_t *)arg);
 
-                        vector_push_back (new->call_n.args, &arg_copy);
+                                vector_push_back (new->call_n.args, arg_copy);
+                        }
                 }
         }
         else if (n->type == NODE_RETURN)
         {
                 new->return_n = n->return_n;
         }
-        else if (n->type == NODE_VARDEC)
+        else if (n->type == NODE_VARDECL)
         {
-                new->vardec_n.name
-                    = n->vardec_n.name ? strdup (n->vardec_n.name) : NULL;
+                new->vardecl_n.name
+                    = n->vardecl_n.name ? strdup (n->vardecl_n.name) : NULL;
 
-                new->vardec_n.type
-                    = n->vardec_n.type ? strdup (n->vardec_n.type) : NULL;
+                new->vardecl_n.type
+                    = n->vardecl_n.type ? strdup (n->vardecl_n.type) : NULL;
 
-                new->vardec_n.value.type = n->vardec_n.value.type;
-                new->vardec_n.value = n->vardec_n.value;
+                new->vardecl_n.value.type = n->vardecl_n.value.type;
+                new->vardecl_n.value = n->vardecl_n.value;
         }
         else if (n->type == NODE_IMPORT)
         {
@@ -264,33 +275,6 @@ node_copy (node_t *n)
         }
 
         return new;
-}
-
-call_node_t *
-call_node_make (const char *name, node_arg_vector_t *args)
-{
-        node_t *n = alloc_node (NODE_CALL);
-        n->call_n.name = strdup (name);
-        n->call_n.args = args;
-        return n;
-}
-
-vardec_node_t *
-var_dec_node_make (const char *name, const char *type, value_t v)
-{
-        node_t *n = alloc_node (NODE_VARDEC);
-        n->vardec_n.name = strdup (name);
-        n->vardec_n.type = strdup (type);
-        n->vardec_n.value = v;
-        return n;
-}
-
-import_node_t *
-import_node_make (const char *path)
-{
-        node_t *n = alloc_node (NODE_IMPORT);
-        n->import_n.path = strdup (path);
-        return n;
 }
 
 static bool
@@ -323,29 +307,30 @@ get_safe_value (interpreter_t *inter, arg_node_t *arg)
                 {
                         printd (
                             "node::get_safe_value+7: var(%s) = value(%s)\n",
-                            var->vardec_n.name,
-                            node_value_kind_to_str (var->vardec_n.value.type));
-                        if (!is_lit (var->vardec_n.value.type))
+                            var->vardecl_n.name,
+                            node_value_kind_to_str (
+                                var->vardecl_n.value.type));
+                        if (!is_lit (var->vardecl_n.value.type))
                         {
                                 arg_node_t arg
-                                    = { .arg_n = var->vardec_n.value };
+                                    = { .arg_n = var->vardecl_n.value };
                                 safe_value_t sv = get_safe_value (inter, &arg);
                                 result = sv;
                         }
                         else
                         {
-                                result.type = var->vardec_n.value.type;
-                                result.value = var->vardec_n.value;
+                                result.type = var->vardecl_n.value.type;
+                                result.value = var->vardecl_n.value;
                         }
                 }
         }
         else if (arg->arg_n.type == NODE_VALUE_TYPE_CALL)
         {
                 call_node_t *call = arg->arg_n.n;
-                printd ("node::get_safe_value+23: fn(%s)\n",
-                        node_kind_tostr (call->type));
                 if (call)
                 {
+                        printd ("node::get_safe_value+23: fn(%s)\n",
+                                node_kind_tostr (call->type));
                         interpreter_result_t ret
                             = interpreter_run_node (inter, call);
                         result.type = ret.value.type;

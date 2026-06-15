@@ -72,7 +72,7 @@ vector_set (vector_t *self, size_t index, const void *item)
                 self->itemSize);
 }
 
-void
+const void *
 vector_insert (vector_t *self, size_t index, const void *item)
 {
         if (self == NULL)
@@ -90,12 +90,13 @@ vector_insert (vector_t *self, size_t index, const void *item)
 
         self->size++;
         vector_set (self, index, item);
+        return (char *)(self->data) + index * self->itemSize;
 }
 
-void
+const void *
 vector_push_back (vector_t *self, const void *item)
 {
-        vector_insert (self, self->size, item);
+        return vector_insert (self, self->size, item);
 }
 
 void

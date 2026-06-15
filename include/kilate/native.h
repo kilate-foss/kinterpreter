@@ -16,7 +16,7 @@ typedef struct native_fndata_t
         node_arg_vector_t *args;
 } native_fndata_t;
 
-typedef return_node_t *(*native_fn_t) (native_fndata_t *);
+typedef return_node_t (*native_fn_t) (native_fndata_t *);
 
 #define KILATE_NATIVE_REGISTER() void KILATE_NATIVE_REGISTER ()
 

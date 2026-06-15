@@ -50,14 +50,15 @@ char *tokentype_tostr (token_kind_t);
 
 typedef struct
 {
+        token_vector_t *tokens;
+        const char *__input__;
+        const char *filename;
         size_t __pos__;
         size_t __column__;
         size_t __line__;
-        token_vector_t *tokens;
-        char *__input__;
 } lexer_t;
 
-lexer_t *lexer_make (char *);
+lexer_t *lexer_make (const char *src, const char *);
 
 void lexer_delete (lexer_t *);
 
@@ -66,8 +67,6 @@ void lexer_advance (lexer_t *);
 char *lexer_read_string (lexer_t *, bool *);
 
 void lexer_tokenize (lexer_t *);
-
-void lexer_error (lexer_t *, char *, ...);
 
 #ifdef __cplusplus
 }
