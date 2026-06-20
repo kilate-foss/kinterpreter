@@ -90,6 +90,7 @@ parser_tokentype_to_nodevaluetype (parser_t *p, token_t *tk)
         case TOKEN_BOOL:
                 return NODE_VALUE_TYPE_BOOL;
         case TOKEN_INT:
+        case TOKEN_HEX:
                 return NODE_VALUE_TYPE_INT;
         case TOKEN_FLOAT:
                 return NODE_VALUE_TYPE_FLOAT;
@@ -208,6 +209,14 @@ static call_node_t parser_parse_call_node (parser_t *, token_t *);
 
 static node_t parser_parse_statement (parser_t *);
 
+static inline bool
+is_value (token_kind_t type)
+{
+        return (type == TOKEN_STRING || type == TOKEN_BOOL || type == TOKEN_INT
+                || type == TOKEN_HEX || type == TOKEN_FLOAT
+                || type == TOKEN_LONG || type == TOKEN_IDENTIFIER);
+}
+
 static node_param_vector_t *
 parser_parse_fnparams (parser_t *p)
 {
@@ -221,16 +230,10 @@ parser_parse_fnparams (parser_t *p)
                 {
                         parser_error (p, param,
                                       "Somehow param value is null.");
-                        return NULL;
                 }
 
-                if (param->type != TOKEN_STRING && param->type != TOKEN_BOOL
-                    && param->type != TOKEN_INT && param->type != TOKEN_FLOAT
-                    && param->type != TOKEN_LONG
-                    && param->type != TOKEN_IDENTIFIER)
-                {
+                if (!is_value (param->type))
                         break;
-                }
 
                 param_node_t fn_param = make_node (NODE_ARG);
                 node_value_kind_t vkind
@@ -653,9 +656,9 @@ parser_parse_variable (parser_t *p, token_t *tk)
                 varnode.vardecl_n.value.s = strdup (valueTk->text);
                 varnode.vardecl_n.value.type = NODE_VALUE_TYPE_STRING;
         }
-        else if (valueTk->type == TOKEN_INT)
+        else if (valueTk->type == TOKEN_INT || valueTk->type == TOKEN_HEX)
         {
-                valueTk = parser_consume (p, TOKEN_INT);
+                valueTk = parser_consume (p, valueTk->type);
                 int temp = str_to_int (valueTk->text);
                 varnode.vardecl_n.value.i = temp;
                 varnode.vardecl_n.value.type = NODE_VALUE_TYPE_INT;
@@ -774,10 +777,10 @@ parser_parse_statement (parser_t *p)
                             parser_consume (p, TOKEN_BOOL)->text, "true");
                         rn.return_n.type = NODE_VALUE_TYPE_BOOL;
                 }
-                else if (next->type == TOKEN_INT)
+                else if (next->type == TOKEN_INT || next->type == TOKEN_HEX)
                 {
-                        rn.return_n.i
-                            = str_to_int (parser_consume (p, TOKEN_INT)->text);
+                        rn.return_n.i = str_to_int (
+                            parser_consume (p, next->type)->text);
                         rn.return_n.type = NODE_VALUE_TYPE_INT;
                 }
                 else if (next->type == TOKEN_FLOAT)
