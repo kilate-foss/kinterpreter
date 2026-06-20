@@ -204,26 +204,6 @@ parser_find_var (parser_t *p, const char *name)
         return NULL;
 }
 
-static nativedecl_node_t *
-parser_find_decl (parser_t *p, const char *name)
-{
-        for (size_t i = 0; i < p->nodes->size; i++)
-        {
-                node_t *n = (node_t *)vector_get (p->nodes, i);
-
-                if (!n)
-                        continue;
-
-                if (n->type == NODE_NATIVEDECL)
-                {
-                        if (!str_equals (n->nativedecl_n.name, name))
-                                continue;
-                        return n;
-                }
-        }
-        return NULL;
-}
-
 static call_node_t parser_parse_call_node (parser_t *, token_t *);
 
 static node_t parser_parse_statement (parser_t *);
@@ -343,45 +323,6 @@ parser_parse_fnparams (parser_t *p)
         }
 
         return params;
-}
-
-static void
-parser_fn_validate_params (parser_t *p, node_t *fn,
-                           node_param_vector_t *params, token_t *tk)
-{
-        if (!fn->function_n.params)
-                return;
-
-        size_t expected = fn->function_n.params->size;
-        if (params->size != expected)
-        {
-                parser_error (
-                    p, tk, "Function '%s' expects %zu parameters but got %zu.",
-                    fn->function_n.name, expected, params->size);
-        }
-
-        for (size_t i = 0; i < expected; ++i)
-        {
-                param_node_t *param
-                    = (param_node_t *)vector_get (fn->function_n.params, i);
-
-                param_node_t *callParam
-                    = (param_node_t *)vector_get (params, i);
-                node_value_kind_t actualType = callParam->arg_n.type;
-                if (actualType == NODE_VALUE_TYPE_VAR
-                    || actualType == NODE_VALUE_TYPE_FUNC)
-                        continue;
-                if (param->arg_n.type != NODE_VALUE_TYPE_ANY
-                    && param->arg_n.type != actualType)
-                {
-                        parser_error (
-                            p, tk,
-                            "Argument %zu to '%s' must be of type %s, got %s",
-                            i + 1, fn->function_n.name,
-                            node_value_kind_to_str (param->arg_n.type),
-                            node_value_kind_to_str (actualType));
-                }
-        }
 }
 
 static call_node_t
@@ -689,10 +630,11 @@ static node_t
 parser_parse_variable (parser_t *p, token_t *tk)
 {
         token_t *k;
-        if ((k = parser_consume(p, TOKEN_KEYWORD), !str_equals(k->text, "let")))
+        if ((k = parser_consume (p, TOKEN_KEYWORD),
+             !str_equals (k->text, "let")))
         {
                 parser_error (p, k, "Unexpected token after %s: %s", tk->text,
-                      k->text);
+                              k->text);
         }
         const char *varname = parser_consume (p, TOKEN_IDENTIFIER)->text;
         parser_consume (p, TOKEN_COLON);
@@ -898,9 +840,9 @@ parser_parse_statement (parser_t *p)
         {
                 return parser_parse_native_decl (p);
         }
-        else if (tk->type == TOKEN_KEYWORD && str_equals(tk->text, "let"))
+        else if (tk->type == TOKEN_KEYWORD && str_equals (tk->text, "let"))
         {
-                return parser_parse_variable(p, tk);
+                return parser_parse_variable (p, tk);
         }
         else if (tk->type == TOKEN_IDENTIFIER)
         {
