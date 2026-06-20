@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.22)
 project(kilate LANGUAGES C CXX)
 
 option(BUILD_SHARED_LIBS "Build shared library (.so)" ON)
-option(BUILD_STATIC_LIBS "Build static library (.a)" ON)
 option(INSTALL "Install libkilate and executable." OFF)
 option(ASAN "Enable Address Sanitizer" OFF)
 
@@ -30,8 +29,7 @@ set(LIB_SOURCES
     src/parser.c
     src/native.c
     src/string.c
-    src/vector.c
-)
+    src/vector.c)
 
 # -------------------------
 # LIBRARY
@@ -49,20 +47,6 @@ if(BUILD_SHARED_LIBS)
   )
 
   add_library(Kilate::Shared ALIAS kilate_shared)
-endif()
-
-if(BUILD_STATIC_LIBS)
-  add_library(kilate_static STATIC ${LIB_SOURCES})
-
-  set_target_properties(kilate_static PROPERTIES
-    OUTPUT_NAME kilate_static
-  )
-
-  target_include_directories(kilate_static PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-  )
-
-  add_library(Kilate::Static ALIAS kilate_static)
 endif()
 
 # -------------------------
@@ -100,12 +84,6 @@ if(INSTALL)
   if(BUILD_SHARED_LIBS)
     install(TARGETS kilate_shared
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    )
-  endif()
-
-  if(BUILD_STATIC_LIBS)
-    install(TARGETS kilate_static
-      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
   endif()
 
