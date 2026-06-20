@@ -44,7 +44,7 @@ native_load_extern ()
                                 snprintf (path, sizeof (path), "%s%s", dir,
                                           entry->d_name);
 
-                                void *handle = dlopen (path, RTLD_NOW);
+                                void *handle = dlopen (path, RTLD_NOW | RTLD_GLOBAL);
                                 if (!handle)
                                 {
                                         fprintf (stderr,
@@ -94,7 +94,7 @@ native_register_fn (const char *name, const char *return_type,
 {
         function_node_t n = make_node (NODE_NATIVE_FUNCTION);
         n.function_n.name = strdup (name);
-        n.function_n.return_type = strdup (return_type);
+        n.function_n.return_type = (n.function_n.return_type) ? strdup (return_type) : NULL;
         n.function_n.params = params;
         n.function_n.native = true;
         n.function_n.native_fn = fn;
