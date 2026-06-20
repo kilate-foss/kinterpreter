@@ -29,6 +29,7 @@ typedef enum
         TOKEN_INT,        // 123
         TOKEN_FLOAT,      // 1.23
         TOKEN_LONG,       // 123l
+        TOKEN_HEX,       // 0xFFFFFFF
         TOKEN_COMMA,      // ,
         TOKEN_ASSIGN,     // =
         TOKEN_EOF         // end of file.

@@ -16,13 +16,13 @@ lexer_error (lexer_t *lexer, char *fmt, ...)
 {
         va_list args;
         va_start (args, fmt);
-        fprintf (stderr, "lexer::error[%s:%zu:%zu] ", lexer->filename, lexer->__line__, lexer->__column__);
+        fprintf (stderr, "lexer::error[%s:%zu:%zu] ", lexer->filename,
+                 lexer->__line__, lexer->__column__);
         vprintf (fmt, args);
         printf ("\n");
         va_end (args);
         exit (1);
 }
-
 
 lexer_t *
 lexer_make (const char *input, const char *filename)
@@ -338,6 +338,39 @@ lexer_tokenize (lexer_t *lexer)
                             = token_make (TOKEN_STRING, str, tkl, tkc);
                         vector_push_back (lexer->tokens, &token);
                         free (str);
+                        continue;
+                }
+
+                if (c == '0' && lexer->__pos__ + 1 < input_len
+                    && (lexer->__input__[lexer->__pos__ + 1] == 'x'
+                        || lexer->__input__[lexer->__pos__ + 1] == 'X'))
+                {
+                        lexer_advance (lexer); // 0
+                        lexer_advance (lexer); // x
+
+                        size_t start = lexer->__pos__;
+
+                        while (lexer->__pos__ < input_len)
+                        {
+                                char ch = lexer->__input__[lexer->__pos__];
+
+                                if (isxdigit ((unsigned char)ch))
+                                        lexer_advance (lexer);
+                                else
+                                        break;
+                        }
+
+                        char *number = str_substring (lexer->__input__, start,
+                                                      lexer->__pos__);
+
+                        size_t tkl = lexer->__line__;
+                        size_t tkc = lexer->__column__;
+
+                        token_t *token
+                            = token_make (TOKEN_HEX, number, tkl, tkc);
+
+                        vector_push_back (lexer->tokens, &token);
+                        free (number);
                         continue;
                 }
                 if (isdigit (c))
