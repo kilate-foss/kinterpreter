@@ -28,7 +28,7 @@ struct parser_t
         size_t pos;
 };
 
-static void
+[[noreturn]] static void
 parser_error (parser_t *p, token_t *tk, const char *fmt, ...)
 {
         va_list args;

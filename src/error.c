@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void
+[[noreturn]] void
 error_fatal (char *fmt, ...)
 {
         va_list args;

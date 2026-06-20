@@ -11,7 +11,7 @@
 #include "kilate/bool.h"
 #include "kilate/string.h"
 
-static void
+[[noreturn]] static void
 lexer_error (lexer_t *lexer, char *fmt, ...)
 {
         va_list args;
