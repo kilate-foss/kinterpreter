@@ -9,13 +9,6 @@ option(ASAN "Enable Address Sanitizer" OFF)
 add_compile_options(-Wall -Wextra -Wunused)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
 
-if(ASAN)
-  message(STATUS "AddressSanitizer enabled")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
-endif()
-
 set(LIB_SOURCES
     src/config.c
     src/debug.c
@@ -61,12 +54,28 @@ target_link_libraries(kilate
   PRIVATE kilate_shared
 )
 
+if(ASAN)
+  target_compile_options(kilate_shared PRIVATE
+    -fsanitize=address
+    -fno-omit-frame-pointer)
+
+  target_link_options(kilate_shared PRIVATE
+    -fsanitize=address)
+
+  target_compile_options(kilate PRIVATE
+    -fsanitize=address
+    -fno-omit-frame-pointer)
+
+  target_link_options(kilate PRIVATE
+    -fsanitize=address)
+endif()
+
 # -------------------------
 # DEBUG
 # -------------------------
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  target_compile_definitions(kilate PRIVATE DEBUG)
+  target_compile_definitions(kilate_shared PRIVATE DEBUG)
   message(STATUS "Debug Build")
 endif()
 
