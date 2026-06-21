@@ -3,6 +3,7 @@ require "fileutils"
 install_arg = false
 run_arg = false
 termux_arg = false
+debug_arg = false
 asan_arg = false
 clean_arg = false
 lib_so_arg = false
@@ -46,6 +47,8 @@ ARGV.each do |arg|
       run_arg = true
     when "-t", "--termux"
       termux_arg = true
+    when "-g", "--debug"
+      debug_arg = true
     when "-as", "--asan"
       asan_arg = true
     when "-c", "--clean"
@@ -78,7 +81,7 @@ if lib_so_arg
       "-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake " \
       "-DANDROID_ABI=#{abi} " \
       "-DANDROID_PLATFORM=android-26 " \
-      "-DCMAKE_BUILD_TYPE=#{asan_arg ? "Debug" : "Release"}"
+      "-DCMAKE_BUILD_TYPE=#{debug_arg ? "Debug" : "Release"}"
     )
     run("cmake --build #{build_dir}")
   end
@@ -89,7 +92,7 @@ else
     "-DINSTALL=#{install_arg ? "ON" : "OFF"} " \
     "-DCMAKE_EXPORT_COMPILE_COMMANDS=#{compile_commands_json_arg ? "ON" : "OFF"} " \
     "-DCMAKE_INSTALL_PREFIX=$HOME/../usr " \
-    "-DCMAKE_BUILD_TYPE=#{asan_arg ? "Debug" : "Release"}"
+    "-DCMAKE_BUILD_TYPE=#{debug_arg ? "Debug" : "Release"}"
   )
   run("cmake --build build")
 end
