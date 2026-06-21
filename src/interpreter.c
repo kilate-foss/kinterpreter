@@ -3,6 +3,7 @@
 #include <alloca.h>
 #include <assert.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -72,6 +73,46 @@ interpret_return_value (interpreter_t *self, return_node_t *ret)
         return sv.value;
 }
 
+// converts an value to another type, if compatible
+bool
+coerce_value (interpreter_t *self, value_t value, node_value_kind_t target,
+              value_t *result)
+{
+        // int -> uint
+        if (value.type == NODE_VALUE_TYPE_INT
+            && target == NODE_VALUE_TYPE_UINT)
+        {
+                int32_t i = value.i;
+                if (i < 0)
+                {
+                        error_fatal (
+                            "error[%s]: coerce: Converting a negative int "
+                            "value into UInt (aka uint32_t) is not allowed.",
+                            self->filename);
+                        return false;
+                }
+                result->type = NODE_VALUE_TYPE_UINT;
+                result->u = (uint32_t)i;
+        }
+
+        // uint -> int
+        if (value.type == NODE_VALUE_TYPE_UINT
+            && target == NODE_VALUE_TYPE_INT)
+        {
+                uint32_t u = value.u;
+                if (u > INT32_MAX)
+                {
+                        error_fatal ("error[%s]: coerce: Can't convert %u to "
+                                     "Int, because it exceeds the INT32_MAX.",
+                                     self->filename, u);
+                        return false;
+                }
+                result->type = NODE_VALUE_TYPE_INT;
+                result->i = (int32_t)u;
+        }
+        return true;
+}
+
 typedef bool (*valid_fn_args_callback_t) (interpreter_t *self, value_t *,
                                           safe_value_t);
 static bool
@@ -110,8 +151,7 @@ valid_fn_args (interpreter_t *self, node_t *node, node_arg_vector_t *args,
         {
                 error_fatal (
                     "error[%s]: Function %s expects %zu params, actual %zu.",
-                    self->filename, fn->name,
-                    fn->params->size, args->size);
+                    self->filename, fn->name, fn->params->size, args->size);
         }
 
         for (size_t i = 0; i < args->size; ++i)
@@ -129,15 +169,18 @@ valid_fn_args (interpreter_t *self, node_t *node, node_arg_vector_t *args,
 
                 // arg.s => argument name
                 // arg.type => argument type
+                value_t coerced = { 0 };
                 if (param->type != NODE_VALUE_TYPE_ANY
-                    && arg.type != param->type)
+                    && (!coerce_value (self, arg.value, param->type, &coerced)
+                        && arg.type != param->type))
                 {
                         error_fatal (
                             "error[%s]: Argument %s with type %s is not the "
                             "actual expected by the Function %s. Expected "
                             "type: %s.",
-                            self->filename, param->s, node_value_kind_to_str (arg.type),
-                            fn->name, node_value_kind_to_str (param->type));
+                            self->filename, param->s,
+                            node_value_kind_to_str (arg.type), fn->name,
+                            node_value_kind_to_str (param->type));
                 }
 
                 if (!callback (self, param, arg))
