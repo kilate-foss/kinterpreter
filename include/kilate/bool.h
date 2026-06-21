@@ -1,17 +1,12 @@
 #ifndef __BOOL__
 #define __BOOL__
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#ifndef __cplusplus
 
-#define bool unsigned char
+#define bool _Bool
 #define true 1
 #define false 0
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif
