@@ -29,7 +29,7 @@ irk_to_str (interpreter_result_kind_t irk)
         return "irk::<?>";
 }
 
-static node_t
+static vardecl_node_t
 interpret_variable_value (interpreter_t *self, vardecl_node_t *var)
 {
         printd ("interpreter::interpret_variable_value+1: var(%s, %s) = "
@@ -198,7 +198,7 @@ define_args_in_env (interpreter_t *self, value_t *param, safe_value_t arg)
         var.vardecl_n.name = strdup (param->s);
         var.vardecl_n.type = strdup (node_value_kind_to_str (param->type));
         var.vardecl_n.value = arg.value;
-        env_definevar (self->env, var.vardecl_n.name, &var);
+        env_definevar (self->env, var.vardecl_n.name, node_copy (&var));
         return true;
 }
 
