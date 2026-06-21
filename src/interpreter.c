@@ -1,6 +1,7 @@
 #include "kilate/interpreter.h"
 
 #include <alloca.h>
+#include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -71,6 +72,93 @@ interpret_return_value (interpreter_t *self, return_node_t *ret)
         return sv.value;
 }
 
+typedef bool (*valid_fn_args_callback_t) (interpreter_t *self, value_t *,
+                                          safe_value_t);
+static bool
+valid_fn_args (interpreter_t *self, node_t *node, node_arg_vector_t *args,
+               valid_fn_args_callback_t callback)
+{
+        if (!self)
+                error_fatal ("error[?]: Interpreter is invalid.");
+        if (!node
+            || (node->type != NODE_FUNCTION
+                && node->type != NODE_NATIVE_FUNCTION))
+        {
+                error_fatal ("error[%s]: valid_fn_args: %s not a function.",
+                             self->filename,
+                             (node) ? node->function_n.name : "");
+        }
+
+        struct __function_node *fn = &node->function_n;
+
+        printd ("func=%p\n", node);
+        printd ("func->name=%s\n", node->function_n.name);
+        printd ("func->params=%p\n", node->function_n.params);
+        if (node->function_n.params)
+                printd ("func->params->size=%zu\n",
+                        node->function_n.params->size);
+
+        printd ("args=%p\n", args);
+        if (args)
+                printd ("params->size=%zu\n", args->size);
+
+        // if both NULL, so theres no params and args
+        if (!args && !fn->params)
+                return true;
+
+        if (args->size != fn->params->size)
+        {
+                error_fatal (
+                    "error[%s]: Function %s expects %zu params, actual %zu.",
+                    self->filename, fn->name,
+                    fn->params->size, args->size);
+        }
+
+        for (size_t i = 0; i < args->size; ++i)
+        {
+                safe_value_t arg;
+                value_t *param;
+                {
+                        arg_node_t *arg_node
+                            = (arg_node_t *)vector_get (args, i);
+                        param_node_t *param_node
+                            = (param_node_t *)vector_get (fn->params, i);
+                        arg = get_safe_value (self, arg_node);
+                        param = &param_node->arg_n;
+                }
+
+                // arg.s => argument name
+                // arg.type => argument type
+                if (param->type != NODE_VALUE_TYPE_ANY
+                    && arg.type != param->type)
+                {
+                        error_fatal (
+                            "error[%s]: Argument %s with type %s is not the "
+                            "actual expected by the Function %s. Expected "
+                            "type: %s.",
+                            self->filename, param->s, node_value_kind_to_str (arg.type),
+                            fn->name, node_value_kind_to_str (param->type));
+                }
+
+                if (!callback (self, param, arg))
+                        break;
+        }
+
+        return true;
+}
+
+static bool
+define_args_in_env (interpreter_t *self, value_t *param, safe_value_t arg)
+{
+
+        vardecl_node_t var = make_node (NODE_VARDECL);
+        var.vardecl_n.name = strdup (param->s);
+        var.vardecl_n.type = strdup (node_value_kind_to_str (param->type));
+        var.vardecl_n.value = arg.value;
+        env_definevar (self->env, var.vardecl_n.name, &var);
+        return true;
+}
+
 static interpreter_result_t
 _interpreter_run_fn (interpreter_t *self, node_t *func,
                      node_arg_vector_t *params)
@@ -99,50 +187,7 @@ _interpreter_run_fn (interpreter_t *self, node_t *func,
         env_t *old = self->env;
         self->env = env_make (NULL);
 
-        printd ("func=%p\n", func);
-        printd ("func->name=%s\n", func->function_n.name);
-        printd ("func->params=%p\n", func->function_n.params);
-        if (func->function_n.params)
-                printd ("func->params->size=%zu\n",
-                        func->function_n.params->size);
-
-        printd ("params=%p\n", params);
-        if (params)
-                printd ("params->size=%zu\n", params->size);
-
-        if (params != NULL && func->function_n.params != NULL)
-        {
-                for (size_t i = 0; i < params->size; i++)
-                {
-                        arg_node_t *param
-                            = (arg_node_t *)vector_get (params, i);
-                        param_node_t *fnParam = (param_node_t *)vector_get (
-                            func->function_n.params, i);
-
-                        safe_value_t svalue = get_safe_value (self, param);
-
-                        if (fnParam->arg_n.type != NODE_VALUE_TYPE_ANY
-                            && fnParam->arg_n.type != svalue.type)
-                        {
-                                error_fatal (
-                                    "error[%s]: Argument %zu to function '%s' "
-                                    "expected "
-                                    "type '%s', but got '%s'",
-                                    self->filename, i + 1,
-                                    func->function_n.name,
-                                    node_value_kind_to_str (
-                                        fnParam->arg_n.type),
-                                    node_value_kind_to_str (svalue.type));
-                        }
-
-                        vardecl_node_t var = make_node (NODE_VARDECL);
-                        var.vardecl_n.name = strdup (fnParam->arg_n.s);
-                        var.vardecl_n.type = strdup (
-                            node_value_kind_to_str (fnParam->arg_n.type));
-                        var.vardecl_n.value = svalue.value;
-                        env_definevar (self->env, var.vardecl_n.name, &var);
-                }
-        }
+        // valid_fn_args (self, func, params, define_args_in_env);
 
         printd ("interpreter::interpreter_run_fn+47: %s\n",
                 func->function_n.name);
@@ -333,6 +378,8 @@ interpreter_run_fn (interpreter_t *self, node_t *fn, node_arg_vector_t *args)
         if (!fn
             || (fn->type != NODE_FUNCTION && fn->type != NODE_NATIVE_FUNCTION))
                 goto def;
+
+        valid_fn_args (self, fn, args, define_args_in_env);
 
         if (fn->type == NODE_FUNCTION && !fn->function_n.native)
         {
