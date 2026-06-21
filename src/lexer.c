@@ -68,45 +68,45 @@ token_kind_to_str (token_kind_t type)
         switch (type)
         {
         case TOKEN_KEYWORD:
-                return "keyword";
+                return "Keyword";
         case TOKEN_IDENTIFIER:
-                return "identifier";
+                return "Identifier";
         case TOKEN_STRING:
-                return "string";
+                return "String";
         case TOKEN_LPAREN:
-                return "left_parenthesis";
+                return "LeftParenthesis";
         case TOKEN_RPAREN:
-                return "right_parenthesis";
+                return "RightParenthesis";
         case TOKEN_LBRACE:
-                return "left_brace";
+                return "LeftBrace";
         case TOKEN_RBRACE:
-                return "right_brace";
+                return "RightBrace";
         case TOKEN_RARROW:
-                return "right_arrow";
+                return "RightArrow";
         case TOKEN_LARROW:
-                return "left_arrow";
+                return "LeftArrow";
         case TOKEN_COLON:
-                return "colon";
+                return "Colon";
         case TOKEN_TYPE:
-                return "type";
+                return "Type";
         case TOKEN_BOOL:
-                return "boolean";
+                return "Bool";
         case TOKEN_INT:
-                return "int";
+                return "Int";
         case TOKEN_HEX:
-                return "hex";
+                return "Hex";
         case TOKEN_FLOAT:
-                return "float";
+                return "Float";
         case TOKEN_LONG:
-                return "double";
+                return "Double";
         case TOKEN_COMMA:
-                return "comma";
+                return "Comma";
         case TOKEN_ASSIGN:
-                return "assign";
+                return "Assign";
         case TOKEN_EOF:
-                return "end_of_file";
+                return "EndOfFile";
         default:
-                return "unknow_token";
+                return "<?>";
         };
 }
 
