@@ -1,4 +1,5 @@
 require "fileutils"
+require_relative "experiments/make.rb"
 
 install_arg = false
 run_arg = false
@@ -8,6 +9,7 @@ asan_arg = false
 clean_arg = false
 lib_so_arg = false
 compile_commands_json_arg = false
+experiments_arg = false
 
 YELLOW = "\e[33m"
 LGREEN = "\e[92m"
@@ -33,6 +35,7 @@ def print_help_and_close
   puts "#{LGREEN}-c    or --clean                 #{LMAGENTA}| Cleanup build before build again."
   puts "#{LGREEN}-lso  or --libso                 #{LMAGENTA}| Build shared libraries for Android ABIs."
   puts "#{LGREEN}-ccj  or --compile-commands-json #{LMAGENTA}| Export compile_commands.json."
+  puts "#{LGREEN}-e    or --experiments           #{LMAGENTA}| Compile (optionally install) some tests/experiments."
   puts
   puts "#{YELLOW}WARNING"
   puts "Don't use install and run command together.#{RESET}"
@@ -57,6 +60,8 @@ ARGV.each do |arg|
       lib_so_arg = true
     when "-ccj", "--compile-commands-json"
       compile_commands_json_arg = true
+    when "-e", "--experiments"
+      experiments_arg = true
     when "-h", "--help"
       print_help_and_close
     else
@@ -101,9 +106,19 @@ if compile_commands_json_arg
   FileUtils.cp("build/compile_commands.json", "./")
 end
 
+if experiments_arg
+  Dir.chdir "experiments" do
+    Experiments::KrayLib.build termux_arg
+  end
+end
+
 if install_arg
   run("cmake --install build")
-  # Install Std Native
+  if experiments_arg
+    Dir.chdir "experiments" do
+      Experiments::KrayLib.install
+    end
+  end
 end
 
 if !install_arg && run_arg

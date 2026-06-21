@@ -1,0 +1,8 @@
+[
+  {
+    "directory": "/data/data/com.termux/files/home/projs/kilate/interpreter/experiments/kraylib/build",
+    "command": "c++ -Ilibkraylib.so.p -I. -I.. -I../include -I/data/data/com.termux/files/usr/include -fdiagnostics-color=always -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -std=c++26 -O0 -g -fPIC -MD -MQ libkraylib.so.p/src_main.cpp.o -MF libkraylib.so.p/src_main.cpp.o.d -o libkraylib.so.p/src_main.cpp.o -c ../src/main.cpp",
+    "file": "../src/main.cpp",
+    "output": "libkraylib.so.p/src_main.cpp.o"
+  }
+]

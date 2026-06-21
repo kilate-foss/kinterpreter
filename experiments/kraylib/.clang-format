@@ -1,0 +1,6 @@
+IndentWidth: 4
+ColumnLimit: 100
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: None
+BreakTemplateDeclarations: Yes
+AccessModifierOffset: -4
