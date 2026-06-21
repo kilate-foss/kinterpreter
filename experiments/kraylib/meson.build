@@ -6,12 +6,12 @@ project('kraylib',
 )
 
 sources = [
-  'src/main.cpp'
+  'src/main.cpp',
+  'src/node.cpp'
 ]
 
 raylib_dep = dependency('raylib')
 kilate_dep = dependency('kilate')
-
 
 inc_dir = include_directories('include')
 kraylib_lib = shared_library(
