@@ -39,10 +39,21 @@ interpret_variable_value (interpreter_t *self, vardecl_node_t *var)
         arg.arg_n = var->vardecl_n.value;
         safe_value_t sv = get_safe_value (self, &arg);
 
+        printd ("interpreter::interpret_variable_value+10: sv(%s) = "
+                "value(%s).u(%d)\n",
+                node_value_kind_to_str (sv.type),
+                node_value_kind_to_str (sv.value.type), sv.value.u);
+
         vardecl_node_t nvar = make_node (NODE_VARDECL);
         nvar.vardecl_n.name = strdup (var->vardecl_n.name);
         nvar.vardecl_n.type = strdup (var->vardecl_n.type);
         nvar.vardecl_n.value = sv.value;
+
+        printd ("interpreter::interpret_variable_value+20: "
+                "stored_value(%s).u(%d)\n",
+                node_value_kind_to_str (nvar.vardecl_n.value.type),
+                nvar.vardecl_n.value.u);
+
         // node_delete (var);
         return nvar;
 }
@@ -360,7 +371,7 @@ interpreter_run_node (interpreter_t *self, node_t *n)
 
                 if (!fn
                     || (fn->type == NODE_NATIVE_FUNCTION
-                         && !(hm_get (self->decls, n->call_n.name))))
+                        && !(hm_get (self->decls, n->call_n.name))))
                 {
                         error_fatal ("error[%s]: Function not declared or not "
                                      "exists: %s",
@@ -376,9 +387,10 @@ interpreter_run_node (interpreter_t *self, node_t *n)
                 printd (
                     "interpreter::interpreter_run_node+21: call_result(%s, "
                     "%s) "
-                    "= value(%s)\n",
+                    "= value(%s, %s)\n",
                     fn->function_n.name, irk_to_str (r.type),
-                    node_value_kind_to_str (r.value.type));
+                    node_value_kind_to_str (r.value.type),
+                    value_to_str (r.value));
 
                 return (interpreter_result_t){ .type = IRT_FUNC,
                                                .value = r.value };

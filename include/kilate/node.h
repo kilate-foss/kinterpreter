@@ -2,10 +2,10 @@
 #define __NODE_H__
 
 #include <malloc.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "kilate/bool.h"
-#include "kilate/lexer.h"
 #include "kilate/vector.h"
 
 #ifdef __cplusplus
@@ -33,6 +33,7 @@ typedef enum node_kind_t
 typedef enum node_value_kind_t
 {
         NODE_VALUE_TYPE_INT,
+        NODE_VALUE_TYPE_UINT,
         NODE_VALUE_TYPE_FLOAT,
         NODE_VALUE_TYPE_LONG,
         NODE_VALUE_TYPE_STRING,
@@ -70,7 +71,9 @@ typedef struct value_t
         node_value_kind_t type;
         union
         {
-                int i;
+                int32_t i;
+                uint32_t u;
+
                 float f;
                 long l;
                 bool b;
@@ -154,13 +157,14 @@ void node_delete (node_t *);
 node_t *node_copy (node_t *);
 
 const char *node_kind_tostr (node_kind_t);
-const char *token_kind_to_str (token_kind_t);
 const char *node_value_kind_to_str (node_value_kind_t);
+const char *value_to_str (value_t);
 node_value_kind_t str_to_node_value_kind (const char *);
 
 safe_value_t get_safe_value (interpreter_t *, arg_node_t *);
 
-int safe_to_int (safe_value_t);
+int32_t safe_to_int (safe_value_t);
+uint32_t safe_to_uint (safe_value_t);
 float safe_to_float (safe_value_t);
 char *safe_to_string (safe_value_t);
 

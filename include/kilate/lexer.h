@@ -47,7 +47,7 @@ typedef vector_t token_vector_t;
 
 token_t *token_make (token_kind_t, char *, size_t, size_t);
 
-char *tokentype_tostr (token_kind_t);
+const char *token_kind_to_str (token_kind_t);
 
 typedef struct
 {

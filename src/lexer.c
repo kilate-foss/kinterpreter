@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "kilate/bool.h"
+#include "kilate/debug.h"
 #include "kilate/string.h"
 
 [[noreturn]] static void
@@ -61,8 +62,8 @@ token_make (token_kind_t type, char *text, size_t line, size_t column)
         return tk;
 }
 
-char *
-tokentype_tostr (token_kind_t type)
+const char *
+token_kind_to_str (token_kind_t type)
 {
         switch (type)
         {
@@ -92,6 +93,8 @@ tokentype_tostr (token_kind_t type)
                 return "boolean";
         case TOKEN_INT:
                 return "int";
+        case TOKEN_HEX:
+                return "hex";
         case TOKEN_FLOAT:
                 return "float";
         case TOKEN_LONG:
@@ -366,6 +369,7 @@ lexer_tokenize (lexer_t *lexer)
                         size_t tkl = lexer->__line__;
                         size_t tkc = lexer->__column__;
 
+                        printd ("lexer::tokenize::372: hex(%s)\n", number);
                         token_t *token
                             = token_make (TOKEN_HEX, number, tkl, tkc);
 
@@ -471,6 +475,7 @@ lexer_tokenize (lexer_t *lexer)
                         }
                         else if (str_equals (word, "Bool")
                                  || str_equals (word, "Int")
+                                 || str_equals (word, "UInt")
                                  || str_equals (word, "Float")
                                  || str_equals (word, "Long")
                                  || str_equals (word, "String")

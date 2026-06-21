@@ -59,8 +59,8 @@ parser_consume (parser_t *p, token_kind_t exType)
         if (tk->type != exType)
         {
                 parser_error (p, tk, "Expected %s, but got %s",
-                              tokentype_tostr (exType),
-                              tokentype_tostr (tk->type));
+                              token_kind_to_str (exType),
+                              token_kind_to_str (tk->type));
                 return NULL;
         }
         p->pos++;
@@ -90,8 +90,9 @@ parser_tokentype_to_nodevaluetype (parser_t *p, token_t *tk)
         case TOKEN_BOOL:
                 return NODE_VALUE_TYPE_BOOL;
         case TOKEN_INT:
-        case TOKEN_HEX:
                 return NODE_VALUE_TYPE_INT;
+        case TOKEN_HEX:
+                return NODE_VALUE_TYPE_UINT;
         case TOKEN_FLOAT:
                 return NODE_VALUE_TYPE_FLOAT;
         case TOKEN_LONG:
@@ -124,11 +125,11 @@ parser_tokentype_to_nodevaluetype (parser_t *p, token_t *tk)
 }
 
 static function_node_t *
-parser_find_function (parser_t *p, const char *name)
+parser_find_function_n (parser_t *p, const char *name)
 {
-        printd ("parser::parser_find_function+1: Searching for fn: %s\n",
+        printd ("parser::parser_find_function_n+1: Searching for fn: %s\n",
                 name);
-        printd ("parser::parser_find_function+2: Total nodes: %zu\n",
+        printd ("parser::parser_find_function_n+2: Total nodes: %zu\n",
                 p->nodes->size);
 
         for (size_t i = 0; i < p->nodes->size; i++)
@@ -138,18 +139,38 @@ parser_find_function (parser_t *p, const char *name)
                 if (!fn)
                         continue;
 
-                printd ("parser::parser_find_function+10: Node %zu type: %d\n",
-                        i, fn->type);
+                printd (
+                    "parser::parser_find_function_n+10: Node %zu type: %d\n",
+                    i, fn->type);
 
                 if (fn->type == NODE_FUNCTION)
                 {
                         if (!str_equals (fn->function_n.name, name))
                                 continue;
-                        printd (
-                            "parser::parser_find_function+15: Fn found: %s\n",
-                            fn->function_n.name);
+                        printd ("parser::parser_find_function_n+15: Fn found: "
+                                "%s\n",
+                                fn->function_n.name);
                         return fn;
                 }
+        }
+        return NULL;
+}
+
+static node_t *
+parser_find_function (parser_t *p, const char *name, bool crash)
+{
+        node_t *n = parser_find_function_n (p, name);
+        if (n)
+                return n;
+
+        n = native_find_function (name);
+        if (n)
+                return n;
+
+        if (crash)
+        {
+                parser_error (p, parser_current (p, 0),
+                              "Function not found: %s", name);
         }
         return NULL;
 }
@@ -168,8 +189,9 @@ parser_find_var (parser_t *p, const char *name)
                 if (!var)
                         continue;
 
-                printd ("parser::parser_find_function+1: Node %zu type: %d\n",
-                        i, var->type);
+                printd (
+                    "parser::parser_find_function_n+1: Node %zu type: %d\n", i,
+                    var->type);
 
                 if (var->type == NODE_VARDECL)
                 {
@@ -217,6 +239,44 @@ is_value (token_kind_t type)
                 || type == TOKEN_LONG || type == TOKEN_IDENTIFIER);
 }
 
+static void
+parse_kind (parser_t *p, token_t *targ, value_t *varg)
+{
+        switch (targ->type)
+        {
+        case TOKEN_BOOL:
+                varg->type = NODE_VALUE_TYPE_BOOL;
+                varg->b = str_equals (targ->text, "true");
+                break;
+        case TOKEN_FLOAT:
+                varg->type = NODE_VALUE_TYPE_FLOAT;
+                varg->f = str_to_float (targ->text);
+                break;
+        case TOKEN_LONG:
+                varg->type = NODE_VALUE_TYPE_LONG;
+                varg->l = str_to_long (targ->text);
+                break;
+        case TOKEN_STRING:
+                varg->type = NODE_VALUE_TYPE_STRING;
+                varg->s = strdup (targ->text);
+                break;
+        case TOKEN_INT:
+                varg->type = NODE_VALUE_TYPE_INT;
+                varg->i = str_to_int (targ->text);
+                break;
+        case TOKEN_HEX:
+                varg->type = NODE_VALUE_TYPE_UINT;
+                varg->u = str_to_hex (targ->text);
+
+                uint32_t u = str_to_hex (targ->text);
+                printd ("parser::parse_kind::272: hex(%s, %#x)\n", targ->text,
+                        u);
+                break;
+        default:
+                break;
+        };
+}
+
 static node_param_vector_t *
 parser_parse_fnparams (parser_t *p)
 {
@@ -255,43 +315,36 @@ parser_parse_fnparams (parser_t *p)
                         printd ("parser::parser_parse_fnparams+29: after "
                                 "consume: %s\n",
                                 param->text);
-                        bool f = false;
-                        function_node_t *fn
-                            = parser_find_function (p, param->text);
-                        if (fn && !f)
+                        bool found = false;
+
+                        node_t *fn
+                            = parser_find_function (p, param->text, false);
+                        if (fn)
                         {
                                 fn_param.arg_n.type = NODE_VALUE_TYPE_FUNC;
                                 fn_param.arg_n.n = fn;
                                 printd ("parser::parser_parse_fnparams+36: "
                                         "fn: %s\n",
                                         param->text);
-                                f = true;
-                        }
-
-                        native_function_node_t *nfn
-                            = native_find_function (param->text);
-                        if (nfn && !f)
-                        {
-                                fn_param.arg_n.type = NODE_VALUE_TYPE_FUNC;
-                                fn_param.arg_n.n = nfn;
-                                printd ("parser::parser_parse_fnparams+44: "
-                                        "nfn: %s\n",
-                                        param->text);
-                                f = true;
+                                found = true;
                         }
 
                         vardecl_node_t *var = parser_find_var (p, param->text);
-                        if (var && !f)
+                        if (!found && var)
                         {
                                 fn_param.arg_n.type = NODE_VALUE_TYPE_VAR;
                                 fn_param.arg_n.s = strdup (param->text);
                                 printd ("parser::parser_parse_fnparams+51: "
                                         "var: %s\n",
                                         param->text);
-                                f = true;
+                                found = true;
                         }
 
-                        if (!f)
+                        printd ("parser::parser_parse_fn_params:294: "
+                                "param(%s) = value(%s)\n",
+                                token_kind_to_str (param->type), param->text);
+
+                        if (!found)
                         {
                                 parser_error (p, param,
                                               "Param '%s' is not a Function, "
@@ -303,8 +356,7 @@ parser_parse_fnparams (parser_t *p)
                 else
                 {
                         parser_consume (p, param->type);
-                        fn_param.arg_n.type = vkind;
-                        fn_param.arg_n.s = strdup (param->text);
+                        parse_kind (p, param, &fn_param.arg_n);
                 }
                 vector_push_back (params, &fn_param);
 
@@ -490,6 +542,11 @@ parser_parse_function (parser_t *p)
                                 retType = NODE_VALUE_TYPE_INT;
                         }
                         else if (str_equals (fn.function_n.return_type,
+                                             "UInt"))
+                        {
+                                retType = NODE_VALUE_TYPE_UINT;
+                        }
+                        else if (str_equals (fn.function_n.return_type,
                                              "Flat"))
                         {
                                 retType = NODE_VALUE_TYPE_FLOAT;
@@ -525,7 +582,7 @@ parser_parse_function (parser_t *p)
                         {
                                 call_node_t *call = ln.n;
                                 function_node_t *fn = parser_find_function (
-                                    p, call->call_n.name);
+                                    p, call->call_n.name, true);
                                 real_type = str_to_node_value_kind (
                                     fn->function_n.return_type);
                         }
@@ -656,12 +713,21 @@ parser_parse_variable (parser_t *p, token_t *tk)
                 varnode.vardecl_n.value.s = strdup (valueTk->text);
                 varnode.vardecl_n.value.type = NODE_VALUE_TYPE_STRING;
         }
-        else if (valueTk->type == TOKEN_INT || valueTk->type == TOKEN_HEX)
+        else if (valueTk->type == TOKEN_INT)
         {
-                valueTk = parser_consume (p, valueTk->type);
-                int temp = str_to_int (valueTk->text);
+                valueTk = parser_consume (p, TOKEN_INT);
+                int32_t temp = str_to_int (valueTk->text);
                 varnode.vardecl_n.value.i = temp;
                 varnode.vardecl_n.value.type = NODE_VALUE_TYPE_INT;
+        }
+        else if (valueTk->type == TOKEN_HEX)
+        {
+                valueTk = parser_consume (p, TOKEN_HEX);
+                uint32_t temp = str_to_hex (valueTk->text);
+                printd ("parser::parse_variable::723: hex(%s, %#x)\n",
+                        valueTk->text, temp);
+                varnode.vardecl_n.value.u = temp;
+                varnode.vardecl_n.value.type = NODE_VALUE_TYPE_UINT;
         }
         else if (valueTk->type == TOKEN_FLOAT)
         {
@@ -706,11 +772,15 @@ parser_parse_variable (parser_t *p, token_t *tk)
                 parser_error (p, valueTk,
                               "Unsupported value in typed "
                               "variable declaration.");
-                return (node_t){ .type = NODE_INVALID };
         }
 
         const char *expected = vartype;
         const char *actual = token_kind_to_str (valueTk->type);
+
+        if (valueTk->type == TOKEN_HEX || str_equals (expected, "UInt"))
+        {
+                actual = "UInt";
+        }
 
         if (varnode.vardecl_n.value.type == NODE_VALUE_TYPE_VAR)
         {
@@ -725,17 +795,18 @@ parser_parse_variable (parser_t *p, token_t *tk)
 
         // if valuetype is a call, so we need to get called function
         // return type
+        const char *name = NULL;
         if (varnode.vardecl_n.value.type == NODE_VALUE_TYPE_CALL)
         {
                 node_t *call = varnode.vardecl_n.value.n;
-                node_t *fn = parser_find_function (p, call->call_n.name);
-                if (!fn)
-                        return (node_t){
-                                .type = NODE_INVALID
-                        }; // IMPORTANT TODO: Notice Error
+                node_t *fn = parser_find_function (p, call->call_n.name, true);
                 actual = fn->function_n.return_type;
+                name = fn->function_n.name;
         }
 
+        printd ("parser::parser_parse_variable::748: fn(%s) = expected(%s), "
+                "actual(%s)\n",
+                name, expected, actual);
         if (!str_equals (expected, "Any") && !str_equals (expected, actual))
         {
                 parser_error (p, valueTk,
@@ -777,11 +848,17 @@ parser_parse_statement (parser_t *p)
                             parser_consume (p, TOKEN_BOOL)->text, "true");
                         rn.return_n.type = NODE_VALUE_TYPE_BOOL;
                 }
-                else if (next->type == TOKEN_INT || next->type == TOKEN_HEX)
+                else if (next->type == TOKEN_INT)
                 {
                         rn.return_n.i = str_to_int (
                             parser_consume (p, next->type)->text);
                         rn.return_n.type = NODE_VALUE_TYPE_INT;
+                }
+                else if (next->type == TOKEN_HEX)
+                {
+                        rn.return_n.u = str_to_hex (
+                            parser_consume (p, next->type)->text);
+                        rn.return_n.type = NODE_VALUE_TYPE_UINT;
                 }
                 else if (next->type == TOKEN_FLOAT)
                 {
