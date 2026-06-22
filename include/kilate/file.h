@@ -1,7 +1,9 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#include <libgen.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -27,6 +29,20 @@ int file_close (file_t *);
 size_t file_get_length (file_t *);
 
 char *file_read_text (file_t *);
+
+// returns an allocated string!!
+static __attribute__ ((unused)) char *
+dname (const char *name)
+{
+#ifdef __ANDROID__
+
+        return strdup (dirname (name));
+#else
+        char *copy = strdup (name);
+        dirname (copy);
+        return copy;
+#endif
+}
 
 #ifdef __cplusplus
 }

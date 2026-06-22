@@ -1,8 +1,8 @@
 #include "kilate/parser.h"
 
+#include <errno.h>
 #include <malloc.h>
 #include <stdarg.h>
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -415,7 +415,17 @@ parser_parse_import (parser_t *p)
         token_t *path_token = parser_consume (p, TOKEN_STRING);
 
         file_t file;
-        file_open (&file, path_token->text, FILE_MODE_READ);
+        if (file_open (&file, path_token->text, FILE_MODE_READ) != 0)
+        {
+                char buf[256];
+                char *path = dname (p->filename);
+                snprintf (buf, sizeof buf, "%s/%s", path, path_token->text);
+                free (path);
+                if (file_open (&file, path, FILE_MODE_READ) != 0)
+                        parser_error (p, parser_current (p, 0),
+                                      "Can't import %s: %s", path_token->text,
+                                      strerror (errno));
+        }
 
         char *src = file_read_text (&file);
         if (!src)

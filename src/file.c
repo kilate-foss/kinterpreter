@@ -28,10 +28,7 @@ file_open (file_t *file, const char *filepath, file_mode_t mode)
         file->raw = fopen (filepath, fmode);
 
         if (!file->raw)
-        {
-                perror ("Failed to open file");
                 return -1;
-        }
 
         return 0;
 }
