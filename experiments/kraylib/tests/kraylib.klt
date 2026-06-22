@@ -1,0 +1,39 @@
+native work init_window(w: UInt, h: UInt, title: String)
+native work clear_background(color: UInt)
+native work begin_drawing()
+native work end_drawing()
+native work close_window()
+
+// experimental
+native work make_color(r: UInt, g: UInt, b: UInt, a: UInt): UInt
+
+work InitWindow(w: UInt, h: UInt, title: String)
+{
+    init_window <- w, h, title
+}
+
+work ClearBackground(color: UInt)
+{
+    clear_background <- color
+}
+
+work BeginDrawing()
+{
+    begin_drawing()
+}
+
+work EndDrawing()
+{
+    end_drawing()
+}
+
+work CloseWindow()
+{
+    close_window()
+}
+
+// just here cause we don't have structs yet to represent Color structure.
+work MakeColor(r: UInt, g: UInt, b: UInt, a: UInt): UInt
+{
+    return <- make_color <- r, g, b, a
+}

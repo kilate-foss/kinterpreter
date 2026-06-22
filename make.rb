@@ -2,7 +2,7 @@ require "fileutils"
 require_relative "experiments/make.rb"
 
 install_arg = false
-run_arg = false
+tests_arg = false
 termux_arg = false
 debug_arg = false
 asan_arg = false
@@ -28,7 +28,7 @@ def print_help_and_close
   puts "Usage Make.rb <option>"
   puts "Options:"
   puts "#{LGREEN}-i    or --install               #{LMAGENTA}| Compile and install."
-  puts "#{LGREEN}-r    or --run                   #{LMAGENTA}| Compile and run."
+  puts "#{LGREEN}-t    or --tests                 #{LMAGENTA}| Compile and run tests."
   puts "#{LGREEN}-t    or --termux                #{LMAGENTA}| [USE WITH -r] Compile and run it fixing termux restrictions."
   puts "#{LGREEN}-h    or --help                  #{LMAGENTA}| Prints help."
   puts "#{LGREEN}-as   or --asan                  #{LMAGENTA}| Enables Address Sanitizer."
@@ -46,8 +46,8 @@ ARGV.each do |arg|
   case arg
     when "-i", "--install"
       install_arg = true
-    when "-r", "--run"
-      run_arg = true
+    when "-t", "--tests"
+      tests_arg = true
     when "-t", "--termux"
       termux_arg = true
     when "-g", "--debug"
@@ -121,15 +121,8 @@ if install_arg
   end
 end
 
-if !install_arg && run_arg
-  if termux_arg
-    FileUtils.cp("kilate", ENV["HOME"])
-    Dir.chdir(ENV["HOME"]) do
-      FileUtils.chmod("+x", "kilate")
-      exec("./kilate run main.klt")
-    end
-  else
-    FileUtils.chmod("+x", "kilate")
-    exec("./kilate run main.klt")
-  end
+if tests_arg
+  Dir.chdir "experiments" do
+    Experiments::KrayLib.test
+  end if experiments_arg
 end

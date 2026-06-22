@@ -1,0 +1,7 @@
+import "kraylib.klt"
+
+work Main(): Int
+{
+	InitWindow <- 800, 400, "Window"
+	return <- 0
+}

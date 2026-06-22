@@ -19,5 +19,11 @@ module Experiments
         run "meson compile -C build"
       end
     end
+
+    def self.test
+      Dir.chdir "kraylib" do
+        run "kilate run tests/main.klt"
+      end
+    end
   end
 end

@@ -14,8 +14,8 @@
 namespace kraylib
 {
 
-DECLARE_NATIVE(InitWindow, nullptr, kilate::node::arg("width", NODE_VALUE_TYPE_INT),
-               kilate::node::arg("height", NODE_VALUE_TYPE_INT),
+DECLARE_NATIVE(init_window, nullptr, kilate::node::arg("width", NODE_VALUE_TYPE_UINT),
+               kilate::node::arg("height", NODE_VALUE_TYPE_UINT),
                kilate::node::arg("name", NODE_VALUE_TYPE_STRING))
 {
     assert(d != nullptr && "native function data is null.");
@@ -29,7 +29,7 @@ DECLARE_NATIVE(InitWindow, nullptr, kilate::node::arg("width", NODE_VALUE_TYPE_I
     return make_node(NODE_RETURN);
 }
 
-DECLARE_NATIVE(ClearBackground, nullptr, kilate::node::arg("color", NODE_VALUE_TYPE_UINT))
+DECLARE_NATIVE(clear_background, nullptr, kilate::node::arg("color", NODE_VALUE_TYPE_UINT))
 {
     auto unpack_color = [](std::uint32_t c) -> Color
     {
@@ -49,14 +49,14 @@ DECLARE_NATIVE(ClearBackground, nullptr, kilate::node::arg("color", NODE_VALUE_T
     return make_node(NODE_RETURN);
 }
 
-DECLARE_NATIVE(BeginDrawing, nullptr)
+DECLARE_NATIVE(begin_drawing, nullptr)
 {
     assert(d != nullptr && "native function data is null.");
     BeginDrawing();
     return make_node(NODE_RETURN);
 }
 
-DECLARE_NATIVE(EndDrawing, nullptr)
+DECLARE_NATIVE(end_drawing, nullptr)
 {
     assert(d != nullptr && "native function data is null.");
     EndDrawing();
@@ -90,14 +90,14 @@ DECLARE_NATIVE(Color, "UInt", kilate::node::arg("red", NODE_VALUE_TYPE_UINT),
     return ret;
 }
 
-DECLARE_NATIVE(CloseWindow, nullptr)
+DECLARE_NATIVE(close_window, nullptr)
 {
     assert(d != nullptr && "native function data is null.");
     CloseWindow();
     return make_node(NODE_RETURN);
 }
 
-DECLARE_NATIVE(Loop, nullptr)
+DECLARE_NATIVE(test_loop, nullptr)
 {
     assert(d != nullptr && "native function data is null.");
 
