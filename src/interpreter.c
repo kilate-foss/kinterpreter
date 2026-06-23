@@ -16,6 +16,9 @@
 #include "kilate/string.h"
 #include "kilate/vector.h"
 
+#define MAIN_FUNCTION_NAME "Main"
+#define MAIN_FUNCTION_RETURN "Int"
+
 static const char *
 irk_to_str (interpreter_result_kind_t irk)
 {
@@ -146,6 +149,19 @@ valid_fn_args (interpreter_t *self, node_t *node, node_arg_vector_t *args,
         // if both NULL, so theres no params and args
         if (!args && !fn->params)
                 return true;
+
+        if (args && !fn->params)
+        {
+                if (str_equals(fn->name, MAIN_FUNCTION_NAME))
+                {
+                        error_fatal (
+                            "error[%s]: " MAIN_FUNCTION_NAME
+                            " MUST accept argc: Int and argv: String[].");
+                }
+                error_fatal ("error[%s]: Function %s doesn't expect any "
+                             "params. Provided %zu.",
+                             self->filename, fn->name, args->size);
+        }
 
         if (args->size != fn->params->size)
         {
@@ -370,8 +386,6 @@ interpreter_delete (interpreter_t *self)
         free (self);
 }
 
-#define MAIN_FUNCTION_NAME "Main"
-#define MAIN_FUNCTION_RETURN "Int"
 interpreter_result_t
 interpreter_run (interpreter_t *self)
 {
