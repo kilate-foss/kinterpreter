@@ -8,9 +8,12 @@
 namespace kilate::node
 {
 
-inline static node_t arg(const std::string &name, node_value_kind_t kind)
+inline static node_t param(const std::string &name, node_value_kind_t kind)
 {
-    return {.type = NODE_ARG, .arg_n = value_t{.type = kind, .s = strdup(name.c_str())}};
+    auto n{make_node(NODE_PARAM)};
+    n.param_n.name = strdup(name.c_str());
+    n.param_n.kind = kind;
+    return n;
 }
 
 struct vector
@@ -46,4 +49,4 @@ private:
     bool m_managed_by_me;
 };
 
-} // namespace node
+} // namespace kilate::node

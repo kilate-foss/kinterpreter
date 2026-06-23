@@ -24,6 +24,7 @@ typedef enum node_kind_t
         NODE_NATIVE_FUNCTION,
         NODE_CALL,
         NODE_ARG,
+        NODE_PARAM,
         NODE_RETURN,
         NODE_VARDECL,
         NODE_NATIVEDECL,
@@ -126,7 +127,13 @@ struct node_t
                 } call_n;
 
                 value_t arg_n;
-                value_t param_n;
+
+                struct
+                {
+                        char *name;
+                        node_value_kind_t kind;
+                } param_n;
+
                 value_t return_n;
 
                 struct

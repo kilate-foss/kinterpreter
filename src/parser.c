@@ -17,16 +17,79 @@
 #include "kilate/string.h"
 #include "kilate/vector.h"
 
+struct thiz_t
+{
+        node_t *func;
+        // soon maybe we can have structs context or whatever
+};
+
 struct parser_t
 {
         node_vector_t *nodes;
-        node_vector_t *scope_body;
-
         token_vector_t *tokens;
+
+        struct thiz_t thiz;
 
         const char *filename;
         size_t pos;
 };
+
+static node_vector_t *
+thiz_func_body (struct thiz_t *thiz)
+{
+        if (thiz->func
+            && (thiz->func->type == NODE_FUNCTION
+                || thiz->func->type == NODE_NATIVE_FUNCTION))
+        {
+                return thiz->func->function_n.body;
+        }
+        return NULL;
+}
+
+static inline void
+thiz_set_func (struct thiz_t *thiz, function_node_t *fn)
+{
+        thiz->func = node_copy (fn);
+}
+
+static inline void
+thiz_release_func (struct thiz_t *thiz)
+{
+        node_delete (thiz->func);
+        thiz->func = NULL;
+}
+
+static bool
+thiz_is_func_arg (struct thiz_t *thiz, const char *name, arg_node_t **dest)
+{
+        if (!thiz->func && thiz->func->type != NODE_FUNCTION
+            && thiz->func->type != NODE_NATIVE_FUNCTION)
+        {
+                return false;
+        }
+
+        struct __function_node *fn = &thiz->func->function_n;
+        if (!fn->params || fn->params->size <= 0)
+                return false;
+
+        for (size_t i = 0; i < fn->params->size; ++i)
+        {
+                param_node_t *param
+                    = (param_node_t *)vector_get (fn->params, i);
+                printd ("parser::thiz_is_func_arg::79: param=%p\n", param);
+                printd ("parser::thiz_is_func_arg::80: param->name=%p\n",
+                        param->param_n.name);
+                printd ("parser::thiz_is_func_arg::82: param->kind=%s\n",
+                        node_value_kind_to_str(param->param_n.kind));
+                if (str_equals (param->param_n.name, name))
+                {
+                        *dest = param;
+                        return true;
+                }
+        }
+
+        return false;
+}
 
 [[noreturn]] static void
 parser_error (parser_t *p, token_t *tk, const char *fmt, ...)
@@ -203,12 +266,13 @@ parser_find_var (parser_t *p, const char *name)
                 }
         }
 
-        if (!p->scope_body)
+        node_vector_t *scope_body = thiz_func_body (&p->thiz);
+        if (!scope_body)
                 return NULL;
 
-        for (size_t i = 0; i < p->scope_body->size; i++)
+        for (size_t i = 0; i < scope_body->size; i++)
         {
-                vardecl_node_t *var = (node_t *)vector_get (p->scope_body, i);
+                vardecl_node_t *var = (node_t *)vector_get (scope_body, i);
                 if (!var)
                         continue;
 
@@ -344,6 +408,13 @@ parser_parse_fnparams (parser_t *p)
                                 "param(%s) = value(%s)\n",
                                 token_kind_to_str (param->type), param->text);
 
+                        arg_node_t *dparam = NULL;
+                        if (thiz_is_func_arg (&p->thiz, param->text, &dparam))
+                        {
+                                found = true;
+                                fn_param.arg_n = dparam->arg_n;
+                        }
+
                         if (!found)
                         {
                                 parser_error (p, param,
@@ -421,7 +492,7 @@ parser_parse_import (parser_t *p)
                 char *path = dname (p->filename);
                 snprintf (buf, sizeof buf, "%s/%s", path, path_token->text);
                 free (path);
-                if (file_open (&file, path, FILE_MODE_READ) != 0)
+                if (file_open (&file, buf, FILE_MODE_READ) != 0)
                         parser_error (p, parser_current (p, 0),
                                       "Can't import %s: %s", path_token->text,
                                       strerror (errno));
@@ -484,15 +555,14 @@ parser_parse_function (parser_t *p)
                         break;
                 }
 
-                char *name = parser_consume (p, TOKEN_IDENTIFIER)->text;
+                const char *name = parser_consume (p, TOKEN_IDENTIFIER)->text;
                 parser_consume (p, TOKEN_COLON);
-                char *type = parser_consume (p, TOKEN_TYPE)->text;
+                const char *type = parser_consume (p, TOKEN_TYPE)->text;
 
-                param_node_t *param = malloc (sizeof (*param));
-                param->arg_n.s = strdup (name);
-                param->arg_n.type = str_to_node_value_kind (type);
-                // param->typeStr = strdup(type);
-                vector_push_back (fn.function_n.params, param);
+                param_node_t param = make_node (NODE_PARAM);
+                param.param_n.name = strdup (name);
+                param.param_n.kind = str_to_node_value_kind (type);
+                vector_push_back (fn.function_n.params, &param);
 
                 next = parser_current (p, 0);
                 if (next->type == TOKEN_COMMA)
@@ -516,7 +586,7 @@ parser_parse_function (parser_t *p)
 
         parser_consume (p, TOKEN_LBRACE);
         fn.function_n.body = vector_make (sizeof (node_t));
-        p->scope_body = fn.function_n.body;
+        thiz_set_func (&p->thiz, &fn);
         while ((parser_current (p, 0))->type != TOKEN_RBRACE)
         {
                 node_t n = parser_parse_statement (p);
@@ -626,7 +696,7 @@ parser_parse_function (parser_t *p)
                         }
                 }
         }
-        p->scope_body = NULL;
+        thiz_release_func (&p->thiz);
         return fn;
 }
 
@@ -649,9 +719,9 @@ parse_fndecl_params (parser_t *p)
 
                 vector_push_back (
                     params,
-                    &(node_t){ .type = NODE_ARG,
-                               .arg_n.s = strdup (name),
-                               .arg_n.type = str_to_node_value_kind (type) });
+                    &(node_t){ .type = NODE_PARAM,
+                               .param_n.name = strdup (name),
+                               .param_n.kind = str_to_node_value_kind (type) });
 
                 tk = parser_current (p, 0);
                 if (tk->type == TOKEN_COMMA)
@@ -954,7 +1024,7 @@ parser_make (const char *filename, token_vector_t *tokens)
         parser_t *p = malloc (sizeof (*p));
         p->tokens = tokens;
         p->nodes = vector_make (sizeof (node_t));
-        p->scope_body = NULL;
+        p->thiz.func = NULL;
         p->pos = 0;
         p->filename = filename;
         return p;

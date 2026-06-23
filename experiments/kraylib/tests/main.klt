@@ -1,6 +1,6 @@
 import "kraylib.klt"
 
-work Main(): Int
+work Main(argv: Int, argv: String): Int
 {
 	InitWindow <- 800, 400, "Window"
 	return <- 0

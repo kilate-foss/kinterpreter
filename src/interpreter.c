@@ -116,7 +116,7 @@ coerce_value (interpreter_t *self, value_t value, node_value_kind_t target,
         return true;
 }
 
-typedef bool (*valid_fn_args_callback_t) (interpreter_t *self, value_t *,
+typedef bool (*valid_fn_args_callback_t) (interpreter_t *self, param_node_t *,
                                           safe_value_t);
 static bool
 valid_fn_args (interpreter_t *self, node_t *node, node_arg_vector_t *args,
@@ -152,7 +152,7 @@ valid_fn_args (interpreter_t *self, node_t *node, node_arg_vector_t *args,
 
         if (args && !fn->params)
         {
-                if (str_equals(fn->name, MAIN_FUNCTION_NAME))
+                if (str_equals (fn->name, MAIN_FUNCTION_NAME))
                 {
                         error_fatal (
                             "error[%s]: " MAIN_FUNCTION_NAME
@@ -172,34 +172,29 @@ valid_fn_args (interpreter_t *self, node_t *node, node_arg_vector_t *args,
 
         for (size_t i = 0; i < args->size; ++i)
         {
-                safe_value_t arg;
-                value_t *param;
-                {
-                        arg_node_t *arg_node
-                            = (arg_node_t *)vector_get (args, i);
-                        param_node_t *param_node
-                            = (param_node_t *)vector_get (fn->params, i);
-                        arg = get_safe_value (self, arg_node);
-                        param = &param_node->arg_n;
-                }
+                param_node_t *param_node
+                    = (param_node_t *)vector_get (fn->params, i);
+                arg_node_t *arg_node = (arg_node_t *)vector_get (args, i);
+                safe_value_t arg_value = get_safe_value (self, arg_node);
 
                 // arg.s => argument name
                 // arg.type => argument type
                 value_t coerced = { 0 };
-                if (param->type != NODE_VALUE_TYPE_ANY
-                    && (!coerce_value (self, arg.value, param->type, &coerced)
-                        && arg.type != param->type))
+                if (param_node->param_n.kind != NODE_VALUE_TYPE_ANY
+                    && (!coerce_value (self, arg_value.value,
+                                       param_node->param_n.kind, &coerced)
+                        && arg_value.type != param_node->param_n.kind))
                 {
                         error_fatal (
                             "error[%s]: Argument %s with type %s is not the "
                             "actual expected by the Function %s. Expected "
                             "type: %s.",
-                            self->filename, param->s,
-                            node_value_kind_to_str (arg.type), fn->name,
-                            node_value_kind_to_str (param->type));
+                            self->filename, param_node->param_n.name,
+                            node_value_kind_to_str (arg_value.type), fn->name,
+                            node_value_kind_to_str (param_node->param_n.kind));
                 }
 
-                if (!callback (self, param, arg))
+                if (!callback (self, param_node, arg_value))
                         break;
         }
 
@@ -207,20 +202,21 @@ valid_fn_args (interpreter_t *self, node_t *node, node_arg_vector_t *args,
 }
 
 static bool
-define_args_in_env (interpreter_t *self, value_t *param, safe_value_t arg)
+define_args_in_env (interpreter_t *self, param_node_t *param_node,
+                    safe_value_t arg_value)
 {
 
         vardecl_node_t var = make_node (NODE_VARDECL);
-        var.vardecl_n.name = strdup (param->s);
-        var.vardecl_n.type = strdup (node_value_kind_to_str (param->type));
-        var.vardecl_n.value = arg.value;
+        var.vardecl_n.name = strdup (param_node->param_n.name);
+        var.vardecl_n.type
+            = strdup (node_value_kind_to_str (param_node->param_n.kind));
+        var.vardecl_n.value = arg_value.value;
         env_definevar (self->env, var.vardecl_n.name, node_copy (&var));
         return true;
 }
 
 static interpreter_result_t
-_interpreter_run_fn (interpreter_t *self, node_t *func,
-                     node_arg_vector_t *params)
+_interpreter_run_fn (interpreter_t *self, node_t *func)
 {
         if (self == NULL)
         {
@@ -440,7 +436,7 @@ interpreter_run_fn (interpreter_t *self, node_t *fn, node_arg_vector_t *args)
 
         if (fn->type == NODE_FUNCTION && !fn->function_n.native)
         {
-                return _interpreter_run_fn (self, fn, args);
+                return _interpreter_run_fn (self, fn);
         }
 
         if (fn->type == NODE_NATIVE_FUNCTION && fn->function_n.native)

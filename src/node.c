@@ -105,28 +105,34 @@ node_copy (node_t *n)
                           ? strdup (n->function_n.return_type)
                           : NULL;
 
-                new->function_n.body = vector_make (sizeof (node_t *));
-                for (size_t i = 0; i < n->function_n.body->size; ++i)
+                if (n->function_n.body)
                 {
-                        node_t *child
-                            = (node_t *)vector_get (n->function_n.body, i);
-
-                        node_t *copy = node_copy (child);
-
-                        vector_push_back (new->function_n.body, copy);
+                        new->function_n.body = vector_make (sizeof (node_t));
+                        vector_reserve (new->function_n.body,
+                                        n->function_n.body->size);
+                        for (size_t i = 0; i < n->function_n.body->size; ++i)
+                        {
+                                node_t *child = (node_t *)vector_get (
+                                    n->function_n.body, i);
+                                vector_push_back (new->function_n.body,
+                                                  node_copy (child));
+                        }
                 }
 
-                new->function_n.params = vector_make (sizeof (param_node_t *));
-                for (size_t i = 0; i < n->function_n.params->size; ++i)
+                if (n->function_n.params)
                 {
-
-                        param_node_t *param = (param_node_t *)vector_get (
-                            n->function_n.params, i);
-
-                        param_node_t *param_copy
-                            = (param_node_t *)node_copy ((node_t *)param);
-
-                        vector_push_back (new->function_n.params, param_copy);
+                        new->function_n.params
+                            = vector_make (sizeof (param_node_t));
+                        vector_reserve (new->function_n.params,
+                                        n->function_n.params->size);
+                        for (size_t i = 0; i < n->function_n.params->size; ++i)
+                        {
+                                param_node_t *param
+                                    = (param_node_t *)vector_get (
+                                        n->function_n.params, i);
+                                vector_push_back (new->function_n.params,
+                                                  node_copy (param));
+                        }
                 }
         }
         else if (n->type == NODE_CALL)
@@ -172,6 +178,12 @@ node_copy (node_t *n)
         {
                 new->arg_n = n->arg_n;
         }
+        else if (n->type == NODE_PARAM)
+        {
+                new->param_n.kind = n->param_n.kind;
+                new->param_n.name
+                    = (n->param_n.name) ? strdup (n->param_n.name) : NULL;
+        }
 
         return new;
 }
@@ -195,6 +207,8 @@ node_kind_tostr (node_kind_t k)
                 return "Import";
         case NODE_ARG:
                 return "Arg";
+        case NODE_PARAM:
+                return "Param";
         case NODE_VARDECL:
                 return "VarDecl";
         case NODE_NATIVEDECL:

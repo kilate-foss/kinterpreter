@@ -14,9 +14,9 @@
 namespace kraylib
 {
 
-DECLARE_NATIVE(init_window, nullptr, kilate::node::arg("width", NODE_VALUE_TYPE_UINT),
-               kilate::node::arg("height", NODE_VALUE_TYPE_UINT),
-               kilate::node::arg("name", NODE_VALUE_TYPE_STRING))
+DECLARE_NATIVE(init_window, nullptr, kilate::node::param("width", NODE_VALUE_TYPE_UINT),
+               kilate::node::param("height", NODE_VALUE_TYPE_UINT),
+               kilate::node::param("name", NODE_VALUE_TYPE_STRING))
 {
     assert(d != nullptr && "native function data is null.");
 
@@ -29,7 +29,7 @@ DECLARE_NATIVE(init_window, nullptr, kilate::node::arg("width", NODE_VALUE_TYPE_
     return make_node(NODE_RETURN);
 }
 
-DECLARE_NATIVE(clear_background, nullptr, kilate::node::arg("color", NODE_VALUE_TYPE_UINT))
+DECLARE_NATIVE(clear_background, nullptr, kilate::node::param("color", NODE_VALUE_TYPE_UINT))
 {
     auto unpack_color = [](std::uint32_t c) -> Color
     {
@@ -63,10 +63,10 @@ DECLARE_NATIVE(end_drawing, nullptr)
     return make_node(NODE_RETURN);
 }
 
-DECLARE_NATIVE(Color, "UInt", kilate::node::arg("red", NODE_VALUE_TYPE_UINT),
-               kilate::node::arg("green", NODE_VALUE_TYPE_UINT),
-               kilate::node::arg("blue", NODE_VALUE_TYPE_UINT),
-               kilate::node::arg("alpha", NODE_VALUE_TYPE_UINT))
+DECLARE_NATIVE(make_color, "UInt", kilate::node::param("red", NODE_VALUE_TYPE_UINT),
+               kilate::node::param("green", NODE_VALUE_TYPE_UINT),
+               kilate::node::param("blue", NODE_VALUE_TYPE_UINT),
+               kilate::node::param("alpha", NODE_VALUE_TYPE_UINT))
 {
     auto pack_color = [](unsigned char r, unsigned char g, unsigned char b,
                          unsigned char a) -> std::uint32_t
