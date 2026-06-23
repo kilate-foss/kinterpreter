@@ -1,15 +1,22 @@
 require "fileutils"
+require "rbconfig"
 require_relative "experiments/make.rb"
 
 install_arg = false
 tests_arg = false
-termux_arg = false
 debug_arg = false
 asan_arg = false
 clean_arg = false
 lib_so_arg = false
 compile_commands_json_arg = false
 experiments_arg = false
+
+is_termux = false
+os = RbConfig::CONFIG["host_os"]
+case os
+  when /android/i
+    is_termux = true
+end
 
 YELLOW = "\e[33m"
 LGREEN = "\e[92m"
@@ -48,8 +55,6 @@ ARGV.each do |arg|
       install_arg = true
     when "-t", "--tests"
       tests_arg = true
-    when "-t", "--termux"
-      termux_arg = true
     when "-g", "--debug"
       debug_arg = true
     when "-as", "--asan"
@@ -72,6 +77,7 @@ end
 ENV["ASAN"] = "ON" if asan_arg
 
 FileUtils.rm_rf("build") if clean_arg
+FileUtils.rm_rf("experiments/kraylib/build") if clean_arg
 FileUtils.mkdir_p("build")
 
 if lib_so_arg
@@ -108,7 +114,7 @@ end
 
 if experiments_arg
   Dir.chdir "experiments" do
-    Experiments::KrayLib.build termux_arg
+    Experiments::KrayLib.build is_termux
   end
 end
 
