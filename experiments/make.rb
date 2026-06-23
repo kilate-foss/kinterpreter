@@ -16,7 +16,7 @@ module Experiments
 
     def self.install
       Dir.chdir "kraylib" do
-        run "meson compile -C build"
+        run "meson install -C build"
       end
     end
 
