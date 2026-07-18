@@ -4,9 +4,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "kilate/bool.h"
-#include "kilate/error.h"
-
 size_t
 str_index_of (const char *s, char ch, size_t offset)
 {
