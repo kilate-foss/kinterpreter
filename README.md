@@ -26,7 +26,7 @@ cd kilate
 ### 3. Install
 
 ```
-ruby build.rb --install
+ruby make.rb --install
 ```
 
 ## How to use Kilate
