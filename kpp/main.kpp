@@ -1,0 +1,20 @@
+// unfoutenely, to use extern,
+// you need to know types.
+// although language dgaf about typed
+extern work puts(pointer) -> int from "c"
+
+struct person
+{
+    let name = null
+    let age = null
+
+    work init(self, name, age)
+    {
+        self.name = name
+        self.age = age
+    }
+}
+
+
+let eu = person::new("Aquiles", 15)
+puts("oie".get_type())

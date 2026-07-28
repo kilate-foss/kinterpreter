@@ -1,0 +1,44 @@
+[
+  {
+    "directory": "/data/data/com.termux/files/home/projs/kilate/kpp/.build",
+    "command": "c++ -Ikpp.p -I. -I.. -I../include -I/data/data/com.termux/files/usr/include -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -std=c++26 -O0 -g -fPIE -MD -MQ kpp.p/src_main.cpp.o -MF kpp.p/src_main.cpp.o.d -o kpp.p/src_main.cpp.o -c ../src/main.cpp",
+    "file": "../src/main.cpp",
+    "output": "kpp.p/src_main.cpp.o"
+  },
+  {
+    "directory": "/data/data/com.termux/files/home/projs/kilate/kpp/.build",
+    "command": "c++ -Ikpp.p -I. -I.. -I../include -I/data/data/com.termux/files/usr/include -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -std=c++26 -O0 -g -fPIE -MD -MQ kpp.p/src_lexer.cpp.o -MF kpp.p/src_lexer.cpp.o.d -o kpp.p/src_lexer.cpp.o -c ../src/lexer.cpp",
+    "file": "../src/lexer.cpp",
+    "output": "kpp.p/src_lexer.cpp.o"
+  },
+  {
+    "directory": "/data/data/com.termux/files/home/projs/kilate/kpp/.build",
+    "command": "c++ -Ikpp.p -I. -I.. -I../include -I/data/data/com.termux/files/usr/include -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -std=c++26 -O0 -g -fPIE -MD -MQ kpp.p/src_parser.cpp.o -MF kpp.p/src_parser.cpp.o.d -o kpp.p/src_parser.cpp.o -c ../src/parser.cpp",
+    "file": "../src/parser.cpp",
+    "output": "kpp.p/src_parser.cpp.o"
+  },
+  {
+    "directory": "/data/data/com.termux/files/home/projs/kilate/kpp/.build",
+    "command": "c++ -Ikpp.p -I. -I.. -I../include -I/data/data/com.termux/files/usr/include -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -std=c++26 -O0 -g -fPIE -MD -MQ kpp.p/src_token.cpp.o -MF kpp.p/src_token.cpp.o.d -o kpp.p/src_token.cpp.o -c ../src/token.cpp",
+    "file": "../src/token.cpp",
+    "output": "kpp.p/src_token.cpp.o"
+  },
+  {
+    "directory": "/data/data/com.termux/files/home/projs/kilate/kpp/.build",
+    "command": "c++ -Ikpp.p -I. -I.. -I../include -I/data/data/com.termux/files/usr/include -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -std=c++26 -O0 -g -fPIE -MD -MQ kpp.p/src_interpreter.cpp.o -MF kpp.p/src_interpreter.cpp.o.d -o kpp.p/src_interpreter.cpp.o -c ../src/interpreter.cpp",
+    "file": "../src/interpreter.cpp",
+    "output": "kpp.p/src_interpreter.cpp.o"
+  },
+  {
+    "directory": "/data/data/com.termux/files/home/projs/kilate/kpp/.build",
+    "command": "c++ -Ikpp.p -I. -I.. -I../include -I/data/data/com.termux/files/usr/include -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -std=c++26 -O0 -g -fPIE -MD -MQ kpp.p/src_function.cpp.o -MF kpp.p/src_function.cpp.o.d -o kpp.p/src_function.cpp.o -c ../src/function.cpp",
+    "file": "../src/function.cpp",
+    "output": "kpp.p/src_function.cpp.o"
+  },
+  {
+    "directory": "/data/data/com.termux/files/home/projs/kilate/kpp/.build",
+    "command": "c++ -Ikpp.p -I. -I.. -I../include -I/data/data/com.termux/files/usr/include -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -std=c++26 -O0 -g -fPIE -MD -MQ kpp.p/src_object.cpp.o -MF kpp.p/src_object.cpp.o.d -o kpp.p/src_object.cpp.o -c ../src/object.cpp",
+    "file": "../src/object.cpp",
+    "output": "kpp.p/src_object.cpp.o"
+  }
+]

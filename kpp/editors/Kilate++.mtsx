@@ -1,0 +1,31 @@
+{
+    name: ["Kilate++", ".kpp"]
+
+    styles: [
+        "directive" > "label",
+        "funcname"  > "tagName",
+        "typename"  > "type",
+        "path-delim" > "operator",
+        "doc-comment" > "namespace"
+    ]
+
+    comment: {startsWith: "//"}
+
+    contains: [
+        {builtin: #C_QUOTED_STRING#}
+        {builtin: #C_NUMBER#}
+
+        {
+            match: /@[A-Za-z_][A-Za-z0-9_]*/,
+            0: "directive"
+        }
+
+        {
+            match: keywordsToRegex(
+                "work do end return false true null let"
+                "extern struct namespace"
+            ),
+            0: "keyword"
+        }
+    ]
+}
